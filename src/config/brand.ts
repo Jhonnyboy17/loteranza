@@ -10,7 +10,7 @@ import { env } from './env';
 
 export const brand = {
   name: env.brandName,
-  tagline: 'Jackpots americanos, do seu jeito e em portugues',
+  tagline: 'Jackpots americanos, do seu jeito e em português',
   legalEntity: env.legalEntity,
   supportEmail: env.supportEmail,
 
