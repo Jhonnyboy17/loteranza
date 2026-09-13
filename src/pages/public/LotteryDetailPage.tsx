@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { CalendarDays, Info } from 'lucide-react';
-import type { GameLine } from '@/types/domain';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Check, Copy, Plus, Trash2 } from 'lucide-react';
+import type { GameLine, LotteryGame } from '@/types/domain';
 import { brand } from '@/config/brand';
 import { usePlatform } from '@/contexts/PlatformContext';
 import { useCart } from '@/contexts/CartContext';
@@ -10,8 +10,7 @@ import {
   useGame, useHistoricalResults, usePrizeTiers, useUpcomingDraws,
 } from '@/hooks/useLotteryQueries';
 import {
-  formatDate, formatDrawMoment, formatJackpotCompact, formatOdds, formatUSD,
-  timeZoneLabel, weekdayName,
+  formatBRL, formatDate, formatOdds, formatUSD, weekdayName,
 } from '@/lib/format';
 import { convert } from '@/services/exchange/exchangeService';
 import { priceLines } from '@/services/pricing';
@@ -19,27 +18,26 @@ import { Seo } from '@/components/common/Seo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Checkbox, Separator } from '@/components/ui/misc';
 import {
-  Accordion, AccordionContent, AccordionItem, AccordionTrigger, Separator,
-} from '@/components/ui/misc';
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrapper } from '@/components/ui/table';
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrapper,
+} from '@/components/ui/table';
 import { ErrorState, LoadingCards } from '@/components/common/states';
-import { Countdown } from '@/components/lottery/Countdown';
+import { GameTheme } from '@/components/lottery/GameTheme';
+import { GameBanner } from '@/components/lottery/GameBanner';
 import { NumberPicker } from '@/components/lottery/NumberPicker';
-import { QuickPickBar } from '@/components/lottery/QuickPickBar';
-import { GameLineList } from '@/components/lottery/GameLineList';
 import { NumberSequence } from '@/components/lottery/NumberBall';
-import { CartSummary } from '@/components/cart/CartSummary';
-import { StickyCartBar } from '@/components/cart/StickyCartBar';
 import { JurisdictionNotice } from '@/components/compliance/notices';
+import { cn } from '@/lib/utils';
 
+type Step = 'numeros' | 'revisar';
+
+const QUICK_COUNTS = [2, 3, 5, 10];
 const DRAW_PRESETS = [1, 2, 5, 10];
 
 export function LotteryDetailPage() {
   const { gameKey } = useParams<{ gameKey: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { rate, jurisdiction } = usePlatform();
   const { addItem, setOpen } = useCart();
@@ -49,58 +47,71 @@ export function LotteryDetailPage() {
   const game = gameQuery.data ?? null;
 
   const drawsQuery = useUpcomingDraws(game?.id, game?.maxDrawsAhead ?? 10);
-  const tiersQuery = usePrizeTiers(game?.id);
-  const resultsQuery = useHistoricalResults(game?.id, { limit: 10 });
+  const draws = drawsQuery.data ?? [];
+  const nextDraw = draws[0] ?? null;
 
   const [lines, setLines] = React.useState<GameLine[]>([]);
   const [drawsCount, setDrawsCount] = React.useState(1);
-  const [selectedDrawId, setSelectedDrawId] = React.useState<string | null>(null);
+  const [multiplier, setMultiplier] = React.useState(false);
 
-  const draws = drawsQuery.data ?? [];
-  const nextDraw = draws[0] ?? null;
-  const activeDraw = draws.find((d) => d.id === selectedDrawId) ?? nextDraw;
+  // A etapa vive na URL: o botão voltar do navegador funciona naturalmente.
+  const step: Step = searchParams.get('etapa') === 'revisar' ? 'revisar' : 'numeros';
+  const goToStep = React.useCallback(
+    (next: Step) => {
+      setSearchParams(next === 'numeros' ? {} : { etapa: next });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    [setSearchParams],
+  );
 
-  const remainingSlots = game ? game.maxLinesPerOrder - lines.length : 0;
+  // Sem nenhuma aposta montada não há o que revisar — volta para a etapa 1.
+  React.useEffect(() => {
+    if (step === 'revisar' && lines.length === 0) setSearchParams({});
+  }, [step, lines.length, setSearchParams]);
 
-  const addLines = React.useCallback((incoming: Omit<GameLine, 'id'>[]) => {
-    setLines((current) => {
-      const room = (game?.maxLinesPerOrder ?? 20) - current.length;
+  const addLines = React.useCallback(
+    (incoming: Omit<GameLine, 'id'>[]) => {
+      const room = (game?.maxLinesPerOrder ?? 20) - lines.length;
       const accepted = incoming.slice(0, Math.max(0, room));
-      return [...current, ...accepted.map((line) => ({ ...line, id: `line-${crypto.randomUUID()}` }))];
-    });
-  }, [game?.maxLinesPerOrder]);
+      if (accepted.length === 0) {
+        toast({
+          title: `Limite de ${game?.maxLinesPerOrder} jogos por pedido`,
+          variant: 'warning',
+        });
+        return;
+      }
+      setLines((current) => [
+        ...current,
+        ...accepted.map((line) => ({ ...line, id: `line-${crypto.randomUUID()}` })),
+      ]);
+      goToStep('revisar');
+    },
+    [game?.maxLinesPerOrder, lines.length, goToStep, toast],
+  );
 
   const totals = React.useMemo(() => {
-    if (!game) {
-      return {
-        lineCount: 0, betCount: 0, officialCost: 0, serviceFee: 0, total: 0,
-        currency: 'USD', totalDisplay: null, displayCurrency: 'BRL',
-        exchangeRate: null, exchangeRateAt: null, exchangeRateSource: null,
-      };
-    }
-    const price = priceLines(game, lines, drawsCount);
-    return {
-      lineCount: lines.length,
-      betCount: lines.length * drawsCount,
-      officialCost: price.official,
-      serviceFee: price.fee,
-      total: price.total,
-      currency: game.currency,
-      totalDisplay: rate ? convert(price.total, rate) : null,
-      displayCurrency: 'BRL',
-      exchangeRate: rate?.effectiveRate ?? null,
-      exchangeRateAt: rate?.capturedAt ?? null,
-      exchangeRateSource: rate?.source ?? null,
-    };
-  }, [game, lines, drawsCount, rate]);
+    if (!game) return null;
+    const withOptions = lines.map((line) => ({
+      ...line,
+      options: multiplier && game.multiplierEnabled ? { multiplier: true } : {},
+    }));
+    return priceLines(game, withOptions, drawsCount);
+  }, [game, lines, drawsCount, multiplier]);
 
   const handleAddToCart = () => {
     if (!game || lines.length === 0) return;
-    addItem(game, lines.map(({ id: _id, ...rest }) => rest), activeDraw?.id ?? null, drawsCount);
+    const payload = lines.map(({ id: _id, ...rest }) => ({
+      ...rest,
+      options: multiplier && game.multiplierEnabled ? { multiplier: true } : {},
+    }));
+    addItem(game, payload, nextDraw?.id ?? null, drawsCount);
     setLines([]);
+    setMultiplier(false);
+    setDrawsCount(1);
+    setSearchParams({});
     toast({
       title: 'Adicionado ao carrinho',
-      description: `${lines.length} ${lines.length === 1 ? 'jogo' : 'jogos'} de ${game.name}.`,
+      description: `${payload.length} ${payload.length === 1 ? 'jogo' : 'jogos'} de ${game.name}.`,
       variant: 'success',
     });
     setOpen(true);
@@ -122,10 +133,8 @@ export function LotteryDetailPage() {
     );
   }
 
-  const jackpot = activeDraw?.advertisedJackpot ?? game.currentJackpot;
-
   return (
-    <div className="pb-24 lg:pb-10">
+    <GameTheme game={game} className="pb-16">
       <Seo
         title={`${game.name} — jackpot, sorteios e como jogar`}
         description={`${game.name}: jackpot estimado, data do próximo sorteio, regras de números, tabela de premiação e resultados anteriores.`}
@@ -139,273 +148,370 @@ export function LotteryDetailPage() {
         }}
       />
 
-      {/* ------------------------------------------------------------ CABEÇALHO */}
-      <header className="border-b border-border bg-muted/30">
-        <div className="container py-8">
-          <div className="flex flex-wrap items-start justify-between gap-6">
-            <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <span
-                  aria-hidden
-                  className="size-3 rounded-full"
-                  style={{ backgroundColor: game.brandColor ?? 'hsl(var(--primary))' }}
-                />
-                <h1 className="text-display-xl font-extrabold">{game.name}</h1>
-                {game.isDemo && <Badge variant="demo">Dados demonstrativos</Badge>}
-              </div>
-              {game.operatorName && (
-                <p className="text-sm text-muted-foreground">
-                  Operada por {game.operatorName}. {brand.affiliationDisclaimer}
-                </p>
-              )}
-            </div>
+      <GameBanner game={game} draw={nextDraw} rate={rate} />
 
-            <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Jackpot estimado
-              </p>
-              {jackpot !== null ? (
-                <>
-                  <p className="font-display text-display-lg font-extrabold">
-                    {formatJackpotCompact(jackpot)}
-                  </p>
-                  {rate && (
-                    <p className="text-sm text-muted-foreground">
-                      ≈ {formatJackpotCompact(convert(jackpot, rate), 'BRL')} (estimativa)
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p className="text-muted-foreground">Valor ainda não informado.</p>
-              )}
-            </div>
-          </div>
+      <div className="container max-w-3xl py-10">
+        <StepIndicator step={step} lineCount={lines.length} />
 
-          {activeDraw && (
-            <div className="mt-6 flex flex-wrap items-end gap-x-10 gap-y-4">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Próximo sorteio
-                </p>
-                <p className="mt-1 font-medium">
-                  {formatDrawMoment(activeDraw.drawAt, game.timezone)} ·{' '}
-                  {formatDate(activeDraw.drawDate)}{' '}
-                  <span className="text-xs font-normal text-muted-foreground">
-                    (horário oficial {timeZoneLabel(activeDraw.drawAt, game.timezone)})
-                  </span>
-                </p>
-              </div>
-              <Countdown target={activeDraw.salesCloseAt} label="Pedidos encerram em" />
-            </div>
-          )}
+        {step === 'numeros' ? (
+          <StepNumbers
+            game={game}
+            lineCount={lines.length}
+            onAdd={(line) => addLines([line])}
+            onQuickGenerate={addLines}
+            onBackToReview={lines.length > 0 ? () => goToStep('revisar') : undefined}
+          />
+        ) : (
+          <StepReview
+            game={game}
+            lines={lines}
+            drawsCount={drawsCount}
+            multiplier={multiplier}
+            totals={totals}
+            rate={rate}
+            jurisdiction={jurisdiction}
+            onDrawsCountChange={setDrawsCount}
+            onMultiplierChange={setMultiplier}
+            onAddMore={() => goToStep('numeros')}
+            onRemove={(id) => setLines((c) => c.filter((l) => l.id !== id))}
+            onDuplicate={(id) =>
+              setLines((c) => {
+                const source = c.find((l) => l.id === id);
+                if (!source || c.length >= game.maxLinesPerOrder) return c;
+                return [...c, { ...source, id: `line-${crypto.randomUUID()}` }];
+              })
+            }
+            onConfirm={handleAddToCart}
+          />
+        )}
+      </div>
+
+      <GameReference game={game} />
+    </GameTheme>
+  );
+}
+
+/* ========================================================================== */
+
+function StepIndicator({ step, lineCount }: { step: Step; lineCount: number }) {
+  const steps: { key: Step; label: string }[] = [
+    { key: 'numeros', label: 'Seus números' },
+    { key: 'revisar', label: 'Revisar' },
+  ];
+  const activeIndex = steps.findIndex((s) => s.key === step);
+
+  return (
+    <ol className="mb-8 flex items-center justify-center gap-3" aria-label="Etapas">
+      {steps.map((item, index) => {
+        const done = index < activeIndex || (index === 0 && lineCount > 0 && step === 'revisar');
+        const current = index === activeIndex;
+        return (
+          <li key={item.key} className="flex items-center gap-3">
+            <span className="flex items-center gap-2">
+              <span
+                className={cn(
+                  'flex size-7 items-center justify-center rounded-full text-xs font-bold transition',
+                  done && 'bg-primary text-primary-foreground',
+                  current && !done && 'bg-primary text-primary-foreground',
+                  !current && !done && 'bg-muted text-muted-foreground',
+                )}
+                aria-current={current ? 'step' : undefined}
+              >
+                {done && !current ? <Check className="size-4" aria-hidden /> : index + 1}
+              </span>
+              <span className={cn('text-sm', current ? 'font-semibold' : 'text-muted-foreground')}>
+                {item.label}
+              </span>
+            </span>
+            {index < steps.length - 1 && (
+              <span className="h-px w-8 bg-border sm:w-12" aria-hidden />
+            )}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/* ========================================================================== */
+
+function StepNumbers({
+  game, lineCount, onAdd, onQuickGenerate, onBackToReview,
+}: {
+  game: LotteryGame;
+  lineCount: number;
+  onAdd: (line: Omit<GameLine, 'id'>) => void;
+  onQuickGenerate: (lines: Omit<GameLine, 'id'>[]) => void;
+  onBackToReview?: () => void;
+}) {
+  const allowsRepetition = game.mainNumberMin === 0;
+
+  const generate = (count: number) => {
+    // Import dinâmico evitaria carregar o RNG antes da hora; aqui o custo é
+    // irrelevante e a leitura fica mais simples.
+    import('@/lib/rng').then(({ pickDistinct, pickWithRepetition }) => {
+      onQuickGenerate(
+        Array.from({ length: count }, () => ({
+          numbers: allowsRepetition
+            ? pickWithRepetition(game.mainNumbersCount, game.mainNumberMin, game.mainNumberMax)
+            : pickDistinct(game.mainNumbersCount, game.mainNumberMin, game.mainNumberMax),
+          specialNumbers:
+            game.specialNumbersCount > 0
+              ? pickDistinct(game.specialNumbersCount, game.specialNumberMin, game.specialNumberMax)
+              : [],
+          isQuickPick: true,
+          options: {},
+        })),
+      );
+    });
+  };
+
+  return (
+    <div className="space-y-8">
+      {onBackToReview && (
+        <Button variant="ghost" size="sm" onClick={onBackToReview} className="-ml-3">
+          <ArrowLeft aria-hidden /> Voltar para os {lineCount} jogos
+        </Button>
+      )}
+
+      <NumberPicker game={game} onSubmit={onAdd} submitLabel="Continuar" />
+
+      <div className="space-y-3 border-t border-border pt-6">
+        <p className="text-center text-sm text-muted-foreground">
+          ou gere vários de uma vez
+        </p>
+        <div className="flex flex-wrap justify-center gap-2">
+          {QUICK_COUNTS.map((count) => (
+            <Button key={count} variant="outline" size="sm" onClick={() => generate(count)}>
+              {count} jogos
+            </Button>
+          ))}
         </div>
-      </header>
+      </div>
 
-      <div className="container py-8">
-        <Tabs defaultValue="jogar">
+      <p className="text-center text-xs text-muted-foreground">{brand.oddsNotice}</p>
+    </div>
+  );
+}
+
+/* ========================================================================== */
+
+function StepReview({
+  game, lines, drawsCount, multiplier, totals, rate, jurisdiction,
+  onDrawsCountChange, onMultiplierChange, onAddMore, onRemove, onDuplicate, onConfirm,
+}: {
+  game: LotteryGame;
+  lines: GameLine[];
+  drawsCount: number;
+  multiplier: boolean;
+  totals: { official: number; fee: number; total: number } | null;
+  rate: ReturnType<typeof usePlatform>['rate'];
+  jurisdiction: ReturnType<typeof usePlatform>['jurisdiction'];
+  onDrawsCountChange: (n: number) => void;
+  onMultiplierChange: (v: boolean) => void;
+  onAddMore: () => void;
+  onRemove: (id: string) => void;
+  onDuplicate: (id: string) => void;
+  onConfirm: () => void;
+}) {
+  const brl = totals && rate ? convert(totals.total, rate) : null;
+
+  return (
+    <div className="space-y-8">
+      {/* Jogos montados */}
+      <section className="space-y-3">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="font-display text-lg font-semibold">
+            {lines.length} {lines.length === 1 ? 'jogo' : 'jogos'}
+          </h2>
+        </div>
+
+        <ul className="space-y-2">
+          {lines.map((line, index) => (
+            <li
+              key={line.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-3"
+            >
+              <div className="flex min-w-0 flex-wrap items-center gap-3">
+                <span className="tnum w-6 text-sm text-muted-foreground">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <NumberSequence
+                  numbers={line.numbers}
+                  specialNumbers={line.specialNumbers}
+                  size="sm"
+                />
+              </div>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost" size="icon"
+                  onClick={() => onDuplicate(line.id)}
+                  aria-label={`Duplicar jogo ${index + 1}`}
+                >
+                  <Copy aria-hidden />
+                </Button>
+                <Button
+                  variant="ghost" size="icon"
+                  onClick={() => onRemove(line.id)}
+                  aria-label={`Remover jogo ${index + 1}`}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 aria-hidden />
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <Button variant="outline" size="lg" block onClick={onAddMore}>
+          <Plus aria-hidden /> Adicionar outro jogo
+        </Button>
+      </section>
+
+      {/* Sorteios */}
+      <section className="space-y-3">
+        <h2 className="font-display text-lg font-semibold">Em quantos sorteios?</h2>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Quantidade de sorteios">
+          {DRAW_PRESETS.filter((n) => n <= game.maxDrawsAhead).map((count) => (
+            <Button
+              key={count}
+              variant={drawsCount === count ? 'primary' : 'outline'}
+              size="lg"
+              onClick={() => onDrawsCountChange(count)}
+              aria-pressed={drawsCount === count}
+              className="flex-1"
+            >
+              {count}
+            </Button>
+          ))}
+        </div>
+      </section>
+
+      {/* Multiplicador, quando a modalidade oferece */}
+      {game.multiplierEnabled && (
+        <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card p-4">
+          <Checkbox
+            checked={multiplier}
+            onCheckedChange={(checked) => onMultiplierChange(checked === true)}
+          />
+          <span className="flex-1">
+            <span className="block font-medium">{game.multiplierLabel}</span>
+            <span className="block text-sm text-muted-foreground">
+              + {formatUSD(game.multiplierPrice)} por jogo
+            </span>
+          </span>
+        </label>
+      )}
+
+      {/* Preço — produto e taxa sempre separados */}
+      {totals && (
+        <section className="space-y-3 rounded-xl border border-border bg-card p-5">
+          <dl className="space-y-2 text-sm">
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">Apostas</dt>
+              <dd className="tnum">{formatUSD(totals.official)}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">Taxa de serviço</dt>
+              <dd className="tnum">{formatUSD(totals.fee)}</dd>
+            </div>
+            <Separator />
+            <div className="flex items-baseline justify-between gap-4">
+              <dt className="font-semibold">Total</dt>
+              <dd className="tnum font-display text-2xl font-bold">{formatUSD(totals.total)}</dd>
+            </div>
+          </dl>
+          {brl !== null && (
+            <p className="text-right text-sm text-muted-foreground">
+              ≈ {formatBRL(brl)} <span className="text-xs">(estimativa)</span>
+            </p>
+          )}
+        </section>
+      )}
+
+      {!jurisdiction?.transactionsEnabled && (
+        <JurisdictionNotice jurisdiction={jurisdiction} />
+      )}
+
+      <Button size="xl" block onClick={onConfirm}>
+        Adicionar ao carrinho
+      </Button>
+    </div>
+  );
+}
+
+/* ==========================================================================
+ * Conteúdo de referência: fica abaixo do fluxo, fora do caminho de quem só
+ * quer jogar.
+ * ========================================================================== */
+
+function GameReference({ game }: { game: LotteryGame }) {
+  const tiersQuery = usePrizeTiers(game.id);
+  const resultsQuery = useHistoricalResults(game.id, { limit: 5 });
+
+  return (
+    <div className="border-t border-border bg-card/30">
+      <div className="container max-w-3xl py-10">
+        <Tabs defaultValue="resultados">
           <TabsList>
-            <TabsTrigger value="jogar">Jogar</TabsTrigger>
             <TabsTrigger value="resultados">Resultados</TabsTrigger>
             <TabsTrigger value="como-jogar">Como jogar</TabsTrigger>
             <TabsTrigger value="premiacao">Premiação</TabsTrigger>
-            <TabsTrigger value="faq">Perguntas frequentes</TabsTrigger>
+            <TabsTrigger value="duvidas">Dúvidas</TabsTrigger>
           </TabsList>
 
-          {/* ----------------------------------------------------------- JOGAR */}
-          <TabsContent value="jogar">
-            <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
-              <div className="space-y-8">
-                <JurisdictionNotice jurisdiction={jurisdiction} />
-
-                <NumberPicker game={game} onAddLine={(line) => addLines([line])} />
-
-                <QuickPickBar
-                  game={game}
-                  onGenerate={addLines}
-                  remainingSlots={remainingSlots}
-                />
-
-                <section className="space-y-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="font-display text-base font-semibold">
-                      Seus jogos ({lines.length})
-                    </h2>
-                    {lines.length > 0 && (
-                      <Button variant="ghost" size="sm" onClick={() => setLines([])}>
-                        Limpar todos
-                      </Button>
-                    )}
-                  </div>
-                  <GameLineList
-                    game={game}
-                    lines={lines}
-                    onRemove={(id) => setLines((c) => c.filter((l) => l.id !== id))}
-                    onDuplicate={(id) =>
-                      setLines((c) => {
-                        const source = c.find((l) => l.id === id);
-                        if (!source || c.length >= game.maxLinesPerOrder) return c;
-                        return [...c, { ...source, id: `line-${crypto.randomUUID()}` }];
-                      })
-                    }
-                  />
-                </section>
-
-                {/* Múltiplos sorteios */}
-                <section className="space-y-3 rounded-xl border border-border p-5">
-                  <div className="flex items-center gap-2">
-                    <CalendarDays className="size-5 text-primary" aria-hidden />
-                    <h2 className="font-display text-base font-semibold">Sorteios</h2>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Escolha em quantos sorteios consecutivos seus jogos devem participar. O valor é
-                    multiplicado proporcionalmente.
-                  </p>
-
-                  <div className="flex flex-wrap gap-2" role="group" aria-label="Quantidade de sorteios">
-                    {DRAW_PRESETS.filter((n) => n <= game.maxDrawsAhead).map((count) => (
-                      <Button
-                        key={count}
-                        variant={drawsCount === count ? 'primary' : 'outline'}
-                        size="sm"
-                        onClick={() => setDrawsCount(count)}
-                        aria-pressed={drawsCount === count}
-                      >
-                        {count} {count === 1 ? 'sorteio' : 'sorteios'}
-                      </Button>
-                    ))}
-                  </div>
-
-                  {draws.length > 1 && (
-                    <div className="max-w-xs space-y-1.5 pt-1">
-                      <label htmlFor="draw-select" className="text-sm font-medium">
-                        A partir do sorteio de
-                      </label>
-                      <Select
-                        value={activeDraw?.id ?? ''}
-                        onValueChange={(value) => setSelectedDrawId(value)}
-                      >
-                        <SelectTrigger id="draw-select">
-                          <SelectValue placeholder="Selecione um sorteio" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {draws.map((draw) => (
-                            <SelectItem key={draw.id} value={draw.id}>
-                              {formatDate(draw.drawDate)} ·{' '}
-                              {formatDrawMoment(draw.drawAt, game.timezone)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {!jurisdiction?.subscriptionsEnabled && (
-                    <p className="flex items-start gap-2 pt-1 text-xs text-muted-foreground">
-                      <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
-                      Assinatura automática (renovação contínua) fica disponível apenas onde for
-                      juridicamente permitida. Ainda não habilitada para a sua localização.
-                    </p>
-                  )}
-                </section>
-              </div>
-
-              <aside className="lg:sticky lg:top-24 lg:self-start">
-                <CartSummary
-                  totals={totals}
-                  gameName={game.name}
-                  drawsCount={drawsCount}
-                  actionLabel="Adicionar ao carrinho"
-                  onAction={handleAddToCart}
-                  actionDisabled={lines.length === 0}
-                />
-              </aside>
-            </div>
-          </TabsContent>
-
-          {/* ------------------------------------------------------- RESULTADOS */}
           <TabsContent value="resultados">
-            {resultsQuery.isLoading && <LoadingCards count={3} />}
             {resultsQuery.isSuccess && resultsQuery.data.length > 0 ? (
-              <div className="space-y-4">
-                <div className="flex justify-end">
-                  <Button asChild variant="outline" size="sm">
-                    <Link to={`/resultados/${game.gameKey}`}>Ver histórico completo</Link>
-                  </Button>
-                </div>
-                <ul className="space-y-3">
+              <div className="space-y-3">
+                <ul className="space-y-2">
                   {resultsQuery.data.map((result) => (
-                    <li key={result.id} className="surface flex flex-wrap items-center justify-between gap-4 p-5">
-                      <div className="space-y-2">
-                        <p className="text-sm text-muted-foreground">
-                          {formatDate(result.draw.drawDate)} · {weekdayName(new Date(result.draw.drawAt).getDay())}
-                        </p>
-                        <NumberSequence
-                          numbers={result.mainNumbers}
-                          specialNumbers={result.specialNumbers}
-                          size="sm"
-                        />
-                      </div>
-                      <div className="text-right">
-                        {!result.isOfficial && <Badge variant="warning">Preliminar</Badge>}
-                        {result.jackpotAmount !== null && (
-                          <p className="mt-1 text-sm text-muted-foreground">
-                            {formatJackpotCompact(result.jackpotAmount)}
-                          </p>
+                    <li
+                      key={result.id}
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4"
+                    >
+                      <NumberSequence
+                        numbers={result.mainNumbers}
+                        specialNumbers={result.specialNumbers}
+                        size="xs"
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {formatDate(result.draw.drawDate)}
+                        {!result.isOfficial && (
+                          <Badge variant="warning" className="ml-2">preliminar</Badge>
                         )}
-                      </div>
+                      </span>
                     </li>
                   ))}
                 </ul>
+                <Button asChild variant="ghost" size="sm">
+                  <Link to={`/resultados/${game.gameKey}`}>Ver histórico completo</Link>
+                </Button>
               </div>
             ) : (
-              resultsQuery.isSuccess && (
-                <p className="text-muted-foreground">Nenhum resultado registrado ainda.</p>
-              )
+              <p className="text-sm text-muted-foreground">Nenhum resultado registrado ainda.</p>
             )}
           </TabsContent>
 
-          {/* ------------------------------------------------------- COMO JOGAR */}
           <TabsContent value="como-jogar">
-            <div className="max-w-2xl space-y-5">
-              {game.howToPlay && <p className="text-base leading-relaxed">{game.howToPlay}</p>}
-
-              <dl className="grid gap-4 sm:grid-cols-2">
-                <Fact label="Números principais">
-                  {game.mainNumbersCount} de {game.mainNumberMin} a {game.mainNumberMax}
+            <div className="space-y-4">
+              {game.howToPlay && <p className="leading-relaxed">{game.howToPlay}</p>}
+              <dl className="grid gap-3 sm:grid-cols-2">
+                <Fact label="Preço por aposta">{formatUSD(game.officialPrice)}</Fact>
+                <Fact label="Taxa de serviço">{formatUSD(game.serviceFee)}</Fact>
+                <Fact label="Sorteios">
+                  {game.drawDays.map((d) => weekdayName(d).replace('-feira', '')).join(', ')}
                 </Fact>
-                {game.specialNumbersCount > 0 && (
-                  <Fact label={game.specialNumberLabel ?? 'Número especial'}>
-                    {game.specialNumbersCount} de {game.specialNumberMin} a {game.specialNumberMax}
-                  </Fact>
-                )}
-                <Fact label="Preço oficial por aposta">{formatUSD(game.officialPrice)}</Fact>
-                <Fact label="Taxa de serviço por aposta">{formatUSD(game.serviceFee)}</Fact>
-                <Fact label="Dias de sorteio">
-                  {game.drawDays.map((d) => weekdayName(d)).join(', ')}
+                <Fact label="Horário oficial">
+                  {game.drawTimeLocal} · {game.timezone}
                 </Fact>
-                <Fact label="Horário do sorteio">
-                  {game.drawTimeLocal} ({game.timezone})
-                </Fact>
-                <Fact label="Encerramento dos pedidos">
-                  {game.salesCutoffMinutes} minutos antes do sorteio
-                </Fact>
-                <Fact label="Máximo de jogos por pedido">{game.maxLinesPerOrder}</Fact>
-                {game.multiplierEnabled && (
-                  <Fact label={game.multiplierLabel ?? 'Multiplicador'}>
-                    Opcional, {formatUSD(game.multiplierPrice)} por jogo
-                  </Fact>
-                )}
               </dl>
-
-              <Separator />
               <p className="text-sm text-muted-foreground">{brand.oddsNotice}</p>
             </div>
           </TabsContent>
 
-          {/* -------------------------------------------------------- PREMIAÇÃO */}
           <TabsContent value="premiacao">
             {tiersQuery.isSuccess && tiersQuery.data.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <TableWrapper>
                   <Table>
                     <TableHeader>
@@ -421,10 +527,10 @@ export function LotteryDetailPage() {
                           <TableCell className="font-medium">{tier.label}</TableCell>
                           <TableCell>
                             {tier.isJackpot
-                              ? 'Jackpot acumulado'
+                              ? 'Jackpot'
                               : tier.fixedPrize !== null
                                 ? formatUSD(tier.fixedPrize)
-                                : 'Valor variável'}
+                                : 'Variável'}
                           </TableCell>
                           <TableCell className="tnum text-muted-foreground">
                             {formatOdds(tier.oddsDenominator)}
@@ -434,71 +540,54 @@ export function LotteryDetailPage() {
                     </TableBody>
                   </Table>
                 </TableWrapper>
-
                 <p className="text-xs text-muted-foreground">
-                  Valores e probabilidades conforme a fonte de dados configurada. Prêmios podem
-                  sofrer retenção de impostos e variar segundo as regras oficiais da modalidade e a
-                  jurisdição. Confirme sempre com a fonte oficial.
+                  Valores conforme a fonte de dados configurada. Prêmios podem sofrer retenção de
+                  impostos e variar segundo as regras oficiais e a jurisdição.
                 </p>
               </div>
             ) : (
-              <p className="text-muted-foreground">Tabela de premiação ainda não cadastrada.</p>
+              <p className="text-sm text-muted-foreground">Tabela ainda não cadastrada.</p>
             )}
           </TabsContent>
 
-          {/* --------------------------------------------------------------- FAQ */}
-          <TabsContent value="faq">
-            <Accordion type="single" collapsible className="max-w-2xl">
+          <TabsContent value="duvidas">
+            <Accordion type="single" collapsible>
               <AccordionItem value="oficial">
-                <AccordionTrigger>O bilhete de {game.name} é oficial?</AccordionTrigger>
+                <AccordionTrigger>O bilhete é oficial?</AccordionTrigger>
                 <AccordionContent>
                   O modelo previsto é a aquisição do bilhete oficial por operador autorizado, com
                   digitalização e guarda. A operação só é habilitada em jurisdições expressamente
-                  liberadas no painel administrativo. [CONTEÚDO A SER VALIDADO POR ADVOGADO]
+                  liberadas. [CONTEÚDO A SER VALIDADO POR ADVOGADO]
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="prazo">
-                <AccordionTrigger>Até quando posso fazer meu pedido?</AccordionTrigger>
+                <AccordionTrigger>Até quando posso enviar meu pedido?</AccordionTrigger>
                 <AccordionContent>
-                  Os pedidos para cada sorteio encerram {game.salesCutoffMinutes} minutos antes do
-                  horário oficial ({game.drawTimeLocal}, {game.timezone}). O contador no topo da
-                  página mostra o tempo restante.
+                  Os pedidos encerram {game.salesCutoffMinutes} minutos antes do horário oficial
+                  ({game.drawTimeLocal}, {game.timezone}). O contador no topo mostra o tempo
+                  restante.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="chance">
                 <AccordionTrigger>Existe combinação com mais chance?</AccordionTrigger>
                 <AccordionContent>
                   Não. {brand.oddsNotice} A escolha rápida usa geração aleatória de qualidade
-                  criptográfica apenas para garantir imparcialidade na seleção, não para alterar
-                  probabilidade — isso não é possível.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="cancelar">
-                <AccordionTrigger>Posso cancelar depois de enviar?</AccordionTrigger>
-                <AccordionContent>
-                  O cancelamento é possível enquanto o bilhete ainda não tiver sido adquirido e
-                  dentro do prazo do sorteio. [CONTEÚDO A SER VALIDADO POR ADVOGADO]
+                  criptográfica apenas para garantir imparcialidade na seleção — isso não altera
+                  probabilidade, o que não é possível.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
           </TabsContent>
         </Tabs>
       </div>
-
-      <StickyCartBar
-        lineCount={lines.length}
-        total={totals.total}
-        actionLabel="Adicionar"
-        onAction={handleAddToCart}
-      />
     </div>
   );
 }
 
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-border p-4">
-      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</dt>
+    <div className="rounded-lg border border-border p-3">
+      <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
       <dd className="mt-1 font-medium">{children}</dd>
     </div>
   );

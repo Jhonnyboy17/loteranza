@@ -34,6 +34,29 @@ Contraste medido no navegador: todos os pares de texto passam WCAG AA
 Um tema claro opcional vive na classe `.light` em `src/index.css` — aplicar em `<html>`.
 Nenhum componente tem cor fixa: trocar a marca é trocar as variáveis.
 
+### Cor por modalidade
+
+Cada jogo guarda **uma** cor (`lottery_games.brand_color`) e `<GameTheme>` sobrescreve
+as variáveis de marca dentro da página daquele jogo. Powerball fica vermelho, Mega
+Millions azul — botões, bolas selecionadas, foco e halo acompanham, sem nenhuma prop
+extra. Cadastrar uma modalidade nova exige escolher **uma** cor, não seis tons.
+
+`derivePalette()` (`src/lib/color.ts`) deriva o resto e **garante contraste por
+construção**: testa texto claro e escuro sobre a cor e, se nenhum alcançar 4.5, ajusta a
+luminosidade o mínimo necessário. Medido nas seis modalidades: 4.79 a 10.14.
+
+## Fluxo de aposta
+
+A página do jogo é um fluxo de duas etapas, com a etapa na URL (`?etapa=revisar`), então
+o botão voltar do navegador funciona:
+
+1. **Seus números** — só a grade. Escolha manual, escolha rápida, ou geração em lote.
+2. **Revisar** — jogos montados, quantidade de sorteios, multiplicador e preço.
+   "Adicionar outro jogo" volta para a etapa 1 mantendo o que já foi montado.
+
+Regras, premiação, resultados e dúvidas ficam abaixo do fluxo, fora do caminho de quem
+só quer jogar.
+
 ## Protótipo navegável
 
 ```bash

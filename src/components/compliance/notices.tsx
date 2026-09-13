@@ -21,8 +21,7 @@ export function DemoModeBanner({ className }: { className?: string }) {
       <Info className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden />
       <p>
         <strong className="font-semibold">Modo demonstração.</strong>{' '}
-        Jackpots, resultados e pedidos exibidos aqui são dados de exemplo. Nenhuma compra é
-        processada e nenhum pagamento é cobrado.
+        Dados de exemplo — nenhuma compra é processada e nenhum pagamento é cobrado.
       </p>
     </div>
   );

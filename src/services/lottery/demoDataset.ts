@@ -26,7 +26,7 @@ export const demoGames: LotteryGame[] = [
     howToPlay:
       'Escolha 5 números de 1 a 69 e 1 número Powerball de 1 a 26. O jackpot sai com os 5 números mais o Powerball.',
     logoUrl: null,
-    brandColor: '#5B4FE9',
+    brandColor: '#E4434B',
     sortOrder: 10,
     officialPrice: 2,
     serviceFee: 1.5,
@@ -68,7 +68,7 @@ export const demoGames: LotteryGame[] = [
     howToPlay:
       'Escolha 5 números de 1 a 70 e 1 Mega Ball de 1 a 24. O jackpot sai com os 5 números mais a Mega Ball.',
     logoUrl: null,
-    brandColor: '#0EA5A4',
+    brandColor: '#3B82F6',
     sortOrder: 20,
     officialPrice: 5,
     serviceFee: 1.5,
@@ -98,10 +98,10 @@ export const demoGames: LotteryGame[] = [
     maxDrawsAhead: 10,
     isDemo: true,
   },
-  makeComingSoon('lotto', 'Lotto', 6, 1, 52, '#F59E0B', 30, [1, 4, 6], '21:22'),
-  makeComingSoon('lucky-day-lotto', 'Lucky Day Lotto', 5, 1, 45, '#8B5CF6', 40, [0, 1, 2, 3, 4, 5, 6], '21:22'),
+  makeComingSoon('lotto', 'Lotto', 6, 1, 52, '#22B07D', 30, [1, 4, 6], '21:22'),
+  makeComingSoon('lucky-day-lotto', 'Lucky Day Lotto', 5, 1, 45, '#A855F7', 40, [0, 1, 2, 3, 4, 5, 6], '21:22'),
   makeComingSoon('pick-3', 'Pick 3', 3, 0, 9, '#EC4899', 50, [0, 1, 2, 3, 4, 5, 6], '12:40'),
-  makeComingSoon('pick-4', 'Pick 4', 4, 0, 9, '#14B8A6', 60, [0, 1, 2, 3, 4, 5, 6], '12:40'),
+  makeComingSoon('pick-4', 'Pick 4', 4, 0, 9, '#06B6D4', 60, [0, 1, 2, 3, 4, 5, 6], '12:40'),
 ];
 
 function makeComingSoon(

@@ -121,6 +121,18 @@ compare_all_tickets(draw_id)
    └─ abre prize_claims em "detected" — nenhum pagamento automático
 ```
 
+## Tema por modalidade
+
+`lottery_games.brand_color` guarda uma cor por jogo. `<GameTheme>` converte para HSL e
+sobrescreve `--primary`, `--primary-soft`, `--accent`, `--ring` dentro do escopo da
+página, então todo componente descendente passa a usar a cor do jogo sem prop extra.
+
+`derivePalette()` não confia na cor como veio: normaliza a saturação e a luminosidade
+para a faixa que funciona sobre o fundo quase-preto, e escolhe a cor do texto testando
+os dois extremos contra o mínimo de 4.5 do WCAG. Cores vivas (vermelho, azul, rosa) caem
+numa faixa em que nem branco nem quase-preto alcançam 4.5 sozinhos — nesse caso a
+luminosidade do fundo é ajustada o mínimo necessário, preservando matiz e saturação.
+
 ## Roteamento
 
 `createBrowserRouter` por padrão (URLs limpas, exige reescrita para `index.html` no

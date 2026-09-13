@@ -88,7 +88,7 @@ insert into public.lottery_games (
   'powerball', 'Powerball', 'PB', 'active', 'Multi-State Lottery Association',
   'Modalidade multiestadual dos Estados Unidos com sorteios tres vezes por semana e jackpot acumulativo.',
   'Escolha 5 numeros de 1 a 69 e 1 numero Powerball de 1 a 26. O jackpot sai com os 5 numeros mais o Powerball.',
-  '#5B4FE9', 10, 2.00, 1.50, 'USD',
+  '#E4434B', 10, 2.00, 1.50, 'USD',
   5, 1, 69, 1, 1, 26, 'Powerball',
   true, 'Power Play', 1.00,
   '{1,3,6}', '22:59', 60, 'America/New_York',
@@ -99,7 +99,7 @@ insert into public.lottery_games (
   'mega-millions', 'Mega Millions', 'MM', 'active', 'Mega Millions Consortium',
   'Modalidade multiestadual com sorteios as tercas e sextas-feiras e multiplicador ja incluso na aposta.',
   'Escolha 5 numeros de 1 a 70 e 1 Mega Ball de 1 a 24. O jackpot sai com os 5 numeros mais a Mega Ball.',
-  '#0EA5A4', 20, 5.00, 1.50, 'USD',
+  '#3B82F6', 20, 5.00, 1.50, 'USD',
   5, 1, 70, 1, 1, 24, 'Mega Ball',
   false, null, 0,
   '{2,5}', '23:00', 60, 'America/New_York',
@@ -109,7 +109,7 @@ insert into public.lottery_games (
 (
   'lotto', 'Lotto', null, 'coming_soon', null,
   'Modalidade estadual. Estrutura preparada, ativacao depende de configuracao no painel.',
-  null, '#F59E0B', 30, 1.00, 1.00, 'USD',
+  null, '#22B07D', 30, 1.00, 1.00, 'USD',
   6, 1, 52, 0, 1, 0, null,
   false, null, 0, '{1,4,6}', '21:22', 45, 'America/Chicago',
   null, null, null, false, '{}', 20, 10, true
@@ -117,7 +117,7 @@ insert into public.lottery_games (
 (
   'lucky-day-lotto', 'Lucky Day Lotto', null, 'coming_soon', null,
   'Modalidade estadual com dois sorteios diarios. Estrutura preparada.',
-  null, '#8B5CF6', 40, 1.00, 0.75, 'USD',
+  null, '#A855F7', 40, 1.00, 0.75, 'USD',
   5, 1, 45, 0, 1, 0, null,
   false, null, 0, '{0,1,2,3,4,5,6}', '21:22', 30, 'America/Chicago',
   null, null, null, false, '{}', 20, 10, true
@@ -133,7 +133,7 @@ insert into public.lottery_games (
 (
   'pick-4', 'Pick 4', null, 'coming_soon', null,
   'Modalidade de quatro digitos. Estrutura preparada.',
-  null, '#14B8A6', 60, 0.50, 0.50, 'USD',
+  null, '#06B6D4', 60, 0.50, 0.50, 'USD',
   4, 0, 9, 0, 1, 0, null,
   false, null, 0, '{0,1,2,3,4,5,6}', '12:40', 20, 'America/Chicago',
   null, null, null, false, '{}', 20, 10, true
