@@ -3,9 +3,10 @@ import animate from 'tailwindcss-animate';
 
 /**
  * Design system "Jackpot USA".
- * Identidade original: indigo profundo (confianca / fintech) + dourado
- * champanhe (destaque de jackpot). Deliberadamente sem estetica de cassino:
- * sem neon saturado, sem vermelho de alerta como cor de marca.
+ *
+ * Identidade original: violeta profundo sobre quase-preto, com ambar reservado
+ * ao jackpot. Escuro por padrao. Deliberadamente sem estetica de cassino: sem
+ * neon saturado, sem roleta, sem vermelho como cor de marca.
  *
  * Todas as cores sao expostas como CSS variables em src/index.css para que a
  * marca possa ser trocada sem recompilar componentes.
@@ -87,10 +88,11 @@ const config: Config = {
         'display-lg': ['clamp(1.65rem, 3.2vw, 2.35rem)', { lineHeight: '1.12', letterSpacing: '-0.02em' }],
       },
       boxShadow: {
-        soft: '0 1px 2px 0 hsl(var(--shadow-color) / 0.05), 0 1px 3px 0 hsl(var(--shadow-color) / 0.04)',
-        card: '0 2px 4px -1px hsl(var(--shadow-color) / 0.05), 0 8px 24px -8px hsl(var(--shadow-color) / 0.12)',
-        lift: '0 4px 8px -2px hsl(var(--shadow-color) / 0.08), 0 18px 40px -12px hsl(var(--shadow-color) / 0.18)',
-        ball: 'inset 0 -2px 5px hsl(var(--shadow-color) / 0.16), 0 1px 2px hsl(var(--shadow-color) / 0.18)',
+        soft: '0 1px 2px 0 hsl(var(--shadow-color) / 0.30), 0 1px 3px 0 hsl(var(--shadow-color) / 0.22)',
+        card: '0 2px 6px -2px hsl(var(--shadow-color) / 0.45), 0 12px 32px -12px hsl(var(--shadow-color) / 0.55)',
+        lift: '0 6px 14px -4px hsl(var(--shadow-color) / 0.55), 0 26px 56px -18px hsl(var(--shadow-color) / 0.70)',
+        ball: 'inset 0 1px 0 hsl(0 0% 100% / 0.10), 0 2px 6px -1px hsl(var(--shadow-color) / 0.55)',
+        glow: '0 0 0 1px hsl(var(--primary) / 0.25), 0 10px 34px -12px hsl(var(--primary) / 0.70)',
       },
       keyframes: {
         'ball-pop': {
@@ -113,6 +115,10 @@ const config: Config = {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
         },
+        'pulse-soft': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.45' },
+        },
         'confetti-fall': {
           '0%': { transform: 'translateY(-10vh) rotate(0deg)', opacity: '1' },
           '100%': { transform: 'translateY(110vh) rotate(720deg)', opacity: '0' },
@@ -124,6 +130,7 @@ const config: Config = {
         shimmer: 'shimmer 1.6s infinite',
         'accordion-down': 'accordion-down 200ms ease-out',
         'accordion-up': 'accordion-up 200ms ease-out',
+        'pulse-soft': 'pulse-soft 2.4s ease-in-out infinite',
         'confetti-fall': 'confetti-fall 3s linear forwards',
       },
     },

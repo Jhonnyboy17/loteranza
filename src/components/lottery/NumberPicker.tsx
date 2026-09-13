@@ -87,7 +87,7 @@ export function NumberPicker({
   return (
     <div className={cn('space-y-6', className)}>
       {/* Espelho da seleção, sempre visível no topo. */}
-      <div className="sticky top-16 z-10 rounded-xl border border-border bg-card/95 p-4 backdrop-blur">
+      <div className="sticky top-[4.5rem] z-10 rounded-xl border border-border bg-card/95 p-4 shadow-card backdrop-blur-xl">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="space-y-2">
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">

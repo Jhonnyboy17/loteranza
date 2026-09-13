@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter, createHashRouter } from 'react-router-dom';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { ToastProvider } from '@/components/ui/toast';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -66,7 +66,17 @@ const ALL_STAFF = [
   'SUPER_ADMIN', 'ADMIN', 'COMPLIANCE', 'FINANCE', 'PURCHASER', 'TICKET_VERIFIER', 'SUPPORT',
 ] as const;
 
-const router = createBrowserRouter([
+/**
+ * Hospedagem estatica (sem reescrita de rota no servidor) nao consegue servir
+ * /loterias/powerball diretamente: o arquivo nao existe. Para esses casos —
+ * protótipo publicado, preview estático — VITE_ROUTER=hash troca para rotas
+ * com "#", que funcionam em qualquer host. Em produção, com um servidor que
+ * reescreve para index.html, mantenha o padrão (URLs limpas).
+ */
+const createRouter =
+  import.meta.env.VITE_ROUTER === 'hash' ? createHashRouter : createBrowserRouter;
+
+const router = createRouter([
   {
     element: <AppLayout />,
     errorElement: (

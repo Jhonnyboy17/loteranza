@@ -112,14 +112,14 @@ export function HomePage() {
       <section className="relative overflow-hidden border-b border-border">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_0%,hsl(var(--primary)/0.10),transparent_70%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(65%_60%_at_50%_-10%,hsl(var(--primary)/0.22),transparent_70%)]"
         />
         <div className="container relative py-14 sm:py-20">
           <div className="mx-auto max-w-4xl text-center">
             <Badge variant="default" className="mb-5">
               Powerball · Mega Millions · e mais a caminho
             </Badge>
-            <h1 className="text-display-2xl font-extrabold">
+            <h1 className="text-gradient text-display-2xl font-extrabold">
               Os maiores jackpots dos Estados Unidos em um só lugar
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground">

@@ -20,8 +20,8 @@ export function LogoMark({ className }: { className?: string }) {
     >
       <defs>
         <linearGradient id="jp-logo-gradient" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="hsl(var(--primary))" />
-          <stop offset="100%" stopColor="hsl(var(--primary) / 0.72)" />
+          <stop offset="0%" stopColor="hsl(272 88% 70%)" />
+          <stop offset="100%" stopColor="hsl(252 82% 56%)" />
         </linearGradient>
         <mask id="jp-ticket-notches">
           <rect width="40" height="40" fill="#fff" />
@@ -32,13 +32,14 @@ export function LogoMark({ className }: { className?: string }) {
       </defs>
 
       <rect width="40" height="40" rx="11" fill="url(#jp-logo-gradient)" mask="url(#jp-ticket-notches)" />
-      <circle cx="20" cy="20" r="9.2" fill="hsl(var(--primary-foreground))" />
+      {/* Esfera clara ao centro: a "bola" da loteria. */}
+      <circle cx="20" cy="20" r="9.2" fill="hsl(260 20% 97%)" />
       {/* Brilho de quatro pontas: destaque, sem estética de cassino. */}
       <path
         d="M20 12.6c.5 3.4 1.4 4.3 4.8 4.8-3.4.5-4.3 1.4-4.8 4.8-.5-3.4-1.4-4.3-4.8-4.8 3.4-.5 4.3-1.4 4.8-4.8z"
-        fill="hsl(var(--primary))"
+        fill="hsl(263 85% 58%)"
       />
-      <circle cx="20" cy="25.4" r="1.5" fill="hsl(var(--primary) / 0.55)" />
+      <circle cx="20" cy="25.4" r="1.5" fill="hsl(263 85% 58% / 0.55)" />
     </svg>
   );
 }

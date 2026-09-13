@@ -13,11 +13,11 @@ const SIZES: Record<BallSize, string> = {
 };
 
 const TONES: Record<BallTone, string> = {
-  main: 'bg-card text-foreground border-border',
+  main: 'bg-secondary text-foreground border-border',
   special: 'bg-jackpot text-jackpot-foreground border-transparent',
   muted: 'bg-muted text-muted-foreground border-transparent',
   match: 'bg-success text-success-foreground border-transparent',
-  miss: 'bg-card text-muted-foreground border-border opacity-55',
+  miss: 'bg-secondary/50 text-muted-foreground border-border opacity-60',
 };
 
 export interface NumberBallProps extends React.HTMLAttributes<HTMLSpanElement> {

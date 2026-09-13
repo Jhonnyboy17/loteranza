@@ -4,98 +4,109 @@
 
 /* ==========================================================================
    Jackpot USA — tokens de design
-   Identidade original: indigo profundo (confianca) + dourado champanhe
-   (destaque de jackpot). Sem estetica de cassino: nada de neon saturado,
-   roleta ou caca-niquel.
-   Trocar a marca = trocar estas variaveis. Nenhum componente tem cor fixa.
+   ---------------------------------------------------------------------------
+   Identidade original: violeta profundo sobre quase-preto, com dourado âmbar
+   reservado exclusivamente para o jackpot.
+
+   Escuro por padrão: `:root` já carrega o tema escuro. A paleta clara existe
+   em `.light` como alternativa, mas não é o default.
+
+   Sem estética de cassino: nada de neon saturado, roleta ou caça-níquel. O
+   brilho é discreto e usado só onde guia a ação (botão primário, jackpot).
+
+   Trocar a marca = trocar estas variáveis. Nenhum componente tem cor fixa.
    ========================================================================== */
 
 @layer base {
   :root {
-    --background: 40 25% 98%;
-    --foreground: 224 44% 11%;
+    /* Fundo quase-preto com leve viés violeta — evita o cinza "morto". */
+    --background: 258 32% 5%;
+    --foreground: 260 18% 96%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 224 44% 11%;
+    --card: 258 26% 8%;
+    --card-foreground: 260 18% 96%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 44% 11%;
+    --popover: 258 26% 10%;
+    --popover-foreground: 260 18% 96%;
 
-    --primary: 248 70% 58%;
-    --primary-foreground: 0 0% 100%;
-    --primary-soft: 248 72% 96%;
+    /* Violeta vibrante, mas abaixo do ponto em que vira neon. */
+    --primary: 263 88% 68%;
+    --primary-foreground: 258 40% 7%;
+    --primary-soft: 263 45% 16%;
 
-    --secondary: 225 24% 95%;
-    --secondary-foreground: 224 40% 18%;
+    --secondary: 258 20% 14%;
+    --secondary-foreground: 260 16% 92%;
 
-    --muted: 225 24% 96%;
-    --muted-foreground: 224 12% 44%;
+    --muted: 258 20% 12%;
+    --muted-foreground: 258 12% 64%;
 
-    --accent: 248 60% 96%;
-    --accent-foreground: 248 60% 32%;
+    --accent: 263 35% 17%;
+    --accent-foreground: 263 85% 86%;
 
-    --jackpot: 38 90% 50%;
-    --jackpot-foreground: 28 65% 16%;
-    --jackpot-soft: 40 92% 95%;
+    /* Âmbar: cor exclusiva do jackpot. Não usar em mais nada. */
+    --jackpot: 42 96% 62%;
+    --jackpot-foreground: 40 70% 8%;
+    --jackpot-soft: 42 45% 14%;
 
-    --success: 152 58% 34%;
-    --success-foreground: 0 0% 100%;
+    --success: 158 68% 46%;
+    --success-foreground: 158 50% 6%;
 
-    --warning: 32 90% 46%;
-    --warning-foreground: 28 70% 14%;
+    --warning: 38 92% 62%;
+    --warning-foreground: 38 60% 8%;
 
-    --destructive: 0 70% 47%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 352 78% 62%;
+    --destructive-foreground: 352 40% 8%;
 
-    --border: 225 22% 90%;
-    --input: 225 22% 88%;
-    --ring: 248 70% 58%;
+    --border: 258 18% 17%;
+    --input: 258 18% 20%;
+    --ring: 263 88% 68%;
 
-    --shadow-color: 224 45% 22%;
-    --radius: 0.875rem;
+    --shadow-color: 258 70% 2%;
+    --radius: 1rem;
   }
 
-  .dark {
-    --background: 226 42% 7%;
-    --foreground: 220 22% 95%;
+  /* Tema claro opcional. Aplicar a classe `light` no elemento <html>. */
+  .light {
+    --background: 260 30% 98%;
+    --foreground: 258 35% 10%;
 
-    --card: 226 34% 10%;
-    --card-foreground: 220 22% 95%;
+    --card: 0 0% 100%;
+    --card-foreground: 258 35% 10%;
 
-    --popover: 226 34% 11%;
-    --popover-foreground: 220 22% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 258 35% 10%;
 
-    --primary: 248 78% 68%;
-    --primary-foreground: 226 45% 10%;
-    --primary-soft: 248 40% 18%;
+    --primary: 263 72% 56%;
+    --primary-foreground: 0 0% 100%;
+    --primary-soft: 263 70% 96%;
 
-    --secondary: 226 24% 16%;
-    --secondary-foreground: 220 22% 94%;
+    --secondary: 258 22% 95%;
+    --secondary-foreground: 258 30% 18%;
 
-    --muted: 226 24% 15%;
-    --muted-foreground: 220 12% 66%;
+    --muted: 258 22% 96%;
+    --muted-foreground: 258 12% 44%;
 
-    --accent: 248 34% 20%;
-    --accent-foreground: 248 80% 88%;
+    --accent: 263 60% 96%;
+    --accent-foreground: 263 60% 32%;
 
-    --jackpot: 40 92% 60%;
-    --jackpot-foreground: 30 60% 12%;
-    --jackpot-soft: 38 40% 18%;
+    --jackpot: 38 92% 48%;
+    --jackpot-foreground: 38 70% 12%;
+    --jackpot-soft: 42 92% 94%;
 
-    --success: 152 52% 46%;
-    --success-foreground: 150 40% 8%;
+    --success: 158 62% 34%;
+    --success-foreground: 0 0% 100%;
 
-    --warning: 36 88% 58%;
-    --warning-foreground: 30 60% 10%;
+    --warning: 34 90% 44%;
+    --warning-foreground: 34 70% 12%;
 
-    --destructive: 0 66% 58%;
+    --destructive: 352 72% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 226 20% 20%;
-    --input: 226 20% 22%;
-    --ring: 248 78% 68%;
+    --border: 258 20% 90%;
+    --input: 258 20% 88%;
+    --ring: 263 72% 56%;
 
-    --shadow-color: 226 60% 2%;
+    --shadow-color: 258 40% 25%;
   }
 
   * {
@@ -105,25 +116,63 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+
+  .light html,
+  html.light {
+    color-scheme: light;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-    /* Evita salto de layout ao abrir modais/drawers. */
     overflow-wrap: break-word;
+
+    /* Dois halos violeta muito sutis, fixos no topo. Dão profundidade ao
+       quase-preto sem competir com o conteúdo. */
+    background-image:
+      radial-gradient(60rem 40rem at 15% -10%, hsl(263 80% 30% / 0.22), transparent 65%),
+      radial-gradient(50rem 34rem at 88% -6%, hsl(288 70% 32% / 0.14), transparent 62%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+
+  .light body {
+    background-image:
+      radial-gradient(60rem 40rem at 15% -10%, hsl(263 80% 70% / 0.16), transparent 65%),
+      radial-gradient(50rem 34rem at 88% -6%, hsl(288 70% 72% / 0.10), transparent 62%);
   }
 
   h1, h2, h3, h4 {
     @apply font-display tracking-tight;
   }
 
-  /* Acessibilidade: foco sempre visivel, nunca removido. */
+  /* Acessibilidade: foco sempre visível, nunca removido. */
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 
-  /* Numeros tabulares em valores monetarios e contadores. */
+  ::selection {
+    background-color: hsl(var(--primary) / 0.35);
+    color: hsl(var(--foreground));
+  }
+
+  /* Barra de rolagem discreta, alinhada ao tema. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover { background-color: hsl(var(--muted-foreground) / 0.5); }
+
   .tnum {
     font-variant-numeric: tabular-nums;
     font-feature-settings: 'tnum';
@@ -142,24 +191,33 @@
 }
 
 @layer components {
-  /* Link "pular para o conteudo" para navegacao por teclado. */
   .skip-link {
     @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100]
            focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2
            focus:text-primary-foreground focus:shadow-lift;
   }
 
-  /* Superficie padrao de card. */
+  /* Superfície padrão: borda sutil + um fio de luz no topo, que é o que
+     separa os cards do fundo escuro sem precisar de borda forte. */
   .surface {
-    @apply rounded-xl border border-border bg-card shadow-card;
+    @apply relative rounded-xl border border-border bg-card shadow-card;
   }
+  .surface::before {
+    content: '';
+    @apply pointer-events-none absolute inset-x-0 top-0 h-px rounded-t-xl;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--foreground) / 0.10),
+      transparent
+    );
+  }
+  .light .surface::before { display: none; }
 
-  /* Faixa superior de aviso (modo demo / jurisdicao). */
   .notice-strip {
     @apply flex items-start gap-3 rounded-xl border px-4 py-3 text-sm;
   }
 
-  /* Esqueleto com brilho. */
   .skeleton {
     @apply relative overflow-hidden rounded-md bg-muted;
   }
@@ -169,14 +227,14 @@
     background-image: linear-gradient(
       90deg,
       transparent,
-      hsl(var(--foreground) / 0.06),
+      hsl(var(--foreground) / 0.07),
       transparent
     );
   }
 }
 
 @layer utilities {
-  /* Area de toque minima recomendada para uso com o polegar. */
+  /* Área de toque mínima recomendada para uso com o polegar. */
   .touch-target {
     min-height: 44px;
     min-width: 44px;
@@ -186,11 +244,37 @@
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
   }
 
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Texto em degradê violeta. Reservado a títulos de destaque. */
+  .text-gradient {
+    background-image: linear-gradient(
+      100deg,
+      hsl(var(--foreground)),
+      hsl(263 90% 80%) 55%,
+      hsl(288 85% 78%)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Degradê âmbar exclusivo do valor do jackpot. */
+  .text-gradient-jackpot {
+    background-image: linear-gradient(100deg, hsl(42 96% 68%), hsl(32 94% 60%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Brilho discreto sob o botão primário. */
+  .glow-primary {
+    box-shadow:
+      0 0 0 1px hsl(var(--primary) / 0.25),
+      0 8px 28px -10px hsl(var(--primary) / 0.65);
   }
 }

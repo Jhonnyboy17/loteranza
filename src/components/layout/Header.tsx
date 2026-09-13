@@ -34,7 +34,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/95 backdrop-blur-xl">
       <div className="container flex h-16 items-center gap-3">
         {/* Menu hambúrguer — apenas no mobile */}
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>

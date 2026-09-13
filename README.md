@@ -12,6 +12,42 @@ Interface em português do Brasil, mobile-first.
 
 ---
 
+## Identidade visual
+
+Tema **escuro por padrão**: violeta profundo sobre quase-preto, com âmbar reservado
+exclusivamente ao valor do jackpot. Minimalista — o brilho aparece só onde guia a ação
+(botão primário, número selecionado, jackpot).
+
+| Papel | Token | Valor |
+|-------|-------|-------|
+| Fundo | `--background` | `hsl(258 32% 5%)` — quase-preto com viés violeta |
+| Superfície | `--card` | `hsl(258 26% 8%)` |
+| Primária | `--primary` | `hsl(263 88% 68%)` — violeta vibrante, abaixo do neon |
+| Jackpot | `--jackpot` | `hsl(42 96% 62%)` — âmbar, **só** para jackpot |
+| Sucesso | `--success` | `hsl(158 68% 46%)` |
+| Alerta | `--warning` | `hsl(38 92% 62%)` |
+| Erro | `--destructive` | `hsl(352 78% 62%)` |
+
+Contraste medido no navegador: todos os pares de texto passam WCAG AA
+(texto pequeno ≥ 4.5, grande ≥ 3). Os títulos em degradê ficam entre 9:1 e 18:1.
+
+Um tema claro opcional vive na classe `.light` em `src/index.css` — aplicar em `<html>`.
+Nenhum componente tem cor fixa: trocar a marca é trocar as variáveis.
+
+## Protótipo navegável
+
+```bash
+npm run dev            # http://localhost:5173  — fonte, com hot reload
+npm run preview        # build de produção
+npm run build:proto    # build para hospedagem estática (usar com VITE_ROUTER=hash)
+```
+
+`VITE_ROUTER=hash` troca para rotas com `#`, que funcionam em qualquer host estático
+sem reescrita de URL. Em produção, com um servidor que reescreve para `index.html`,
+mantenha o padrão (URLs limpas).
+
+---
+
 ## Os três portões
 
 Nenhuma transação acontece sem que **os três** estejam abertos, e a decisão final é

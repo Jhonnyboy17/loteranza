@@ -121,6 +121,13 @@ compare_all_tickets(draw_id)
    └─ abre prize_claims em "detected" — nenhum pagamento automático
 ```
 
+## Roteamento
+
+`createBrowserRouter` por padrão (URLs limpas, exige reescrita para `index.html` no
+servidor). `VITE_ROUTER=hash` troca para `createHashRouter`, para hospedagem estática
+sem reescrita — protótipos e previews. A escolha é feita uma vez em `src/App.tsx`;
+nenhuma rota ou componente muda.
+
 ## Testes executados
 
 Verificação por navegador real (Chromium/Playwright), 68 asserções:

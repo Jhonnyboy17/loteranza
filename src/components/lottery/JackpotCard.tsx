@@ -35,9 +35,10 @@ export function JackpotCard({
   return (
     <article
       className={cn(
-        'group surface relative flex flex-col overflow-hidden transition',
-        'hover:-translate-y-0.5 hover:shadow-lift motion-reduce:hover:translate-y-0',
-        featured && 'ring-1 ring-primary/20',
+        'group surface relative flex flex-col overflow-hidden transition duration-300',
+        'hover:-translate-y-1 hover:border-primary/30 hover:shadow-lift',
+        'motion-reduce:hover:translate-y-0',
+        featured && 'ring-1 ring-primary/15',
         className,
       )}
     >
@@ -69,7 +70,7 @@ export function JackpotCard({
           {jackpot !== null ? (
             <>
               <p
-                className="font-display text-display-lg font-extrabold text-foreground"
+                className="text-gradient-jackpot font-display text-display-lg font-extrabold"
                 title={new Intl.NumberFormat('pt-BR', {
                   style: 'currency', currency: 'USD',
                 }).format(jackpot)}

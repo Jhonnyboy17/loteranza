@@ -84,8 +84,8 @@ export function NumberGrid({
               isSelected
                 ? tone === 'special'
                   ? 'animate-ball-pop border-transparent bg-jackpot text-jackpot-foreground shadow-ball'
-                  : 'animate-ball-pop border-transparent bg-primary text-primary-foreground shadow-ball'
-                : 'border-border bg-card text-foreground hover:border-primary/50 hover:bg-accent',
+                  : 'animate-ball-pop border-transparent bg-primary text-primary-foreground glow-primary'
+                : 'border-border bg-secondary/60 text-foreground hover:border-primary/50 hover:bg-accent',
               isDisabled && 'cursor-not-allowed opacity-40 hover:border-border hover:bg-card',
             )}
           >
