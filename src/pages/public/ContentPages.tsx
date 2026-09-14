@@ -54,7 +54,7 @@ export function TicketSecurityPage() {
       />
 
       <header className="mx-auto max-w-2xl text-center">
-        <h1 className="text-display-xl font-extrabold">Segurança dos bilhetes</h1>
+        <h1 className="text-display-lg font-extrabold">Segurança dos bilhetes</h1>
         <p className="mt-3 text-lg text-muted-foreground">
           O caminho completo de um bilhete, do pedido ao resgate.
         </p>
@@ -158,7 +158,7 @@ export function HelpPage() {
       />
 
       <header className="mx-auto max-w-2xl text-center">
-        <h1 className="text-display-xl font-extrabold">Central de ajuda</h1>
+        <h1 className="text-display-lg font-extrabold">Central de ajuda</h1>
         <p className="mt-3 text-lg text-muted-foreground">
           Respostas diretas. Se faltar alguma, fale com a gente.
         </p>
@@ -288,7 +288,7 @@ export function LegalPage() {
 
       <article className="mx-auto max-w-2xl">
         <Badge variant="warning" className="mb-4">Aguardando revisão jurídica</Badge>
-        <h1 className="text-display-xl font-extrabold">{page.title}</h1>
+        <h1 className="text-display-lg font-extrabold">{page.title}</h1>
         <p className="mt-3 text-lg text-muted-foreground">{page.intro}</p>
 
         <div className="mt-6 rounded-xl border border-dashed border-warning/50 bg-warning/5 p-5">
@@ -330,7 +330,7 @@ export function AboutPage() {
         canonicalPath="/sobre"
       />
       <article className="mx-auto max-w-2xl space-y-5">
-        <h1 className="text-display-xl font-extrabold">Sobre a {brand.name}</h1>
+        <h1 className="text-display-lg font-extrabold">Sobre a {brand.name}</h1>
         <p className="text-lg text-muted-foreground">
           Uma plataforma em português para acompanhar as loterias dos Estados Unidos: jackpots,
           resultados, montagem de jogos e, onde a operação for legalmente permitida, intermediação
@@ -367,7 +367,7 @@ export function ContactPage() {
     <div className="container py-12">
       <Seo title="Contato" description="Fale com o suporte." canonicalPath="/contato" />
       <div className="mx-auto max-w-lg space-y-5 text-center">
-        <h1 className="text-display-xl font-extrabold">Contato</h1>
+        <h1 className="text-display-lg font-extrabold">Contato</h1>
         <p className="text-muted-foreground">
           Envie sua dúvida por e-mail ou abra um chamado pela sua conta para acompanhar a resposta.
         </p>

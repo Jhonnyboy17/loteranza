@@ -54,7 +54,7 @@ export function WinnerPage() {
           <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-jackpot-soft text-jackpot-foreground">
             <PartyPopper className="size-8" aria-hidden />
           </span>
-          <h1 className="text-display-xl font-extrabold">
+          <h1 className="text-display-lg font-extrabold">
             Parabéns! Seu bilhete foi premiado.
           </h1>
           <p className="text-muted-foreground">

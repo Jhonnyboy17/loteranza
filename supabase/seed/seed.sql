@@ -44,7 +44,7 @@ insert into public.jurisdiction_rules
    legal_notice, requires_manual_review)
 values
   ('BR', null, false, false, false, 18, true, '{}', null, 'BRL',
-   'Atualmente nao podemos aceitar compras a partir da sua localizacao. Voce pode consultar jackpots e resultados normalmente.', true),
+   'Atualmente nao podemos aceitar compras a partir da sua localizacao. Voce continua podendo consultar jackpots, ver resultados e conferir numeros.', true),
   ('US', null, false, false, false, 18, true, '{}', null, 'USD',
    'Compras ainda nao habilitadas. A liberacao depende de analise por estado.', true),
   ('US', 'IL', false, false, false, 18, true, '{}', 5000.00, 'USD',

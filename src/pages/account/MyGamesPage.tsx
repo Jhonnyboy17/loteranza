@@ -67,7 +67,7 @@ export function MyGamesPage() {
       <Seo title="Meus jogos" description="Acompanhe seus jogos e pedidos." noIndex />
 
       <header className="mb-8">
-        <h1 className="text-display-xl font-extrabold">
+        <h1 className="text-display-lg font-extrabold">
           Olá, {profile?.displayName ?? profile?.fullName ?? 'tudo bem'}
         </h1>
         <p className="mt-2 text-muted-foreground">

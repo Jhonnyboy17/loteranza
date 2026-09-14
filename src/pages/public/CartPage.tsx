@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Plus, ShoppingCart, Trash2 } from 'lucide-react';
+import { Copy, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { usePlatform } from '@/contexts/PlatformContext';
 import { useGames, useUpcomingDraws } from '@/hooks/useLotteryQueries';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/common/states';
 import { NumberSequence } from '@/components/lottery/NumberBall';
+import { GameTheme } from '@/components/lottery/GameTheme';
 import { Countdown } from '@/components/lottery/Countdown';
 import { CartSummary } from '@/components/cart/CartSummary';
 import { StickyCartBar } from '@/components/cart/StickyCartBar';
@@ -31,7 +32,7 @@ export function CartPage() {
         noIndex
       />
 
-      <h1 className="mb-6 text-display-xl font-extrabold">Carrinho</h1>
+      <h1 className="mb-6 text-display-lg font-extrabold">Carrinho</h1>
 
       {items.length === 0 ? (
         <EmptyState
@@ -62,10 +63,12 @@ export function CartPage() {
                   unitServiceFee={item.unitServiceFee}
                   multiplierPrice={item.multiplierPrice}
                   multiplierLabel={game?.multiplierLabel ?? null}
+                  brandColor={game?.brandColor ?? null}
                   onRemoveLine={(lineId) => removeLine(item.id, lineId)}
                   onDuplicateLine={(lineId) => duplicateLine(item.id, lineId)}
                   onRemoveItem={() => removeItem(item.id)}
                   onDrawsCountChange={(count) => setDrawsCount(item.id, count)}
+                  showSubtotal={items.length > 1}
                 />
               );
             })}
@@ -99,8 +102,8 @@ export function CartPage() {
 
 function CartItemCard({
   gameName, gameKey, gameId, drawId, drawsCount, maxDrawsAhead, lines,
-  unitOfficialPrice, unitServiceFee, multiplierPrice,
-  multiplierLabel, onRemoveLine, onDuplicateLine, onRemoveItem, onDrawsCountChange,
+  unitOfficialPrice, unitServiceFee, multiplierPrice, showSubtotal,
+  multiplierLabel, brandColor, onRemoveLine, onDuplicateLine, onRemoveItem, onDrawsCountChange,
 }: {
   itemId: string;
   gameName: string;
@@ -113,7 +116,9 @@ function CartItemCard({
   unitOfficialPrice: number;
   unitServiceFee: number;
   multiplierPrice: number;
+  showSubtotal: boolean;
   multiplierLabel: string | null;
+  brandColor: string | null;
   onRemoveLine: (lineId: string) => void;
   onDuplicateLine: (lineId: string) => void;
   onRemoveItem: () => void;
@@ -135,10 +140,16 @@ function CartItemCard({
   );
 
   return (
+    <GameTheme game={{ brandColor }} className="contents">
     <section className="surface p-5 sm:p-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
-          <h2 className="font-display text-lg font-semibold">{gameName}</h2>
+          <h2
+            className="font-display text-sm font-bold uppercase tracking-[0.14em]"
+            style={{ color: 'hsl(var(--game-bright, var(--primary)))' }}
+          >
+            {gameName}
+          </h2>
           {draw && (
             <p className="text-sm text-muted-foreground">
               Sorteio: {formatDate(draw.drawDate)} · {lines.length}{' '}
@@ -174,23 +185,22 @@ function CartItemCard({
             key={line.id}
             className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
           >
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="w-14 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Jogo {String(index + 1).padStart(2, '0')}
+            <div className="flex min-w-0 flex-wrap items-center gap-3">
+              <span className="tnum w-6 shrink-0 text-sm text-muted-foreground">
+                {String(index + 1).padStart(2, '0')}
               </span>
               <NumberSequence numbers={line.numbers} specialNumbers={line.specialNumbers} size="sm" />
-              {line.isQuickPick && <Badge variant="neutral">Escolha rápida</Badge>}
               {line.options.multiplier && multiplierLabel && (
                 <Badge variant="jackpot">{multiplierLabel}</Badge>
               )}
             </div>
             <div className="flex gap-1">
               <Button
-                variant="ghost" size="sm"
+                variant="ghost" size="icon"
                 onClick={() => onDuplicateLine(line.id)}
                 aria-label={`Duplicar jogo ${index + 1}`}
               >
-                Duplicar
+                <Copy aria-hidden />
               </Button>
               <Button
                 variant="ghost" size="icon"
@@ -232,6 +242,7 @@ function CartItemCard({
         </Button>
       </div>
 
+      {showSubtotal && (
       <dl className="mt-5 space-y-1.5 border-t border-border pt-4 text-sm">
         <div className="flex justify-between gap-4">
           <dt className="text-muted-foreground">Valor oficial das apostas</dt>
@@ -246,6 +257,8 @@ function CartItemCard({
           <dd className="tnum">{formatUSD(subtotal.official + subtotal.fee)}</dd>
         </div>
       </dl>
+      )}
     </section>
+    </GameTheme>
   );
 }

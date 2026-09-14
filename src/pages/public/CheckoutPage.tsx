@@ -151,7 +151,7 @@ export function CheckoutPage() {
     <div className="container py-10">
       <Seo title="Checkout" description="Finalize seu pedido." canonicalPath="/checkout" noIndex />
 
-      <h1 className="mb-6 text-display-xl font-extrabold">Checkout</h1>
+      <h1 className="mb-6 text-display-lg font-extrabold">Checkout</h1>
 
       {/* Trilha de etapas */}
       <ol className="mb-8 flex flex-wrap gap-2" aria-label="Etapas do checkout">

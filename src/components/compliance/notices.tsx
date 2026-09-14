@@ -55,18 +55,18 @@ export function JurisdictionNotice({
         aria-hidden
       />
       <div className="space-y-1">
-        {/* Quando a jurisdição define um aviso próprio, ele é a mensagem
-            principal — evita repetir a mesma frase em dois parágrafos. */}
+        {/* Uma mensagem só. O aviso da jurisdição, quando existe, já explica o
+            que o usuário ainda pode fazer — repetir isso num segundo parágrafo
+            era dizer a mesma frase duas vezes seguidas. */}
         <p className="font-medium">
           {allowed
             ? 'Compras disponíveis na sua localização.'
             : (jurisdiction?.legalNotice ??
                'Atualmente não podemos aceitar compras a partir da sua localização.')}
         </p>
-        {!allowed && (
+        {!allowed && !jurisdiction?.legalNotice && (
           <p className="text-muted-foreground">
-            Você continua podendo consultar jackpots, ver resultados, conferir números e
-            criar alertas normalmente.
+            Você continua podendo consultar jackpots, ver resultados e conferir números.
           </p>
         )}
         {detectedLabel && (

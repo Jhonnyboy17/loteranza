@@ -16,6 +16,7 @@ import {
 import { ErrorState, LoadingCards } from '@/components/common/states';
 import { JackpotCard } from '@/components/lottery/JackpotCard';
 import { NumberSequence } from '@/components/lottery/NumberBall';
+import { GameTheme } from '@/components/lottery/GameTheme';
 import { JurisdictionNotice } from '@/components/compliance/notices';
 
 const STEPS = [
@@ -173,7 +174,7 @@ export function HomePage() {
         {gamesQuery.isSuccess && (
           <div className="grid gap-5 sm:grid-cols-2">
             {activeGames.map(({ game, draw }) => (
-              <JackpotCard key={game.id} game={game} draw={draw} rate={rate} featured />
+              <JackpotCard key={game.id} game={game} draw={draw} rate={rate} />
             ))}
           </div>
         )}
@@ -230,27 +231,34 @@ export function HomePage() {
         {resultsQuery.isSuccess && (
           <div className="grid gap-4 sm:grid-cols-2">
             {resultsQuery.data.map((result) => (
-              <article key={result.id} className="surface space-y-3 p-5">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="font-display font-semibold">{result.game.name}</h3>
-                  <div className="flex items-center gap-2">
-                    {!result.isOfficial && <Badge variant="warning">Preliminar</Badge>}
-                    <span className="text-sm text-muted-foreground">
-                      {formatDate(result.draw.drawDate)}
-                    </span>
+              <GameTheme key={result.id} game={result.game}>
+                <article className="surface h-full space-y-3 p-5">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h3
+                      className="font-display text-sm font-bold uppercase tracking-[0.14em]"
+                      style={{ color: 'hsl(var(--game-bright, var(--primary)))' }}
+                    >
+                      {result.game.name}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      {!result.isOfficial && <Badge variant="warning">preliminar</Badge>}
+                      <span className="text-sm text-muted-foreground">
+                        {formatDate(result.draw.drawDate)}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <NumberSequence
-                  numbers={result.mainNumbers}
-                  specialNumbers={result.specialNumbers}
-                  size="sm"
-                />
-                {result.jackpotAmount !== null && (
-                  <p className="text-sm text-muted-foreground">
-                    Jackpot do sorteio: {formatJackpotCompact(result.jackpotAmount)}
-                  </p>
-                )}
-              </article>
+                  <NumberSequence
+                    numbers={result.mainNumbers}
+                    specialNumbers={result.specialNumbers}
+                    size="sm"
+                  />
+                  {result.jackpotAmount !== null && (
+                    <p className="text-sm text-muted-foreground">
+                      Jackpot: {formatJackpotCompact(result.jackpotAmount)}
+                    </p>
+                  )}
+                </article>
+              </GameTheme>
             ))}
           </div>
         )}

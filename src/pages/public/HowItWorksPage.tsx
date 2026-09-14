@@ -37,7 +37,7 @@ export function HowItWorksPage() {
       />
 
       <header className="mx-auto max-w-2xl text-center">
-        <h1 className="text-display-xl font-extrabold">Como funciona</h1>
+        <h1 className="text-display-lg font-extrabold">Como funciona</h1>
         <p className="mt-3 text-lg text-muted-foreground">
           Quatro passos, sem letra miúda e sem promessa que não podemos cumprir.
         </p>

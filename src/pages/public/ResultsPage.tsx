@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { EmptyState, ErrorState, LoadingCards } from '@/components/common/states';
 import { NumberSequence } from '@/components/lottery/NumberBall';
+import { GameTheme } from '@/components/lottery/GameTheme';
 
 export function ResultsPage() {
   const gamesQuery = useGames();
@@ -36,11 +37,11 @@ export function ResultsPage() {
         canonicalPath="/resultados"
       />
 
-      <header className="mb-8 max-w-2xl">
-        <h1 className="text-display-xl font-extrabold">Resultados</h1>
+      <header className="mb-6 max-w-prose">
+        <h1 className="text-display-lg font-extrabold">Resultados</h1>
         <p className="mt-2 text-muted-foreground">
-          Números sorteados por modalidade. Resultados marcados como preliminares ainda não foram
-          validados junto à fonte oficial.
+          Números sorteados por modalidade. O que estiver marcado como preliminar ainda não foi
+          validado junto à fonte oficial.
         </p>
       </header>
 
@@ -69,6 +70,17 @@ export function ResultsPage() {
             </SelectContent>
           </Select>
         </div>
+        {/* w-full no mobile: dois rótulos longos lado a lado estouravam a
+            largura da página em telas estreitas. */}
+        <div className="flex w-full flex-wrap items-end gap-2 sm:ml-auto sm:w-auto">
+          {activeGames.map((game) => (
+            <Button key={game.id} asChild variant="ghost" size="sm">
+              <Link to={`/resultados/${game.gameKey}`}>
+                Histórico de {game.name} <ArrowRight aria-hidden />
+              </Link>
+            </Button>
+          ))}
+        </div>
       </div>
 
       {resultsQuery.isLoading && <LoadingCards count={4} />}
@@ -85,39 +97,33 @@ export function ResultsPage() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
             {filtered.map((result) => (
-              <article key={result.id} className="surface space-y-4 p-5">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <h2 className="font-display text-lg font-semibold">{result.game.name}</h2>
+              <GameTheme key={result.id} game={result.game}>
+                <article className="surface h-full space-y-4 p-5">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h2
+                      className="font-display text-sm font-bold uppercase tracking-[0.14em]"
+                      style={{ color: 'hsl(var(--game-bright, var(--primary)))' }}
+                    >
+                      {result.game.name}
+                    </h2>
                     <p className="text-sm text-muted-foreground">
                       {formatLongDate(result.draw.drawAt)}
                     </p>
                   </div>
-                  {!result.isOfficial && <Badge variant="warning">Preliminar</Badge>}
-                </div>
 
-                <NumberSequence
-                  numbers={result.mainNumbers}
-                  specialNumbers={result.specialNumbers}
-                />
+                  <NumberSequence
+                    numbers={result.mainNumbers}
+                    specialNumbers={result.specialNumbers}
+                  />
 
-                <dl className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <dt className="text-muted-foreground">Jackpot do sorteio</dt>
-                    <dd className="font-medium">{formatJackpotCompact(result.jackpotAmount)}</dd>
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                    <span className="text-muted-foreground">
+                      Jackpot: {formatJackpotCompact(result.jackpotAmount)}
+                    </span>
+                    {!result.isOfficial && <Badge variant="warning">preliminar</Badge>}
                   </div>
-                  <div>
-                    <dt className="text-muted-foreground">Fonte</dt>
-                    <dd className="font-medium">{result.source}</dd>
-                  </div>
-                </dl>
-
-                <Button asChild variant="ghost" size="sm">
-                  <Link to={`/resultados/${result.game.gameKey}`}>
-                    Histórico de {result.game.name} <ArrowRight aria-hidden />
-                  </Link>
-                </Button>
-              </article>
+                </article>
+              </GameTheme>
             ))}
           </div>
         )
@@ -157,7 +163,7 @@ function GameResultsInner({ gameKey }: { gameKey: string }) {
         <Button asChild variant="ghost" size="sm" className="mb-3 -ml-3">
           <Link to="/resultados">← Todos os resultados</Link>
         </Button>
-        <h1 className="text-display-xl font-extrabold">
+        <h1 className="text-display-lg font-extrabold">
           Resultados de {game?.name ?? gameKey}
         </h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">

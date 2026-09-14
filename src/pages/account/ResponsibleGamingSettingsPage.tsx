@@ -133,7 +133,7 @@ export function ResponsibleGamingSettingsPage() {
       <Seo title="Jogo responsável" description="Configure seus limites de gasto." noIndex />
 
       <header className="mb-8 max-w-2xl">
-        <h1 className="text-display-xl font-extrabold">Jogo responsável</h1>
+        <h1 className="text-display-lg font-extrabold">Jogo responsável</h1>
         <p className="mt-2 text-muted-foreground">
           Defina limites que o sistema aplica automaticamente. Reduções valem na hora; aumentos
           passam por um período de espera de {settings.rgIncreaseCooldownHours} horas.

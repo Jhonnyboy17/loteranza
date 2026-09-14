@@ -2,7 +2,7 @@ import { usePlatform } from '@/contexts/PlatformContext';
 import { useGamesWithDraws } from '@/hooks/useLotteryQueries';
 import { Seo } from '@/components/common/Seo';
 import { ErrorState, LoadingCards } from '@/components/common/states';
-import { JackpotCard } from '@/components/lottery/JackpotCard';
+import { JackpotCard, UpcomingGameRow } from '@/components/lottery/JackpotCard';
 import { JurisdictionNotice } from '@/components/compliance/notices';
 
 export function LotteriesPage() {
@@ -20,11 +20,10 @@ export function LotteriesPage() {
         canonicalPath="/loterias"
       />
 
-      <header className="mb-8 max-w-2xl">
-        <h1 className="text-display-xl font-extrabold">Loterias</h1>
+      <header className="mb-6 max-w-prose">
+        <h1 className="text-display-lg font-extrabold">Loterias</h1>
         <p className="mt-2 text-muted-foreground">
-          Cada modalidade tem suas próprias regras de números, preço e calendário de sorteios.
-          Toda essa configuração vem do painel administrativo — nada é fixo no site.
+          Escolha uma modalidade para montar seus jogos.
         </p>
       </header>
 
@@ -42,7 +41,9 @@ export function LotteriesPage() {
         <>
           <section aria-labelledby="active-title">
             <h2 id="active-title" className="sr-only">Modalidades disponíveis</h2>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Duas colunas: com duas modalidades ativas, três deixariam uma
+                coluna vazia esticando o card. */}
+            <div className="grid gap-5 sm:grid-cols-2">
               {active.map(({ game, draw }) => (
                 <JackpotCard key={game.id} game={game} draw={draw} rate={rate} />
               ))}
@@ -50,19 +51,21 @@ export function LotteriesPage() {
           </section>
 
           {upcoming.length > 0 && (
-            <section className="mt-12" aria-labelledby="upcoming-title">
-              <h2 id="upcoming-title" className="text-display-lg font-bold">
+            <section className="mt-14" aria-labelledby="upcoming-title">
+              <h2 id="upcoming-title" className="font-display text-lg font-semibold">
                 Em preparação
               </h2>
-              <p className="mt-1 max-w-2xl text-muted-foreground">
-                Modalidades já estruturadas no sistema. A ativação depende de configuração e
-                autorização para a jurisdição correspondente.
+              <p className="mt-1 max-w-prose text-sm text-muted-foreground">
+                Já estruturadas no sistema. A ativação depende de configuração e autorização para
+                a jurisdição correspondente.
               </p>
-              <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {upcoming.map(({ game, draw }) => (
-                  <JackpotCard key={game.id} game={game} draw={draw} rate={rate} />
+              {/* Linhas compactas: sem jackpot nem sorteio, um card cheio só
+                  evidenciaria o espaço vazio. */}
+              <ul className="mt-5 grid gap-2 sm:grid-cols-2">
+                {upcoming.map(({ game }) => (
+                  <li key={game.id}><UpcomingGameRow game={game} /></li>
                 ))}
-              </div>
+              </ul>
             </section>
           )}
         </>

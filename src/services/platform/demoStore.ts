@@ -50,7 +50,7 @@ function defaultJurisdictions(): JurisdictionRule[] {
     {
       id: 'jur-br', country: 'BR', state: null, currency: 'BRL',
       legalNotice:
-        'Atualmente não podemos aceitar compras a partir da sua localização. Você pode consultar jackpots e resultados normalmente.',
+        'Atualmente não podemos aceitar compras a partir da sua localização. Você continua podendo consultar jackpots, ver resultados e conferir números.',
       ...base,
     },
     {

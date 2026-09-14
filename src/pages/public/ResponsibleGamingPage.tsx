@@ -37,7 +37,7 @@ export function ResponsibleGamingPage() {
       />
 
       <header className="mx-auto max-w-2xl text-center">
-        <h1 className="text-display-xl font-extrabold">Jogo responsável</h1>
+        <h1 className="text-display-lg font-extrabold">Jogo responsável</h1>
         <p className="mt-3 text-lg text-muted-foreground">
           Loteria é entretenimento, não plano financeiro. Estas ferramentas existem para você
           manter o controle.

@@ -94,7 +94,7 @@ export function CheckNumbersPage() {
       />
 
       <header className="mb-8 max-w-2xl">
-        <h1 className="text-display-xl font-extrabold">Confira seus números</h1>
+        <h1 className="text-display-lg font-extrabold">Confira seus números</h1>
         <p className="mt-2 text-muted-foreground">
           Escolha a modalidade e o sorteio, informe seus números e veja quantos acertos você teve.
         </p>

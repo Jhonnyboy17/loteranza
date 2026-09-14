@@ -58,7 +58,7 @@ export function AccountPage() {
     <div className="container py-10">
       <Seo title="Minha conta" description="Gerencie seus dados e preferências." noIndex />
 
-      <h1 className="mb-6 text-display-xl font-extrabold">Minha conta</h1>
+      <h1 className="mb-6 text-display-lg font-extrabold">Minha conta</h1>
 
       <Tabs defaultValue="dados">
         <TabsList>
