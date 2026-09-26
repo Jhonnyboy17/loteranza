@@ -116,11 +116,77 @@ arquivo.
 para em DEMO quando as transações estão desligadas); os downloads passam a
 gerar arquivo de verdade ou somem.
 
+## 10. Correções de contraste
+
+A paleta do Stitch é boa: auditada par a par, passa em AA quase toda. Três
+**usos** falham — a cor em si não foi alterada em nenhum dos casos, só o lugar
+onde ela é aplicada.
+
+| Uso no Stitch | Medido | Correção | Depois |
+|---|---|---|---|
+| `text-outline` sobre `surface-container-highest` sólido (selo "Não Premiado") | 3,91 | `text-on-surface-variant` | 8,36 |
+| `text-outline-variant` como cor de TEXTO ("CONCURSO #2581", "Limpar", "Scan Auditado") | 1,75-2,05 | `text-outline` — no M3 `outline-variant` é cor de divisória, não de texto | 5,19-6,10 |
+| `text-on-primary` sobre `bg-primary-container` (botão "Ver Scan HD") | 4,14 | `text-on-primary-fixed`, mesmo fundo violeta | 5,40 |
+
+Três outras falhas apareceram só depois, medindo a página renderizada, e são
+de integração — não vieram do Stitch:
+
+- `<GameTheme>` sobrescrevia `--primary-foreground`, que deixou de existir na
+  migração de tokens. O botão tingido ficava com o violeta-escuro da
+  plataforma sobre o vermelho da Powerball (3,29) e o azul da Mega Millions
+  (3,63). Passou a sobrescrever `--on-primary`.
+- Selos e contadores tingidos usavam `--primary`, que é calibrada para servir
+  de FUNDO. Para texto sobre superfície escura o token é `--game-bright`
+  (3,12-3,31 -> acima de 4,5).
+- Um `var(--primary-foreground)` inline sobrou em `GameRow` e não resolvia,
+  deixando o texto herdado quase branco sobre o azul (2,79).
+
+Estado atual: contraste medido no navegador em 15 rotas, nenhuma falha AA.
+
+## 11. Ícones
+
+O Stitch carrega Material Symbols do Google Fonts. É uma fonte de ícones por
+ligadura: quando a CDN falha, cada ícone vira a palavra literal — um
+`account_balance_wallet` de 20px vira uma frase e o layout quebra. E a CDN
+falha mesmo: no ambiente onde este protótipo foi testado o Google Fonts está
+bloqueado.
+
+`src/components/ui/icon.tsx` mapeia os mesmos nomes do Stitch para o
+lucide-react, que já está no bundle. Os glifos diferem um pouco (lucide é mais
+arredondado); o tamanho, o peso e o significado são os mesmos. Um ícone que
+sempre aparece vale mais que um pixel-perfect que some.
+
+Uma troca de conteúdo: `casino` (dado de cassino) virou `home` na aba
+"Início" — o briefing pede estética fintech, explicitamente não de cassino.
+
+## 12. Densidade da grade de números
+
+O Stitch usa `grid-cols-7` com bolas de 40px. A 360px de largura isso dá 35px
+por alvo. A grade aqui mantém `auto-fill minmax(2.75rem, 1fr)`: garante 44px
+de alvo e escolhe sozinha o número de colunas — 6 a 360px, mais conforme a
+tela cresce. O resultado visual é praticamente o mesmo em telas de 390px para
+cima, com alvo maior no pior caso.
+
 ---
 
 ## O que NÃO muda
 
 Todo o resto do Stitch é aproveitado como está: paleta, tipografia, escala de
 espaçamento, raios, sombras, glows, estrutura de cards, bottom nav, grades de
-bolas, estados de seleção, modal de scan, timeline de custódia, discriminação de
-valores no checkout. A estética "Nebula Jackpot" fica intacta.
+bolas, estados de seleção, timeline de custódia, discriminação de valores no
+checkout. A estética "Nebula Jackpot" fica intacta.
+
+---
+
+## Estado
+
+Todos os itens acima estão aplicados. As quatro telas foram convertidas:
+
+| Tela do Stitch | Onde vive agora |
+|---|---|
+| `inicio/` | `src/pages/public/HomePage.tsx` + `JackpotHero`, `GameRow`, `ResultRow`, `TrustStrip` |
+| `jogar/` | `src/components/lottery/NumberPicker.tsx` (etapa 1 de `LotteryDetailPage`) |
+| `meus-bilhetes/` | `src/components/account/OrderCard.tsx` + `MyGamesPage` |
+| `checkout/` | `src/pages/public/CheckoutPage.tsx` |
+
+A casca (cabeçalho fixo + barra de abas) está em `src/components/layout/`.

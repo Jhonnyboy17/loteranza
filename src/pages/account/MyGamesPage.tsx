@@ -110,7 +110,7 @@ export function MyGamesPage() {
                 }
               />
             ) : (
-              <ul className="flex flex-col gap-space-sm lg:grid lg:grid-cols-2">
+              <ul className="flex flex-col gap-space-sm lg:grid lg:grid-cols-2 lg:items-start">
                 {buckets[key].map((order) => (
                   <li key={order.id}>
                     <OrderCard

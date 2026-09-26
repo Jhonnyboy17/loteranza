@@ -112,7 +112,7 @@ export function HomePage() {
         {entries.length > 0 && (
           <section className="mb-space-lg" aria-labelledby="loterias-title">
             <SectionHead title="Loterias disponíveis" href="/loterias" hrefLabel="Ver todas" />
-            <div className="flex flex-col gap-space-sm lg:grid lg:grid-cols-2">
+            <div className="flex flex-col gap-space-sm lg:grid lg:grid-cols-2 lg:items-start">
               {others.map(({ game, draw }) => (
                 <GameRow key={game.id} game={game} draw={draw} rate={rate} />
               ))}
@@ -135,7 +135,7 @@ export function HomePage() {
             </p>
           )}
           {resultsQuery.isSuccess && resultsQuery.data.length > 0 && (
-            <div className="flex flex-col gap-space-sm lg:grid lg:grid-cols-2">
+            <div className="flex flex-col gap-space-sm lg:grid lg:grid-cols-2 lg:items-start">
               {resultsQuery.data.map((result) => (
                 <ResultRow key={result.id} result={result} />
               ))}
