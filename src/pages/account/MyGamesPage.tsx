@@ -1,18 +1,19 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, Heart, Star, Ticket, Trophy } from 'lucide-react';
+import { Ticket } from 'lucide-react';
+import { Sym, type IconName } from '@/components/ui/icon';
 import type { OrderStatus } from '@/types/domain';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDemoState } from '@/hooks/useDemoState';
 import { useGames } from '@/hooks/useLotteryQueries';
-import { formatDate, formatUSD } from '@/lib/format';
+import { formatUSD } from '@/lib/format';
 import { Seo } from '@/components/common/Seo';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EmptyState } from '@/components/common/states';
 import { NumberSequence } from '@/components/lottery/NumberBall';
-import { ORDER_STATUS_LABELS, orderStatusVariant } from './orderStatus';
+import { OrderCard } from '@/components/account/OrderCard';
+import { orderStatusVariant } from './orderStatus';
 
 const ACTIVE_STATUSES: OrderStatus[] = [
   'pending_payment', 'paid', 'compliance_review', 'awaiting_purchase',
@@ -63,23 +64,23 @@ export function MyGamesPage() {
     .reduce((sum, o) => sum + o.total, 0);
 
   return (
-    <div className="container py-10">
+    <div className="mx-auto w-full max-w-[560px] px-space-md py-space-lg lg:max-w-[1100px]">
       <Seo title="Meus jogos" description="Acompanhe seus jogos e pedidos." noIndex />
 
-      <header className="mb-8">
-        <h1 className="text-display-lg font-extrabold">
+      <header className="mb-space-md">
+        <h1 className="font-headline-lg text-headline-lg text-on-surface">
           Olá, {profile?.displayName ?? profile?.fullName ?? 'tudo bem'}
         </h1>
-        <p className="mt-2 text-muted-foreground">
+        <p className="mt-1 font-body-md text-body-md text-outline">
           Seus pedidos, bilhetes e resultados.
         </p>
       </header>
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Ticket} label="Pedidos ativos" value={String(buckets.ativos.length)} />
-        <StatCard icon={Star} label="Bilhetes" value={String(demo.tickets.length)} />
-        <StatCard icon={Trophy} label="Premiados" value={String(buckets.premiados.length)} />
-        <StatCard icon={Bell} label="Total investido" value={formatUSD(totalSpent)} />
+      <div className="mb-space-md grid grid-cols-2 gap-space-sm lg:grid-cols-4">
+        <StatCard icon="confirmation_number" label="Pedidos ativos" value={String(buckets.ativos.length)} />
+        <StatCard icon="document_scanner" label="Bilhetes" value={String(demo.tickets.length)} />
+        <StatCard icon="emoji_events" label="Premiados" value={String(buckets.premiados.length)} />
+        <StatCard icon="payments" label="Total pago" value={formatUSD(totalSpent)} />
       </div>
 
       <Tabs defaultValue="ativos">
@@ -109,53 +110,16 @@ export function MyGamesPage() {
                 }
               />
             ) : (
-              <ul className="space-y-3">
-                {buckets[key].map((order) => {
-                  const game = (gamesQuery.data ?? []).find((g) => g.id === order.gameId);
-                  return (
-                    <li key={order.id} className="surface p-5">
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div className="space-y-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h2 className="font-display font-semibold">
-                              {game?.name ?? 'Pedido'}
-                            </h2>
-                            <Badge variant={orderStatusVariant(order.status)}>
-                              {ORDER_STATUS_LABELS[order.status]}
-                            </Badge>
-                            {order.isDemo && <Badge variant="demo">Demonstração</Badge>}
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            {order.orderNumber} · {formatDate(order.createdAt)} ·{' '}
-                            {order.lines.length} {order.lines.length === 1 ? 'jogo' : 'jogos'}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="tnum font-semibold">{formatUSD(order.total)}</p>
-                          <Button asChild variant="ghost" size="sm">
-                            <Link to={`/meus-jogos/${order.id}`}>Ver detalhes</Link>
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 space-y-1.5">
-                        {order.lines.slice(0, 3).map((line) => (
-                          <NumberSequence
-                            key={line.id}
-                            numbers={line.numbers}
-                            specialNumbers={line.specialNumbers}
-                            size="xs"
-                          />
-                        ))}
-                        {order.lines.length > 3 && (
-                          <p className="text-xs text-muted-foreground">
-                            + {order.lines.length - 3} jogo(s)
-                          </p>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
+              <ul className="flex flex-col gap-space-sm lg:grid lg:grid-cols-2">
+                {buckets[key].map((order) => (
+                  <li key={order.id}>
+                    <OrderCard
+                      order={order}
+                      game={(gamesQuery.data ?? []).find((g) => g.id === order.gameId)}
+                      tone={orderStatusVariant(order.status)}
+                    />
+                  </li>
+                ))}
               </ul>
             )}
           </TabsContent>
@@ -163,7 +127,7 @@ export function MyGamesPage() {
 
         <TabsContent value="assinaturas">
           <EmptyState
-            icon={Bell}
+            icon={Ticket}
             title="Nenhuma assinatura ativa"
             description="Assinatura automática fica disponível apenas nas jurisdições onde for juridicamente permitida. Ainda não habilitada."
           />
@@ -172,7 +136,7 @@ export function MyGamesPage() {
         <TabsContent value="favoritos">
           {demo.favorites.length === 0 ? (
             <EmptyState
-              icon={Heart}
+              icon={Ticket}
               title="Nenhuma combinação salva"
               description="Salve suas combinações preferidas para jogar de novo com um clique."
               action={<Button asChild><Link to="/loterias">Montar um jogo</Link></Button>}
@@ -205,20 +169,24 @@ export function MyGamesPage() {
 }
 
 function StatCard({
-  icon: Icon, label, value,
+  icon, label, value,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: IconName;
   label: string;
   value: string;
 }) {
   return (
-    <div className="surface flex items-center gap-4 p-5">
-      <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
-        <Icon className="size-5" />
+    <div className="flex items-center gap-space-sm rounded-xl bg-surface-container-low p-space-sm shadow-soft">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <Sym name={icon} size={18} />
       </span>
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-        <p className="tnum font-display text-xl font-bold">{value}</p>
+      <div className="min-w-0">
+        <p className="truncate font-label-xs text-label-xs uppercase tracking-wider text-outline">
+          {label}
+        </p>
+        <p className="font-display text-headline-sm font-bold tabular-nums text-on-surface">
+          {value}
+        </p>
       </div>
     </div>
   );

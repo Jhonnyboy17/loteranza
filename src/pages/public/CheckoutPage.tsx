@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Check, Lock, MapPin, ShieldCheck } from 'lucide-react';
+import { Sym, type IconName } from '@/components/ui/icon';
 import type { ComplianceVerdict } from '@/types/domain';
 import { env } from '@/config/env';
 import { useAuth } from '@/contexts/AuthContext';
@@ -347,10 +348,18 @@ export function CheckoutPage() {
                     Os dados do meio de pagamento são processados pelo provedor. Esta plataforma
                     não recebe nem armazena o número completo do cartão.
                   </p>
-                  <ul className="space-y-2">
+                  <ul className="flex flex-col gap-space-xs">
                     {paymentMethods.map((method) => (
-                      <li key={method} className="rounded-lg border border-border p-4 text-sm">
-                        {method}
+                      <li
+                        key={method}
+                        className="flex items-center gap-space-sm rounded-lg bg-surface-container-high p-space-sm"
+                      >
+                        <span className="flex size-8 shrink-0 items-center justify-center rounded bg-surface-container text-tertiary">
+                          <Sym name={paymentIcon(method)} size={20} />
+                        </span>
+                        <span className="font-label-lg text-label-lg font-semibold text-on-surface">
+                          {method}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -368,10 +377,14 @@ export function CheckoutPage() {
             </StepCard>
           )}
 
+          <GuaranteeList />
+
           {/* Estado global sempre visível */}
           {!globalTransactionsEnabled && (
-            <div className="rounded-xl border border-border bg-muted/40 p-4">
-              <p className="text-sm font-medium">Estado atual do sistema</p>
+            <div className="rounded-xl bg-surface-container-low p-space-md shadow-soft">
+              <p className="font-label-md text-label-md font-semibold uppercase tracking-wider text-on-surface-variant">
+                Estado atual do sistema
+              </p>
               <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
                   <Badge variant={env.transactionsEnabled ? 'success' : 'neutral'}>
@@ -425,9 +438,75 @@ export function CheckoutPage() {
 
 function StepCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="surface space-y-4 p-5 sm:p-6">
-      <h2 className="font-display text-lg font-semibold">{title}</h2>
+    <section className="flex flex-col gap-space-sm rounded-xl bg-surface-container p-space-md shadow-card">
+      <h2 className="flex items-center gap-1.5 font-headline-sm text-headline-sm text-on-surface">
+        <span aria-hidden className="h-4 w-1.5 shrink-0 rounded-full bg-primary" />
+        {title}
+      </h2>
       {children}
+    </section>
+  );
+}
+
+/** Ícone por rótulo de meio de pagamento, sem acoplar a um provedor. */
+function paymentIcon(method: string): IconName {
+  const m = method.toLowerCase();
+  if (m.includes('pix')) return 'qr_code_2';
+  if (m.includes('cart')) return 'credit_card';
+  if (m.includes('transf') || m.includes('banc')) return 'payments';
+  return 'payments';
+}
+
+/**
+ * O que a plataforma garante — e o que ela NÃO pode garantir.
+ *
+ * O Stitch desenha aqui um bloco "Garantia Chicago Courier" com três
+ * promessas, e a terceira é "100% dos Prêmios sem Retenção · Ganhos integrais
+ * repassados diretamente para você sem comissão oculta". Isso é falso: prêmio
+ * de loteria americana sofre retenção na fonte acima de certos valores. Não é
+ * questão de estilo, é informação errada sobre dinheiro do cliente — então o
+ * bloco foi reescrito com o que de fato acontece.
+ */
+function GuaranteeList() {
+  const items: { icon: IconName; title: string; body: string }[] = [
+    {
+      icon: 'payments',
+      title: 'Preço e taxa sempre separados',
+      body: 'O valor oficial da aposta e a taxa de serviço aparecem em linhas distintas, antes de qualquer confirmação. Não há cobrança embutida.',
+    },
+    {
+      icon: 'document_scanner',
+      title: 'Bilhete rastreável na sua conta',
+      body: 'Cada pedido guarda número, data, a imagem do bilhete e o estado atual da custódia.',
+    },
+    {
+      icon: 'encrypted',
+      title: 'Sobre a retenção de imposto',
+      body: 'Prêmios pagos nos Estados Unidos podem sofrer retenção na fonte, e a regra varia conforme o valor, o estado e a sua residência fiscal. Não prometemos repasse integral. [CONTEÚDO A SER VALIDADO POR ADVOGADO]',
+    },
+  ];
+
+  return (
+    <section className="flex flex-col gap-space-sm rounded-xl bg-surface-container-lowest p-space-md">
+      <h2 className="flex items-center gap-space-xs font-label-md text-label-md font-semibold uppercase tracking-wider text-on-surface-variant">
+        <Sym name="verified_user" size={18} className="text-tertiary" />
+        O que está incluído
+      </h2>
+      <ul className="flex flex-col gap-space-sm">
+        {items.map((item) => (
+          <li key={item.title} className="flex items-start gap-space-sm">
+            <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-container-high text-tertiary">
+              <Sym name={item.icon} size={14} />
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <span className="font-label-md text-label-md font-semibold text-on-surface">
+                {item.title}
+              </span>
+              <span className="font-body-sm text-body-sm text-on-surface-variant">{item.body}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
