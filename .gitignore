@@ -19,3 +19,6 @@ supabase/.temp
 
 # Capturas de tela geradas para revisão; não fazem parte do build.
 .previews/
+
+# Build usado só para a prévia publicada como artifact.
+dist-art

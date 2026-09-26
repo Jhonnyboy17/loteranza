@@ -39,11 +39,21 @@ que o app já suporta, e as rotas viram `.../#/loterias/powerball`. Funcionam
 em qualquer host. O `404.html` (cópia do index) é uma rede de segurança para
 link direto sem `#`.
 
-### Primeira execução
+### Primeira execução — precisa de um clique
 
-O workflow usa `actions/configure-pages` com `enablement: true`, que liga o
-Pages sozinho. Se a organização bloquear isso, ligue à mão uma vez em
-**Settings → Pages → Source: GitHub Actions** e rode o workflow de novo.
+O `GITHUB_TOKEN` do Actions consegue **publicar** no Pages, mas não consegue
+**criar** o site: criar exige direito de administração, que só o dono da conta
+tem. Então, uma única vez:
+
+1. Abrir <https://github.com/Jhonnyboy17/loteranza/settings/pages>
+2. Em **Source**, escolher **GitHub Actions**
+3. Em Actions, abrir o último run e clicar em **Re-run all jobs**
+
+Depois disso todo push republica sozinho, sem mais cliques.
+
+O workflow confere isso antes de tentar publicar e, se o Pages estiver
+desligado, escreve essas instruções no resumo do run — em vez do erro
+`Resource not accessible by integration`, que não diz o que fazer.
 
 ## Sair do modo demonstração
 

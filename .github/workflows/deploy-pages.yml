@@ -66,10 +66,34 @@ jobs:
           # .nojekyll impede o Jekyll de ignorar pastas iniciadas com "_".
           touch dist/.nojekyll
 
+      # O GITHUB_TOKEN consegue PUBLICAR no Pages, mas não consegue CRIÁ-LO:
+      # criar o site exige direito de administração, que só o dono tem. Sem
+      # esta checagem o job morre com "Resource not accessible by integration",
+      # que não diz a ninguém o que fazer.
+      - name: Conferir se o Pages está ligado
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1; then
+            echo "Pages ligado. Seguindo."
+            exit 0
+          fi
+          {
+            echo "## GitHub Pages ainda não está ligado"
+            echo
+            echo "O build passou inteiro; falta só ligar o Pages uma vez."
+            echo
+            echo "1. Abra **Settings → Pages** em:"
+            echo "   https://github.com/${{ github.repository }}/settings/pages"
+            echo "2. Em **Source**, escolha **GitHub Actions**."
+            echo "3. Volte aqui e clique em **Re-run all jobs**."
+            echo
+            echo "É uma vez só. Depois disso todo push republica sozinho."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error::Pages não está ligado. Settings → Pages → Source: GitHub Actions, e rode o workflow de novo."
+          exit 1
+
       - uses: actions/configure-pages@v5
-        with:
-          # Liga o Pages na primeira execução, sem precisar mexer nas settings.
-          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:
