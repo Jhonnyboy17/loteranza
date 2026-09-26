@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Outfit:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;background-color:#11131e;color:#e1e1f1;font-family:'Inter',sans-serif;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container": "#1d1f2a", "outline-variant": "#494454", "on-tertiary-fixed-variant": "#004e5c", "surface-container-highest": "#323440", "surface-variant": "#323440", "inverse-on-surface": "#2e303c", "surface-tint": "#d0bcff", "inverse-surface": "#e1e1f1", "secondary-container": "#eec200", "on-primary-fixed": "#23005c", "on-tertiary-container": "#002f38", "surface-container-high": "#272935", "primary-container": "#a078ff", "surface-bright": "#373845", "secondary-fixed": "#ffe083", "on-secondary-fixed": "#231b00", "secondary-fixed-dim": "#eec200", "inverse-primary": "#6d3bd7", "error-container": "#93000a", "tertiary-fixed-dim": "#4cd7f6", "on-primary-container": "#340080", "on-tertiary": "#003640", "outline": "#958ea0", "primary": "#d0bcff", "secondary": "#ffe083", "on-background": "#e1e1f1", "tertiary": "#4cd7f6", "background": "#11131e", "on-primary": "#3c0091", "on-surface": "#e1e1f1", "surface": "#11131e", "on-tertiary-fixed": "#001f26", "on-error": "#690005", "on-primary-fixed-variant": "#5516be", "primary-fixed": "#e9ddff", "surface-container-low": "#191b26", "error": "#ffb4ab", "tertiary-fixed": "#acedff", "on-secondary-container": "#645000", "on-secondary-fixed-variant": "#574500", "on-error-container": "#ffdad6", "surface-dim": "#11131e", "tertiary-container": "#009eb9", "on-secondary": "#3c2f00", "on-surface-variant": "#cbc3d7", "surface-container-lowest": "#0b0e18", "primary-fixed-dim": "#d0bcff" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-sm": "0.5rem", "space-lg": "1.5rem", "space-xl": "2.5rem", "margin": "3rem", "gutter": "1.5rem", "space-xs": "0.25rem", "space-md": "1rem", "margin-mobile": "1rem", "gutter-mobile": "0.75rem" }, fontFamily: { "body-lg": ["Inter"], "headline-xl": ["Outfit"], "label-md": ["Outfit"], "headline-xl-mobile": ["Outfit"], "headline-sm": ["Outfit"], "body-md": ["Inter"], "jackpot-display": ["Outfit"], "ball-number": ["Outfit"], "headline-md": ["Outfit"], "jackpot-display-mobile": ["Outfit"], "headline-lg": ["Outfit"], "label-xs": ["Outfit"], "label-lg": ["Outfit"], "body-sm": ["Inter"] }, fontSize: { "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }], "headline-xl": ["48px", { "lineHeight": "54px", "letterSpacing": "-0.03em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "600" }], "headline-xl-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }], "body-md": ["15px", { "lineHeight": "24px", "fontWeight": "400" }], "jackpot-display": ["72px", { "lineHeight": "76px", "letterSpacing": "-0.04em", "fontWeight": "800" }], "ball-number": ["22px", { "lineHeight": "22px", "fontWeight": "700" }], "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "jackpot-display-mobile": ["44px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "label-xs": ["10px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "700" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.04em", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }] } } } };</script></head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest/80 backdrop-blur-xl pt-safe shadow-[0_4px_24px_rgba(0,0,0,0.6)]"><div class="h-16 px-space-md flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm"><img alt="Brand logo. - Primary color: #8b5cf6
+- Font: outfit
+- Mode: dark
+- Roundness: rounded-md
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XVerKZfP8id1girpZtqK2gZ3vucKFGATOcyM59zgT57nRkUEBTY54JBKXRosu7vjzI1lHp6YyOp4AyChK_KByrHfcSopyNcyhuIRqZixEySRXCgdkmOJAMNCAJD9WTjIazvlV2CxjewGFL_f-1FP4vjezE5LO9B8lYx0p9prwGPgAmjXQR5fhtZyPWhNVQwW2EJylhJFGRb0dlzgw1ewonEYOCiTUlrcb5DDWQ3We5LSuSRaVcib7f-JY"/><div class="flex flex-col"><div class="flex items-center gap-1.5"><span class="font-headline-sm text-headline-sm font-bold tracking-tight text-on-surface leading-none">JackpotUSA</span><span class="font-label-xs text-label-xs px-1.5 py-0.5 rounded-full bg-secondary/10 text-secondary uppercase font-bold tracking-wider">ORD</span></div><span class="font-label-xs text-label-xs text-outline tracking-wider flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-tertiary-container animate-pulse"></span>Chicago Courier Hub • Meus Bilhetes</span></div></div><div class="flex items-center gap-space-xs"><div class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-surface-container-high/80 text-secondary-fixed"><span class="material-symbols-outlined text-[16px] text-secondary">account_balance_wallet</span><span class="font-label-md text-label-md font-bold">$140.00</span></div><button class="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface relative rounded-full hover:bg-surface-container-high/50 transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_rgba(254,224,131,0.8)]"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full px-space-md py-space-sm gap-space-lg">
+<!-- Interactive Vault Modal (Hidden by Default) -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-space-md bg-surface-container-lowest/90 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-300" id="scan-modal">
+<div class="relative w-full max-w-sm flex flex-col bg-surface-container-high rounded-xl p-space-md shadow-2xl gap-space-sm">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">verified</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Scan Oficial EUA</span>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant hover:text-on-surface" id="close-modal-btn">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<!-- Scanned Physical Ticket Image -->
+<div class="relative rounded-lg overflow-hidden bg-surface-container-lowest aspect-[4/5] flex items-center justify-center shadow-inner">
+<img class="w-full h-full object-cover" data-alt="High resolution physical US Mega Millions paper ticket printed at an authorized lottery terminal in Chicago Illinois. Crisp thermal paper texture with official blue Mega Millions logo, visible barcode, security cryptographic serial number ORD-9924-CHI, date stamp and authenticated courier rubber stamp under soft museum lighting, dark technological backdrop." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEPDJPnLn6k0ScmpEoBvxrZFeyIYwzZ0ofyGy3Nltam0AWw2LGEX10zlC_NoIrPANA8Nm9zZO4AK8R5cWfnJUmGJ0aji8QVuI0-lt9Enh8_WXmZ2VlQU20tbj1XruqgzXU6kItKDVe0563EtdxynToMige9t3CuDeHrHPyf6x8R7YcBm7g8zy_gsuwOCr4nbehr9ruLvxyJsKbXINDisZ3HmDFhEB66F-G3fs7v1DbNnIGhzyP-ZT5"/>
+<!-- Live Watermark Overlay -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/95 via-transparent to-surface-container-lowest/40 p-space-sm flex flex-col justify-between pointer-events-none">
+<div class="self-end px-2 py-0.5 rounded-full bg-surface-container-highest/80 backdrop-blur-md text-secondary font-label-xs text-label-xs tracking-wider">
+            SERIAL #ORD-9924-CHI
+          </div>
+<div class="flex flex-col gap-0.5">
+<span class="font-label-xs text-label-xs text-tertiary-fixed-dim uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+              Terminal 4410-A • Illinois Vault #12
+            </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant text-[11px]">Autenticado por Courier ID #7728 • Chicago, IL</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs text-on-surface-variant font-label-xs text-label-xs">
+<span class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[16px]">fingerprint</span>
+          SHA-256 Verificado
+        </span>
+<button class="flex items-center gap-1 text-primary hover:text-on-surface transition-colors py-1 px-2 rounded-lg bg-surface-container-highest" onclick="triggerDownloadFeedback(this)">
+<span class="material-symbols-outlined text-[14px]">download</span>
+          Salvar Certificado
+        </button>
+</div>
+</div>
+</div>
+<!-- Hero Section: Active Game with Physical Vault Custody -->
+<div class="relative flex flex-col w-full rounded-xl bg-surface-container-high/90 backdrop-blur-xl p-space-md shadow-2xl overflow-hidden">
+<!-- Ambient Radial Violet & Gold Glows -->
+<div class="absolute -top-16 -right-16 w-56 h-56 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute -bottom-16 -left-16 w-56 h-56 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Header info: Badge & Lottery Brand -->
+<div class="flex items-center justify-between gap-space-xs">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-secondary text-[20px]">stars</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">Mega Millions</span>
+<span class="font-label-xs text-label-xs text-outline tracking-wider uppercase">Sorteio Oficial EUA</span>
+</div>
+</div>
+<!-- Custody Badge -->
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary-container/20 text-secondary-fixed shadow-[0_0_12px_rgba(254,224,131,0.2)]">
+<span class="material-symbols-outlined text-[14px] text-secondary">verified_user</span>
+<span class="font-label-xs text-label-xs font-bold uppercase tracking-wider">Cofre EUA</span>
+</div>
+</div>
+<!-- Jackpot Display Banner -->
+<div class="flex flex-col items-center justify-center my-space-md py-space-sm rounded-xl bg-surface-container/60 shadow-inner">
+<span class="font-label-xs text-label-xs text-outline tracking-widest uppercase">Prêmio Estimado</span>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-headline-sm text-headline-sm font-bold text-secondary">US$</span>
+<span class="font-jackpot-display-mobile text-jackpot-display-mobile text-secondary tracking-tight">680</span>
+<span class="font-headline-md text-headline-md font-bold text-secondary uppercase">Milhões</span>
+</div>
+<!-- Live Countdown -->
+<div class="flex items-center gap-2 mt-2 px-3 py-1 rounded-full bg-surface-container-highest/70 text-on-surface-variant font-label-xs text-label-xs">
+<span class="material-symbols-outlined text-[14px] text-tertiary">schedule</span>
+<span>Sorteio em:</span>
+<span class="font-bold text-tertiary-fixed tracking-wider" id="draw-countdown">04h 28m 15s</span>
+</div>
+</div>
+<!-- Interactive Ticket Scan Visual Container -->
+<div class="relative w-full rounded-xl bg-surface-container-lowest p-space-sm shadow-md mb-space-md flex flex-col gap-2">
+<div class="flex items-center justify-between text-outline">
+<span class="font-label-xs text-label-xs uppercase tracking-wider flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+          Terminal Chicago #4410
+        </span>
+<span class="font-label-xs text-label-xs tracking-mono text-outline-variant">CONCURSO #2581</span>
+</div>
+<!-- Spheres: Selected Numbers -->
+<div class="flex items-center justify-between py-space-xs px-1">
+<!-- White Balls -->
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest shadow-[0_0_12px_rgba(208,188,255,0.35)] flex items-center justify-center">
+<span class="font-ball-number text-ball-number text-primary-fixed">14</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest shadow-[0_0_12px_rgba(208,188,255,0.35)] flex items-center justify-center">
+<span class="font-ball-number text-ball-number text-primary-fixed">31</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest shadow-[0_0_12px_rgba(208,188,255,0.35)] flex items-center justify-center">
+<span class="font-ball-number text-ball-number text-primary-fixed">42</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest shadow-[0_0_12px_rgba(208,188,255,0.35)] flex items-center justify-center">
+<span class="font-ball-number text-ball-number text-primary-fixed">48</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest shadow-[0_0_12px_rgba(208,188,255,0.35)] flex items-center justify-center">
+<span class="font-ball-number text-ball-number text-primary-fixed">60</span>
+</div>
+</div>
+<!-- Special Gold Mega Ball -->
+<div class="flex flex-col items-center">
+<div class="w-10 h-10 rounded-full bg-secondary shadow-[0_0_16px_rgba(255,224,131,0.7)] flex items-center justify-center">
+<span class="font-ball-number text-ball-number text-on-secondary-fixed">19</span>
+</div>
+</div>
+</div>
+<!-- Courier Security Micro-status -->
+<div class="flex items-center justify-between pt-1 px-1 text-on-surface-variant font-label-xs text-label-xs">
+<span class="text-tertiary-fixed-dim">Mega Ball inclusa</span>
+<span class="flex items-center gap-1 text-outline">
+<span class="material-symbols-outlined text-[13px] text-tertiary">inventory_2</span>
+          Gaveta Blindada #A-108
+        </span>
+</div>
+</div>
+<!-- Direct Action Buttons -->
+<div class="grid grid-cols-2 gap-space-xs">
+<button class="flex items-center justify-center gap-2 py-3 px-space-sm rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg font-bold shadow-md hover:brightness-110 active:scale-[0.98] transition-all" id="open-scan-btn">
+<span class="material-symbols-outlined text-[18px]">photo_camera</span>
+        Ver Scan HD
+      </button>
+<button class="flex items-center justify-center gap-2 py-3 px-space-sm rounded-lg bg-surface-container-highest text-primary-fixed font-label-lg text-label-lg font-bold shadow-md hover:bg-surface-bright active:scale-[0.98] transition-all" onclick="triggerDownloadReceipt(this)">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+        Comprovante
+      </button>
+</div>
+<!-- Security Chain Step Timeline -->
+<div class="mt-space-md pt-space-sm flex flex-col gap-2">
+<div class="flex items-center justify-between text-outline font-label-xs text-label-xs">
+<span>Fluxo de Custódia Courier</span>
+<span class="text-secondary font-semibold">100% Blindado</span>
+</div>
+<div class="grid grid-cols-4 gap-1.5 w-full">
+<div class="flex flex-col gap-1 items-center text-center">
+<div class="h-1.5 w-full rounded-full bg-secondary"></div>
+<span class="font-label-xs text-label-xs text-on-surface">Pedido</span>
+</div>
+<div class="flex flex-col gap-1 items-center text-center">
+<div class="h-1.5 w-full rounded-full bg-secondary"></div>
+<span class="font-label-xs text-label-xs text-on-surface">Comprado</span>
+</div>
+<div class="flex flex-col gap-1 items-center text-center">
+<div class="h-1.5 w-full rounded-full bg-secondary"></div>
+<span class="font-label-xs text-label-xs text-on-surface">Scan HD</span>
+</div>
+<div class="flex flex-col gap-1 items-center text-center">
+<div class="h-1.5 w-full rounded-full bg-secondary"></div>
+<span class="font-label-xs text-label-xs text-secondary font-bold">No Cofre</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Past Games Section (Clean Minimalist Cards) -->
+<div class="flex flex-col gap-space-sm mt-space-xs">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[20px]">history</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Histórico de Bilhetes</span>
+</div>
+<span class="font-label-xs text-label-xs text-outline font-semibold tracking-wider">ÚLTIMOS JOGOS</span>
+</div>
+<!-- Past Ticket 1: Won Minor Tier -->
+<div class="flex flex-col rounded-xl bg-surface-container p-space-sm shadow-md gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[14px]">bolt</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg font-bold text-on-surface">Powerball</span>
+<span class="font-body-sm text-body-sm text-outline text-[11px]">Concurso #1994 • 12 Fev</span>
+</div>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary-container/20 text-secondary font-label-xs text-label-xs font-bold">
+<span class="material-symbols-outlined text-[13px]">emoji_events</span>
+          Premiado US$ 100
+        </div>
+</div>
+<!-- Numbers Row Compact -->
+<div class="flex items-center justify-between bg-surface-container-lowest/60 rounded-lg p-2 mt-1">
+<div class="flex items-center gap-1.5">
+<span class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center text-primary-fixed font-label-md text-label-md font-bold">09</span>
+<span class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center text-primary-fixed font-label-md text-label-md font-bold">17</span>
+<span class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center text-primary-fixed font-label-md text-label-md font-bold">25</span>
+<span class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center text-primary-fixed font-label-md text-label-md font-bold">41</span>
+<span class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center text-primary-fixed font-label-md text-label-md font-bold">53</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="font-label-xs text-label-xs text-outline uppercase mr-1">PB</span>
+<span class="w-7 h-7 rounded-full bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-md text-label-md font-bold">04</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-outline font-label-xs text-label-xs pt-1 px-1">
+<span>Resgate automático para sua carteira</span>
+<span class="text-tertiary font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">done_all</span>
+          Creditado
+        </span>
+</div>
+</div>
+<!-- Past Ticket 2: Not Won -->
+<div class="flex flex-col rounded-xl bg-surface-container p-space-sm shadow-md gap-space-xs opacity-85">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-outline text-[14px]">stars</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg font-bold text-on-surface">Mega Millions</span>
+<span class="font-body-sm text-body-sm text-outline text-[11px]">Concurso #2579 • 08 Fev</span>
+</div>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-highest text-outline font-label-xs text-label-xs font-semibold">
+<span>Não Premiado</span>
+</div>
+</div>
+<!-- Numbers Row Compact -->
+<div class="flex items-center justify-between bg-surface-container-lowest/60 rounded-lg p-2 mt-1">
+<div class="flex items-center gap-1.5">
+<span class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant font-label-md text-label-md">03</span>
+<span class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant font-label-md text-label-md">11</span>
+<span class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant font-label-md text-label-md">29</span>
+<span class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant font-label-md text-label-md">38</span>
+<span class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant font-label-md text-label-md">64</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="font-label-xs text-label-xs text-outline uppercase mr-1">MB</span>
+<span class="w-7 h-7 rounded-full bg-surface-container-highest text-outline flex items-center justify-center font-label-md text-label-md font-bold">22</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-outline font-label-xs text-label-xs pt-1 px-1">
+<span>Bilhete físico arquivado no vault</span>
+<button class="text-outline-variant hover:text-on-surface flex items-center gap-0.5">
+<span>Scan Auditado</span>
+<span class="material-symbols-outlined text-[13px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Trust Protocol Micro-Card -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-xl bg-surface-container-low shadow-sm mt-space-xs">
+<div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[20px]">shield_lock</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Garantia Notarial Courier</span>
+<span class="font-body-sm text-body-sm text-outline text-[12px] leading-tight">Bilhetes físicos guardados no cofre de segurança máxima de Chicago sob jurisdição americana.</span>
+</div>
+</div>
+</div>
+<script>
+  // Countdown Timer Simulation
+  (function() {
+    let hours = 4;
+    let minutes = 28;
+    let seconds = 15;
+    const countdownEl = document.getElementById('draw-countdown');
+
+    if (countdownEl) {
+      setInterval(() => {
+        if (seconds > 0) {
+          seconds--;
+        } else {
+          seconds = 59;
+          if (minutes > 0) {
+            minutes--;
+          } else {
+            minutes = 59;
+            if (hours > 0) hours--;
+          }
+        }
+        const h = hours < 10 ? '0' + hours : hours;
+        const m = minutes < 10 ? '0' + minutes : minutes;
+        const s = seconds < 10 ? '0' + seconds : seconds;
+        countdownEl.innerText = `${h}h ${m}m ${s}s`;
+      }, 1000);
+    }
+
+    // Modal Interaction
+    const openBtn = document.getElementById('open-scan-btn');
+    const closeBtn = document.getElementById('close-modal-btn');
+    const modal = document.getElementById('scan-modal');
+
+    if (openBtn && modal && closeBtn) {
+      openBtn.addEventListener('click', () => {
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        modal.classList.add('opacity-100', 'pointer-events-auto');
+      });
+
+      closeBtn.addEventListener('click', () => {
+        modal.classList.remove('opacity-100', 'pointer-events-auto');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+      });
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('opacity-100', 'pointer-events-auto');
+          modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+      });
+    }
+  })();
+
+  function triggerDownloadReceipt(btn) {
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">sync</span> Gerando...';
+    setTimeout(() => {
+      btn.innerHTML = '<span class="material-symbols-outlined text-[18px] text-tertiary">check</span> Salvo!';
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+      }, 2000);
+    }, 900);
+  }
+
+  function triggerDownloadFeedback(btn) {
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="material-symbols-outlined text-[14px] text-secondary">check</span> Baixado';
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+    }, 2000);
+  }
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_-8px_32px_rgba(0,0,0,0.7)]" data-active-classes="text-secondary [filter:drop-shadow(0_0_10px_rgba(254,224,131,0.5))]"><div class="flex justify-around items-center h-20 px-space-xs"><a class="flex flex-col items-center justify-center gap-1 w-14 h-14 text-on-surface-variant hover:text-on-surface transition-all duration-200" data-path="inicio" href="#"><span class="material-symbols-outlined text-[24px]">casino</span><span class="font-label-xs text-label-xs font-semibold uppercase tracking-wider">Início</span></a><a class="flex flex-col items-center justify-center gap-1 w-14 h-14 text-on-surface-variant hover:text-on-surface transition-all duration-200" data-path="jogar" href="#"><span class="material-symbols-outlined text-[24px]">add_circle</span><span class="font-label-xs text-label-xs font-semibold uppercase tracking-wider">Jogar</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-1 w-14 h-14 transition-all duration-200 text-secondary [filter:drop-shadow(0_0_10px_rgba(254,224,131,0.5))]" data-path="meus-bilhetes" href="#"><span class="material-symbols-outlined text-[24px]">confirmation_number</span><span class="font-label-xs text-label-xs font-semibold uppercase tracking-wider">Bilhetes</span></a><a class="flex flex-col items-center justify-center gap-1 w-14 h-14 text-on-surface-variant hover:text-on-surface transition-all duration-200" data-path="resultados" href="#"><span class="material-symbols-outlined text-[24px]">emoji_events</span><span class="font-label-xs text-label-xs font-semibold uppercase tracking-wider">Resultados</span></a><a class="flex flex-col items-center justify-center gap-1 w-14 h-14 text-on-surface-variant hover:text-on-surface transition-all duration-200" data-path="perfil-courier" href="#"><span class="material-symbols-outlined text-[24px]">badge</span><span class="font-label-xs text-label-xs font-semibold uppercase tracking-wider">Perfil</span></a></div></nav></body></html>

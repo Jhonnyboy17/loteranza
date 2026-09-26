@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Outfit:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;background-color:#11131e;color:#e1e1f1;font-family:'Inter',sans-serif;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container": "#1d1f2a", "outline-variant": "#494454", "on-tertiary-fixed-variant": "#004e5c", "surface-container-highest": "#323440", "surface-variant": "#323440", "inverse-on-surface": "#2e303c", "surface-tint": "#d0bcff", "inverse-surface": "#e1e1f1", "secondary-container": "#eec200", "on-primary-fixed": "#23005c", "on-tertiary-container": "#002f38", "surface-container-high": "#272935", "primary-container": "#a078ff", "surface-bright": "#373845", "secondary-fixed": "#ffe083", "on-secondary-fixed": "#231b00", "secondary-fixed-dim": "#eec200", "inverse-primary": "#6d3bd7", "error-container": "#93000a", "tertiary-fixed-dim": "#4cd7f6", "on-primary-container": "#340080", "on-tertiary": "#003640", "outline": "#958ea0", "primary": "#d0bcff", "secondary": "#ffe083", "on-background": "#e1e1f1", "tertiary": "#4cd7f6", "background": "#11131e", "on-primary": "#3c0091", "on-surface": "#e1e1f1", "surface": "#11131e", "on-tertiary-fixed": "#001f26", "on-error": "#690005", "on-primary-fixed-variant": "#5516be", "primary-fixed": "#e9ddff", "surface-container-low": "#191b26", "error": "#ffb4ab", "tertiary-fixed": "#acedff", "on-secondary-container": "#645000", "on-secondary-fixed-variant": "#574500", "on-error-container": "#ffdad6", "surface-dim": "#11131e", "tertiary-container": "#009eb9", "on-secondary": "#3c2f00", "on-surface-variant": "#cbc3d7", "surface-container-lowest": "#0b0e18", "primary-fixed-dim": "#d0bcff" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-sm": "0.5rem", "space-lg": "1.5rem", "space-xl": "2.5rem", "margin": "3rem", "gutter": "1.5rem", "space-xs": "0.25rem", "space-md": "1rem", "margin-mobile": "1rem", "gutter-mobile": "0.75rem" }, fontFamily: { "body-lg": ["Inter"], "headline-xl": ["Outfit"], "label-md": ["Outfit"], "headline-xl-mobile": ["Outfit"], "headline-sm": ["Outfit"], "body-md": ["Inter"], "jackpot-display": ["Outfit"], "ball-number": ["Outfit"], "headline-md": ["Outfit"], "jackpot-display-mobile": ["Outfit"], "headline-lg": ["Outfit"], "label-xs": ["Outfit"], "label-lg": ["Outfit"], "body-sm": ["Inter"] }, fontSize: { "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }], "headline-xl": ["48px", { "lineHeight": "54px", "letterSpacing": "-0.03em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "600" }], "headline-xl-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }], "body-md": ["15px", { "lineHeight": "24px", "fontWeight": "400" }], "jackpot-display": ["72px", { "lineHeight": "76px", "letterSpacing": "-0.04em", "fontWeight": "800" }], "ball-number": ["22px", { "lineHeight": "22px", "fontWeight": "700" }], "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "jackpot-display-mobile": ["44px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "label-xs": ["10px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "700" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.04em", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }] } } } };</script></head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest/80 backdrop-blur-xl pt-safe shadow-[0_4px_24px_rgba(0,0,0,0.6)]"><div class="h-16 px-space-md flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm"><img alt="Brand logo. - Primary color: #8b5cf6
+- Font: outfit
+- Mode: dark
+- Roundness: rounded-md
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XVerKZfP8id1girpZtqK2gZ3vucKFGATOcyM59zgT57nRkUEBTY54JBKXRosu7vjzI1lHp6YyOp4AyChK_KByrHfcSopyNcyhuIRqZixEySRXCgdkmOJAMNCAJD9WTjIazvlV2CxjewGFL_f-1FP4vjezE5LO9B8lYx0p9prwGPgAmjXQR5fhtZyPWhNVQwW2EJylhJFGRb0dlzgw1ewonEYOCiTUlrcb5DDWQ3We5LSuSRaVcib7f-JY"/><div class="flex flex-col"><div class="flex items-center gap-1.5"><span class="font-headline-sm text-headline-sm font-bold tracking-tight text-on-surface leading-none">JackpotUSA</span><span class="font-label-xs text-label-xs px-1.5 py-0.5 rounded-full bg-secondary/10 text-secondary uppercase font-bold tracking-wider">ORD</span></div><span class="font-label-xs text-label-xs text-outline tracking-wider flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-tertiary-container animate-pulse"></span>Chicago Courier Hub • Jogar</span></div></div><div class="flex items-center gap-space-xs"><div class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-surface-container-high/80 text-secondary-fixed"><span class="material-symbols-outlined text-[16px] text-secondary">account_balance_wallet</span><span class="font-label-md text-label-md font-bold">$140.00</span></div><button class="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface relative rounded-full hover:bg-surface-container-high/50 transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_rgba(254,224,131,0.8)]"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full relative pb-28">
+<!-- Dynamic Glow Spots -->
+<div class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 w-80 h-80 bg-secondary/10 blur-[90px] rounded-full"></div>
+<div class="pointer-events-none absolute top-96 right-0 w-64 h-64 bg-primary/10 blur-[80px] rounded-full"></div>
+<!-- Hero Jackpot & Match Identity -->
+<section class="flex flex-col items-center px-space-md pt-space-sm text-center relative z-10">
+<div class="flex items-center gap-space-xs mb-space-sm">
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high/90 shadow-md">
+<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+<span class="font-label-xs text-label-xs uppercase tracking-widest text-secondary font-bold">Sorteio Oficial EUA</span>
+</div>
+<div class="flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container-low text-tertiary shadow-sm">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+<span class="font-label-xs text-label-xs font-mono font-bold tracking-wider" id="countdown">04:18:22</span>
+</div>
+</div>
+<!-- Official Brand Art -->
+<div class="relative w-full max-w-[240px] flex items-center justify-center my-space-xs">
+<img alt="Mega Millions Logo Oficial" class="w-full h-auto object-contain max-h-16 drop-shadow-[0_8px_20px_rgba(255,224,131,0.25)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzYOgfanr4LUmvrM0YTjgoKxS8MIDt_x2cOacX8BPuJQGOSooGjK4hBKEpEO2d26NxjzaBlZvjpMhkyoWTDNJhOIBBbTz52fVbpI9CSG7dhGJ3Yjm7AKuRVKoED8Rljvx12lIBVbKTNJg5KQDNpdAp08dvAO8v9lkNa1qs2MqYV9C8Le_ANlDaLok-GnwAxJ42C3EXtyvVjF6mY0Tx2pFuStTTffR_TcRJ8YIk8uo0mzdnB5R3hlUdvJay8TebMbBuWA"/>
+</div>
+<!-- Monumental Jackpot -->
+<div class="flex flex-col items-center mt-space-xs">
+<span class="font-label-md text-label-md uppercase tracking-[0.2em] text-outline">Prêmio Estimado</span>
+<div class="flex items-baseline gap-1 my-1">
+<span class="font-headline-md text-headline-md font-extrabold text-secondary">US$</span>
+<span class="font-jackpot-display-mobile text-jackpot-display-mobile font-extrabold tracking-tight text-secondary drop-shadow-[0_0_25px_rgba(255,224,131,0.45)]">680</span>
+<span class="font-headline-md text-headline-md font-bold text-secondary">MILHÕES</span>
+</div>
+<div class="px-2.5 py-0.5 rounded-full bg-surface-container-high/60 text-secondary-fixed">
+<span class="font-label-md text-label-md font-medium text-secondary-fixed">≈ R$ 3,67 Bilhões</span>
+</div>
+</div>
+</section>
+<!-- Interactive Controls Frame -->
+<div class="px-space-md mt-space-md flex flex-col gap-space-md relative z-10">
+<!-- Mode Selector: Manual vs Quick Pick -->
+<div class="grid grid-cols-2 p-1 rounded-full bg-surface-container-lowest shadow-inner">
+<button class="py-2.5 rounded-full font-label-md text-label-md uppercase tracking-wider font-bold transition-all duration-300 bg-surface-container-high text-secondary shadow-md flex items-center justify-center gap-1.5" id="mode-manual" onclick="setMode('manual')">
+<span class="material-symbols-outlined text-[16px]">touch_app</span>
+        Manual
+      </button>
+<button class="py-2.5 rounded-full font-label-md text-label-md uppercase tracking-wider font-semibold transition-all duration-300 text-on-surface-variant hover:text-on-surface flex items-center justify-center gap-1.5" id="mode-quick" onclick="triggerQuickPick()">
+<span class="material-symbols-outlined text-[16px]">auto_fix_high</span>
+        Surpresinha
+      </button>
+</div>
+<!-- Active Cartela Slot Display -->
+<div class="p-space-md rounded-xl bg-surface-container/90 shadow-xl backdrop-blur-xl flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-primary/20 text-primary font-label-xs text-label-xs font-bold uppercase tracking-wider">Jogo 1</span>
+<span class="font-body-sm text-body-sm text-outline">Bilhete Digital Físico Courier</span>
+</div>
+<button class="flex items-center gap-1 font-label-xs text-label-xs text-outline-variant hover:text-error transition-colors" onclick="clearCurrentSelection()">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span>
+          Limpar
+        </button>
+</div>
+<!-- Selected Ball Slots -->
+<div class="grid grid-cols-6 gap-space-xs pt-space-xs">
+<div class="h-12 rounded-lg bg-surface-container-lowest flex items-center justify-center text-outline font-headline-sm text-headline-sm font-bold shadow-inner" id="slot-0">?</div>
+<div class="h-12 rounded-lg bg-surface-container-lowest flex items-center justify-center text-outline font-headline-sm text-headline-sm font-bold shadow-inner" id="slot-1">?</div>
+<div class="h-12 rounded-lg bg-surface-container-lowest flex items-center justify-center text-outline font-headline-sm text-headline-sm font-bold shadow-inner" id="slot-2">?</div>
+<div class="h-12 rounded-lg bg-surface-container-lowest flex items-center justify-center text-outline font-headline-sm text-headline-sm font-bold shadow-inner" id="slot-3">?</div>
+<div class="h-12 rounded-lg bg-surface-container-lowest flex items-center justify-center text-outline font-headline-sm text-headline-sm font-bold shadow-inner" id="slot-4">?</div>
+<div class="h-12 rounded-lg bg-surface-container-lowest flex items-center justify-center text-secondary font-headline-sm text-headline-sm font-bold shadow-inner" id="slot-mb">?</div>
+</div>
+<div class="flex items-center justify-between text-outline text-label-xs font-label-xs px-1">
+<span>5 Números Principais</span>
+<span class="text-secondary font-bold">1 Mega Ball</span>
+</div>
+</div>
+<!-- Main Numbers Grid (1 to 70) -->
+<div class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-4 rounded-full bg-primary"></span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Números Principais</span>
+</div>
+<span class="font-label-md text-label-md px-2 py-0.5 rounded-full bg-surface-container-highest text-primary font-bold" id="counter-white">0 / 5</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline -mt-1">Selecione 5 números de 1 a 70 na sua cartela:</p>
+<!-- 70-Ball Matrix -->
+<div class="grid grid-cols-7 gap-2 pt-space-xs" id="white-balls-grid"></div>
+</div>
+<!-- Mega Ball Grid (1 to 25) -->
+<div class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-sm relative overflow-hidden">
+<div class="absolute -right-12 -top-12 w-32 h-32 bg-secondary/10 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-center justify-between relative z-10">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-4 rounded-full bg-secondary"></span>
+<span class="font-headline-sm text-headline-sm text-secondary">Mega Ball Dourada</span>
+</div>
+<span class="font-label-md text-label-md px-2 py-0.5 rounded-full bg-surface-container-highest text-secondary font-bold" id="counter-gold">0 / 1</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline -mt-1 relative z-10">Selecione 1 bola de ouro de 1 a 25:</p>
+<!-- 25-Ball Matrix -->
+<div class="grid grid-cols-5 gap-2.5 pt-space-xs relative z-10" id="gold-balls-grid"></div>
+</div>
+<!-- Multiplier (Megaplier) Module -->
+<div class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg font-bold text-on-surface">Adicionar Megaplier</span>
+<span class="font-body-sm text-body-sm text-outline">Multiplique prêmios não-jackpot em até 5x</span>
+</div>
+</div>
+<button class="w-12 h-6 rounded-full bg-surface-container-highest transition-colors relative flex items-center p-0.5" id="toggle-megaplier" onclick="toggleMegaplier()">
+<div class="w-5 h-5 rounded-full bg-outline-variant transition-all duration-300" id="megaplier-knob"></div>
+</button>
+</div>
+<div class="grid grid-cols-4 gap-2 pt-space-xs">
+<div class="p-2 rounded-lg bg-surface-container text-center flex flex-col items-center">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">2x</span>
+<span class="font-label-xs text-label-xs text-outline">Até $2M</span>
+</div>
+<div class="p-2 rounded-lg bg-surface-container text-center flex flex-col items-center">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">3x</span>
+<span class="font-label-xs text-label-xs text-outline">Até $3M</span>
+</div>
+<div class="p-2 rounded-lg bg-surface-container text-center flex flex-col items-center">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">4x</span>
+<span class="font-label-xs text-label-xs text-outline">Até $4M</span>
+</div>
+<div class="p-2 rounded-lg bg-surface-container text-center flex flex-col items-center">
+<span class="font-headline-sm text-headline-sm font-bold text-secondary font-bold">5x</span>
+<span class="font-label-xs text-label-xs text-secondary">Até $5M</span>
+</div>
+</div>
+</div>
+<!-- Official Courier Guarantee Trust Note -->
+<div class="p-space-sm rounded-lg bg-surface-container-highest/40 flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px] text-tertiary">verified_user</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">
+        Seu bilhete oficial da Mega Millions é adquirido por nossos agentes licenciados em Chicago, Illinois, com digitalização de alta resolução enviada diretamente à sua conta.
+      </p>
+</div>
+</div>
+<!-- Bottom Checkout Commit Bar (Fixed Overlay Above Nav) -->
+<div class="fixed bottom-20 left-0 right-0 z-40 bg-surface-container-lowest/95 backdrop-blur-xl px-space-md py-3 shadow-[0_-8px_30px_rgba(0,0,0,0.8)]">
+<div class="max-w-md mx-auto flex items-center justify-between gap-space-sm">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-xs text-label-xs px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-bold">1 JOGO</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface" id="price-usd">US$ 5.00</span>
+</div>
+<span class="font-label-xs text-label-xs text-outline truncate" id="price-brl">≈ R$ 27,50 (Câmbio Comercial)</span>
+</div>
+<button class="px-5 py-3.5 rounded-full bg-secondary text-on-secondary font-label-lg text-label-lg font-bold tracking-wide uppercase shadow-[0_0_20px_rgba(255,224,131,0.4)] hover:brightness-110 active:scale-95 transition-all flex items-center gap-1" id="btn-submit" onclick="submitBet()">
+<span>Avançar</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  let selectedWhite = [];
+  let selectedGold = null;
+  let hasMegaplier = false;
+  const BASE_PRICE = 5.00;
+  const MEGAPLIER_PRICE = 2.00;
+  const EXCHANGE_RATE = 5.50;
+
+  function initBallMatrices() {
+    const whiteContainer = document.getElementById('white-balls-grid');
+    for (let i = 1; i <= 70; i++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = `wb-${i}`;
+      btn.innerText = i.toString().padStart(2, '0');
+      btn.className = 'h-10 rounded-full font-ball-number text-ball-number text-[13px] bg-surface-container-highest/60 text-outline hover:text-on-surface transition-all flex items-center justify-center font-bold active:scale-90';
+      btn.onclick = () => toggleWhiteBall(i);
+      whiteContainer.appendChild(btn);
+    }
+
+    const goldContainer = document.getElementById('gold-balls-grid');
+    for (let i = 1; i <= 25; i++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = `gb-${i}`;
+      btn.innerText = i.toString().padStart(2, '0');
+      btn.className = 'h-11 rounded-full font-ball-number text-ball-number text-[14px] bg-surface-container-highest/60 text-secondary/70 hover:text-secondary transition-all flex items-center justify-center font-bold active:scale-90';
+      btn.onclick = () => toggleGoldBall(i);
+      goldContainer.appendChild(btn);
+    }
+  }
+
+  function toggleWhiteBall(num) {
+    const idx = selectedWhite.indexOf(num);
+    if (idx > -1) {
+      selectedWhite.splice(idx, 1);
+    } else {
+      if (selectedWhite.length >= 5) {
+        pulseWarning('counter-white');
+        return;
+      }
+      selectedWhite.push(num);
+      selectedWhite.sort((a, b) => a - b);
+    }
+    updateDisplay();
+  }
+
+  function toggleGoldBall(num) {
+    if (selectedGold === num) {
+      selectedGold = null;
+    } else {
+      selectedGold = num;
+    }
+    updateDisplay();
+  }
+
+  function toggleMegaplier() {
+    hasMegaplier = !hasMegaplier;
+    const knob = document.getElementById('megaplier-knob');
+    const toggle = document.getElementById('toggle-megaplier');
+    if (hasMegaplier) {
+      toggle.classList.remove('bg-surface-container-highest');
+      toggle.classList.add('bg-secondary');
+      knob.classList.remove('bg-outline-variant');
+      knob.classList.add('bg-on-secondary', 'translate-x-6');
+    } else {
+      toggle.classList.add('bg-surface-container-highest');
+      toggle.classList.remove('bg-secondary');
+      knob.classList.add('bg-outline-variant');
+      knob.classList.remove('bg-on-secondary', 'translate-x-6');
+    }
+    updatePricing();
+  }
+
+  function triggerQuickPick() {
+    clearCurrentSelection();
+    const set = new Set();
+    while (set.size < 5) {
+      set.add(Math.floor(Math.random() * 70) + 1);
+    }
+    selectedWhite = Array.from(set).sort((a, b) => a - b);
+    selectedGold = Math.floor(Math.random() * 25) + 1;
+    
+    setMode('quick');
+    updateDisplay();
+  }
+
+  function setMode(mode) {
+    const btnM = document.getElementById('mode-manual');
+    const btnQ = document.getElementById('mode-quick');
+    if (mode === 'manual') {
+      btnM.className = 'py-2.5 rounded-full font-label-md text-label-md uppercase tracking-wider font-bold transition-all duration-300 bg-surface-container-high text-secondary shadow-md flex items-center justify-center gap-1.5';
+      btnQ.className = 'py-2.5 rounded-full font-label-md text-label-md uppercase tracking-wider font-semibold transition-all duration-300 text-on-surface-variant hover:text-on-surface flex items-center justify-center gap-1.5';
+    } else {
+      btnQ.className = 'py-2.5 rounded-full font-label-md text-label-md uppercase tracking-wider font-bold transition-all duration-300 bg-surface-container-high text-secondary shadow-md flex items-center justify-center gap-1.5';
+      btnM.className = 'py-2.5 rounded-full font-label-md text-label-md uppercase tracking-wider font-semibold transition-all duration-300 text-on-surface-variant hover:text-on-surface flex items-center justify-center gap-1.5';
+    }
+  }
+
+  function clearCurrentSelection() {
+    selectedWhite = [];
+    selectedGold = null;
+    updateDisplay();
+    setMode('manual');
+  }
+
+  function updateDisplay() {
+    // Refresh White Grid Balls
+    for (let i = 1; i <= 70; i++) {
+      const btn = document.getElementById(`wb-${i}`);
+      if (selectedWhite.includes(i)) {
+        btn.className = 'h-10 rounded-full font-ball-number text-ball-number text-[13px] bg-primary text-on-primary font-bold shadow-[0_0_12px_rgba(208,188,255,0.7)] flex items-center justify-center scale-105 transition-all';
+      } else {
+        btn.className = 'h-10 rounded-full font-ball-number text-ball-number text-[13px] bg-surface-container-highest/60 text-outline hover:text-on-surface transition-all flex items-center justify-center font-bold active:scale-90';
+      }
+    }
+
+    // Refresh Gold Grid Balls
+    for (let i = 1; i <= 25; i++) {
+      const btn = document.getElementById(`gb-${i}`);
+      if (selectedGold === i) {
+        btn.className = 'h-11 rounded-full font-ball-number text-ball-number text-[14px] bg-secondary text-on-secondary font-extrabold shadow-[0_0_16px_rgba(255,224,131,0.85)] flex items-center justify-center scale-105 transition-all';
+      } else {
+        btn.className = 'h-11 rounded-full font-ball-number text-ball-number text-[14px] bg-surface-container-highest/60 text-secondary/70 hover:text-secondary transition-all flex items-center justify-center font-bold active:scale-90';
+      }
+    }
+
+    // Refresh Active Slots
+    for (let idx = 0; idx < 5; idx++) {
+      const slot = document.getElementById(`slot-${idx}`);
+      if (selectedWhite[idx] !== undefined) {
+        slot.innerText = selectedWhite[idx].toString().padStart(2, '0');
+        slot.className = 'h-12 rounded-lg bg-primary text-on-primary font-headline-sm text-headline-sm font-bold shadow-[0_0_14px_rgba(208,188,255,0.5)] flex items-center justify-center transition-all animate-bounce';
+        setTimeout(() => slot.classList.remove('animate-bounce'), 300);
+      } else {
+        slot.innerText = '?';
+        slot.className = 'h-12 rounded-lg bg-surface-container-lowest text-outline font-headline-sm text-headline-sm font-bold shadow-inner flex items-center justify-center';
+      }
+    }
+
+    // Refresh Gold Slot
+    const slotMb = document.getElementById('slot-mb');
+    if (selectedGold !== null) {
+      slotMb.innerText = selectedGold.toString().padStart(2, '0');
+      slotMb.className = 'h-12 rounded-lg bg-secondary text-on-secondary font-headline-sm text-headline-sm font-extrabold shadow-[0_0_16px_rgba(255,224,131,0.7)] flex items-center justify-center transition-all animate-bounce';
+      setTimeout(() => slotMb.classList.remove('animate-bounce'), 300);
+    } else {
+      slotMb.innerText = '?';
+      slotMb.className = 'h-12 rounded-lg bg-surface-container-lowest text-secondary font-headline-sm text-headline-sm font-bold shadow-inner flex items-center justify-center';
+    }
+
+    // Update Indicators
+    document.getElementById('counter-white').innerText = `${selectedWhite.length} / 5`;
+    document.getElementById('counter-gold').innerText = `${selectedGold ? 1 : 0} / 1`;
+
+    updatePricing();
+  }
+
+  function updatePricing() {
+    const totalUsd = BASE_PRICE + (hasMegaplier ? MEGAPLIER_PRICE : 0);
+    const totalBrl = totalUsd * EXCHANGE_RATE;
+
+    document.getElementById('price-usd').innerText = `US$ ${totalUsd.toFixed(2)}`;
+    document.getElementById('price-brl').innerText = `≈ R$ ${totalBrl.toFixed(2).replace('.', ',')} (Câmbio Comercial)`;
+
+    const submitBtn = document.getElementById('btn-submit');
+    const isComplete = selectedWhite.length === 5 && selectedGold !== null;
+    if (isComplete) {
+      submitBtn.classList.remove('opacity-60');
+      submitBtn.classList.add('animate-pulse');
+    } else {
+      submitBtn.classList.add('opacity-60');
+      submitBtn.classList.remove('animate-pulse');
+    }
+  }
+
+  function pulseWarning(id) {
+    const el = document.getElementById(id);
+    el.classList.add('text-error', 'scale-110');
+    setTimeout(() => el.classList.remove('text-error', 'scale-110'), 300);
+  }
+
+  function submitBet() {
+    if (selectedWhite.length < 5 || selectedGold === null) {
+      alert('Por favor, selecione 5 números principais e 1 Mega Ball para completar seu jogo!');
+      return;
+    }
+    const numbersStr = `${selectedWhite.join(', ')} + MB: ${selectedGold}`;
+    alert(`Jogo Confirmado!\n${numbersStr}\nMegaplier: ${hasMegaplier ? 'SIM' : 'NÃO'}\nEnviando solicitação para o Courier em Chicago!`);
+  }
+
+  // Timer Tick
+  setInterval(() => {
+    const el = document.getElementById('countdown');
+    if (!el) return;
+    const parts = el.innerText.split(':').map(Number);
+    let totalSec = parts[0] * 3600 + parts[1] * 60 + parts[2];
+    if (totalSec > 0) totalSec--;
+    const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+    const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+    const s = String(totalSec % 60).padStart(2, '0');
+    el.innerText = `${h}:${m}:${s}`;
+  }, 1000);
+
+  // Run on mount
+  initBallMatrices();
+  updatePricing();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_-8px_32px_rgba(0,0,0,0.7)]" data-active-classes="text-secondary [filter:drop-shadow(0_0_10px_rgba(254,224,131,0.5))]"><div class="flex justify-around items-center h-20 px-space-xs"><a class="flex flex-col items-center justify-center gap-1 w-14 h-14 text-on-surface-variant hover:text-on-surface transition-all duration-200" data-path="inicio" href="#"><span class="material-symbols-outlined text-[24px]">casino</span><span class="font-label-xs text-label-xs font-semibold uppercase tracking-wider">Início</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-1 w-14 h-14 transition-all duration-200 text-secondary [filter:drop-shadow(0_0_10px_rgba(254,224,131,0.5))]" data-path="jogar" href="#"><span class="material-symbols-outlined text-[24px]">add_circle</span><span class="font-label-xs text-label-xs font-semibold uppercase tracking-wider">Jogar</span></a><a class="flex flex-col items-center justify-center gap-1 w-14 h-14 text-on-surface-variant hover:text-on-surface transition-all duration-200" data-path="meus-bilhetes" href="#"><span class="material-symbols-outlined text-[24px]">confirmation_number</span><span class="font-label-xs text-label-xs font-semibold uppercase tracking-wider">Bilhetes</span></a><a class="flex flex-col items-center justify-center gap-1 w-14 h-14 text-on-surface-variant hover:text-on-surface transition-all duration-200" data-path="resultados" href="#"><span class="material-symbols-outlined text-[24px]">emoji_events</span><span class="font-label-xs text-label-xs font-semibold uppercase tracking-wider">Resultados</span></a><a class="flex flex-col items-center justify-center gap-1 w-14 h-14 text-on-surface-variant hover:text-on-surface transition-all duration-200" data-path="perfil-courier" href="#"><span class="material-symbols-outlined text-[24px]">badge</span><span class="font-label-xs text-label-xs font-semibold uppercase tracking-wider">Perfil</span></a></div></nav></body></html>
