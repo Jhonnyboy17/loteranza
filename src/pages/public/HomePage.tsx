@@ -8,7 +8,7 @@ import { Sym } from '@/components/ui/icon';
 import { ErrorState, LoadingCards } from '@/components/common/states';
 import { JackpotHero } from '@/components/lottery/JackpotHero';
 import { GameRow } from '@/components/lottery/GameRow';
-import { ResultRow } from '@/components/lottery/ResultRow';
+import { ResultsCard } from '@/components/lottery/ResultsCard';
 import { TrustStrip } from '@/components/lottery/TrustStrip';
 import { JurisdictionNotice } from '@/components/compliance/notices';
 
@@ -135,11 +135,7 @@ export function HomePage() {
             </p>
           )}
           {resultsQuery.isSuccess && resultsQuery.data.length > 0 && (
-            <div className="flex flex-col gap-space-sm lg:grid lg:grid-cols-2 lg:items-start">
-              {resultsQuery.data.map((result) => (
-                <ResultRow key={result.id} result={result} />
-              ))}
-            </div>
+            <ResultsCard results={resultsQuery.data} />
           )}
         </section>
 

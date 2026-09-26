@@ -2,12 +2,14 @@ import * as React from 'react';
 import { padBall } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
-type BallSize = 'xs' | 'sm' | 'md' | 'lg';
+type BallSize = 'xs' | 'sm' | 'draw' | 'md' | 'lg';
 type BallTone = 'main' | 'special' | 'muted' | 'match' | 'miss';
 
 const SIZES: Record<BallSize, string> = {
   xs: 'size-7 text-[0.6875rem]',
   sm: 'size-9 text-xs',
+  /** 40px — o tamanho das esferas de resultado no Stitch. */
+  draw: 'size-10 text-sm',
   md: 'size-11 text-sm',
   lg: 'size-14 text-lg',
 };
@@ -17,11 +19,11 @@ const SIZES: Record<BallSize, string> = {
  * elevação de superfície mais o brilho, não um contorno.
  */
 const TONES: Record<BallTone, string> = {
-  main: 'bg-surface-container-highest text-primary-fixed glow-ball-violet',
-  special: 'bg-secondary text-on-secondary-fixed glow-ball-gold',
-  muted: 'bg-surface-container-highest text-on-surface-variant',
-  match: 'bg-success text-success-foreground',
-  miss: 'bg-surface-container-high text-on-surface-variant opacity-60',
+  main: 'border border-on-surface/10 bg-surface-container-highest text-on-surface',
+  special: 'bg-secondary text-on-secondary-fixed shadow-[0_0_12px_hsl(var(--secondary))]',
+  muted: 'border border-on-surface/10 bg-surface-container-highest text-on-surface-variant',
+  match: 'bg-success text-success-foreground shadow-[0_0_12px_hsl(var(--success)/0.7)]',
+  miss: 'border border-on-surface/10 bg-surface-container-high text-on-surface-variant opacity-60',
 };
 
 export interface NumberBallProps extends React.HTMLAttributes<HTMLSpanElement> {
@@ -39,7 +41,7 @@ export function NumberBall({
   return (
     <span
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-full font-display font-bold tabular-nums',
+        'inline-flex shrink-0 items-center justify-center rounded-full font-display font-black tabular-nums',
         SIZES[size],
         TONES[tone],
         animate && 'animate-ball-pop',

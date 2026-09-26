@@ -257,10 +257,11 @@
            focus:text-on-primary focus:shadow-lift;
   }
 
-  /* Card padrão do Stitch: sem borda, separado do fundo pela elevação de
-     superfície (surface-container) mais sombra. */
+  /* Card padrão do Stitch: elevação de superfície + fio de borda claríssimo
+     (`border-white/5` no original) + sombra. É o fio que separa o card do
+     fundo quase-preto sem precisar de contorno forte. */
   .surface {
-    @apply relative rounded-xl bg-surface-container shadow-card;
+    @apply relative rounded-2xl border border-on-surface/[0.06] bg-surface-container shadow-lg;
   }
 
   .notice-strip {
@@ -281,6 +282,57 @@
     );
   }
 
+}
+
+@layer components {
+  /* ======================================================================
+     Efeitos escritos pelo próprio Stitch (bloco <style> de
+     design/stitch/inicio/code.html). São eles que dão a identidade
+     "premium" da tela — sem eles o layout fica correto e sem graça.
+     Valores mantidos como no original; só as cores viraram tokens.
+     ====================================================================== */
+
+  /* Aura luminosa animada atrás do herói: ouro no centro, violeta na borda,
+     girando e respirando devagar. */
+  .animated-hero-aura {
+    background: radial-gradient(
+      circle at 50% 40%,
+      hsl(var(--secondary) / 0.16) 0%,
+      hsl(var(--primary-container) / 0.22) 45%,
+      transparent 75%
+    );
+    animation: aura-pulse 10s ease-in-out infinite alternate;
+  }
+
+  /* Anel dourado de 1px + halo violeta, pulsando. É o que faz o card do
+     herói parecer iluminado por dentro. */
+  .hero-card-glow {
+    box-shadow:
+      0 10px 40px -10px hsl(var(--primary-container) / 0.30),
+      0 0 0 1px hsl(var(--secondary) / 0.25);
+    animation: neon-glow-pulse 4s ease-in-out infinite;
+  }
+
+  /* CTA dourado: halo externo + reflexo interno no topo, como vidro. */
+  .cta-pulse-button {
+    box-shadow:
+      0 0 30px hsl(var(--secondary) / 0.50),
+      inset 0 1px 1px hsl(0 0% 100% / 0.40);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .cta-pulse-button:active {
+    transform: scale(0.98);
+    box-shadow: 0 0 15px hsl(var(--secondary) / 0.40);
+  }
+
+  /* O Stitch já trazia esta guarda: quem pediu menos movimento não recebe
+     as animações, só o estado parado. */
+  @media (prefers-reduced-motion: reduce) {
+    .animated-hero-aura,
+    .hero-card-glow {
+      animation: none !important;
+    }
+  }
 }
 
 @layer utilities {

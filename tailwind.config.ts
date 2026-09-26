@@ -216,7 +216,22 @@ const config: Config = {
           from: { opacity: '0', transform: 'translateY(8px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
-        shimmer: { '100%': { transform: 'translateX(100%)' } },
+        shimmer: { '0%': { transform: 'translateX(-100%)' }, '100%': { transform: 'translateX(200%)' } },
+        // Keyframes do Stitch (bloco <style> de design/stitch/<tela>/code.html).
+        'aura-pulse': {
+          '0%, 100%': { transform: 'scale(1) rotate(0deg)', opacity: '0.75' },
+          '50%': { transform: 'scale(1.15) rotate(180deg)', opacity: '0.95' },
+        },
+        'neon-glow-pulse': {
+          '0%, 100%': {
+            boxShadow:
+              '0 0 25px hsl(var(--secondary) / 0.40), 0 0 50px hsl(var(--primary-container) / 0.25)',
+          },
+          '50%': {
+            boxShadow:
+              '0 0 40px hsl(var(--secondary) / 0.65), 0 0 70px hsl(var(--primary-container) / 0.40)',
+          },
+        },
         'accordion-down': { from: { height: '0' }, to: { height: 'var(--radix-accordion-content-height)' } },
         'accordion-up': { from: { height: 'var(--radix-accordion-content-height)' }, to: { height: '0' } },
         'pulse-soft': { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.45' } },
@@ -229,6 +244,8 @@ const config: Config = {
         'ball-pop': 'ball-pop 220ms cubic-bezier(0.2, 0.9, 0.3, 1.3)',
         'fade-up': 'fade-up 320ms ease-out both',
         shimmer: 'shimmer 1.6s infinite',
+        'aura-pulse': 'aura-pulse 10s ease-in-out infinite alternate',
+        'neon-glow-pulse': 'neon-glow-pulse 4s ease-in-out infinite',
         'accordion-down': 'accordion-down 200ms ease-out',
         'accordion-up': 'accordion-up 200ms ease-out',
         'pulse-soft': 'pulse-soft 2.4s ease-in-out infinite',
