@@ -32,11 +32,17 @@ export function GameTheme({
       style={
         {
           '--primary': palette.primary,
-          '--primary-foreground': palette.primaryForeground,
+          // `--on-primary` (não `--primary-foreground`): é este o token que
+          // Button, bolas e chips leem. Sem ele o botão tingido ficava com o
+          // violeta-escuro da plataforma sobre o vermelho da Powerball — 3,3:1.
+          '--on-primary': palette.primaryForeground,
+          '--on-primary-fixed': palette.primaryForeground,
           '--primary-soft': palette.primarySoft,
           '--accent': palette.accent,
           '--accent-foreground': palette.accentForeground,
           '--ring': palette.primary,
+          // Versão clara da cor do jogo, para TEXTO sobre superfície escura.
+          // `--primary` é calibrada para servir de FUNDO, então não serve aqui.
           '--game-bright': palette.bright,
         } as React.CSSProperties
       }

@@ -67,10 +67,10 @@ export function SignInPage() {
           <Button type="submit" size="lg" block loading={loading}>Entrar</Button>
 
           <div className="flex flex-wrap justify-between gap-2 text-sm">
-            <Link to="/entrar/recuperar" className="underline underline-offset-4">
+            <Link to="/entrar/recuperar" className="inline-flex min-h-[24px] items-center rounded underline underline-offset-4">
               Esqueci minha senha
             </Link>
-            <Link to="/criar-conta" className="underline underline-offset-4">
+            <Link to="/criar-conta" className="inline-flex min-h-[24px] items-center rounded underline underline-offset-4">
               Criar conta
             </Link>
           </div>

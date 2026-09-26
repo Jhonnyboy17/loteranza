@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Check, Copy, Plus, Trash2 } from 'lucide-react';
+import { Sym } from '@/components/ui/icon';
 import type { GameLine, LotteryGame } from '@/types/domain';
 import { brand } from '@/config/brand';
 import { usePlatform } from '@/contexts/PlatformContext';
@@ -12,19 +12,19 @@ import {
 import {
   formatBRL, formatDate, formatOdds, formatUSD, weekdayName,
 } from '@/lib/format';
-import { convert } from '@/services/exchange/exchangeService';
+import { convert, formatRateLabel } from '@/services/exchange/exchangeService';
 import { priceLines } from '@/services/pricing';
 import { Seo } from '@/components/common/Seo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Checkbox, Separator } from '@/components/ui/misc';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Separator } from '@/components/ui/misc';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrapper,
 } from '@/components/ui/table';
 import { ErrorState, LoadingCards } from '@/components/common/states';
 import { GameTheme } from '@/components/lottery/GameTheme';
-import { GameBanner } from '@/components/lottery/GameBanner';
+import { JackpotHero } from '@/components/lottery/JackpotHero';
 import { NumberPicker } from '@/components/lottery/NumberPicker';
 import { NumberSequence } from '@/components/lottery/NumberBall';
 import { JurisdictionNotice } from '@/components/compliance/notices';
@@ -134,7 +134,7 @@ export function LotteryDetailPage() {
   }
 
   return (
-    <GameTheme game={game} className="pb-16">
+    <GameTheme game={game} className="pb-space-xl">
       <Seo
         title={`${game.name} — jackpot, sorteios e como jogar`}
         description={`${game.name}: jackpot estimado, data do próximo sorteio, regras de números, tabela de premiação e resultados anteriores.`}
@@ -148,9 +148,9 @@ export function LotteryDetailPage() {
         }}
       />
 
-      <GameBanner game={game} draw={nextDraw} rate={rate} />
+      <JackpotHero game={game} draw={nextDraw} rate={rate} showCta={false} className="pt-space-sm" />
 
-      <div className="container max-w-3xl py-10">
+      <div className="mx-auto w-full max-w-[560px] px-space-md py-space-lg">
         <StepIndicator step={step} lineCount={lines.length} />
 
         {step === 'numeros' ? (
@@ -201,30 +201,37 @@ function StepIndicator({ step, lineCount }: { step: Step; lineCount: number }) {
   const activeIndex = steps.findIndex((s) => s.key === step);
 
   return (
-    <ol className="mb-8 flex items-center justify-center gap-3" aria-label="Etapas">
+    <ol className="mb-space-md flex items-center justify-center gap-space-xs" aria-label="Etapas">
       {steps.map((item, index) => {
-        const done = index < activeIndex || (index === 0 && lineCount > 0 && step === 'revisar');
         const current = index === activeIndex;
+        const done = index < activeIndex || (index === 0 && lineCount > 0 && step === 'revisar');
         return (
-          <li key={item.key} className="flex items-center gap-3">
-            <span className="flex items-center gap-2">
+          <li key={item.key} className="flex items-center gap-space-xs">
+            <span
+              aria-current={current ? 'step' : undefined}
+              className={cn(
+                'flex items-center gap-1.5 rounded-full px-3 py-1.5 font-label-md text-label-md uppercase tracking-wider transition-colors',
+                current
+                  ? 'bg-surface-container-high font-bold text-secondary'
+                  : 'font-semibold text-outline',
+              )}
+            >
               <span
                 className={cn(
-                  'flex size-7 items-center justify-center rounded-full text-xs font-bold transition',
-                  done && 'bg-primary text-primary-foreground',
-                  current && !done && 'bg-primary text-primary-foreground',
-                  !current && !done && 'bg-muted text-muted-foreground',
+                  'flex size-5 items-center justify-center rounded-full font-label-xs text-label-xs font-bold',
+                  current
+                    ? 'bg-secondary text-on-secondary'
+                    : done
+                      ? 'bg-primary text-on-primary'
+                      : 'bg-surface-container-highest text-on-surface-variant',
                 )}
-                aria-current={current ? 'step' : undefined}
               >
-                {done && !current ? <Check className="size-4" aria-hidden /> : index + 1}
+                {done && !current ? <Sym name="check" size={12} /> : index + 1}
               </span>
-              <span className={cn('text-sm', current ? 'font-semibold' : 'text-muted-foreground')}>
-                {item.label}
-              </span>
+              {item.label}
             </span>
             {index < steps.length - 1 && (
-              <span className="h-px w-8 bg-border sm:w-12" aria-hidden />
+              <span className="h-px w-5 bg-outline-variant" aria-hidden />
             )}
           </li>
         );
@@ -267,29 +274,39 @@ function StepNumbers({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-space-md">
       {onBackToReview && (
-        <Button variant="ghost" size="sm" onClick={onBackToReview} className="-ml-3">
-          <ArrowLeft aria-hidden /> Voltar para os {lineCount} jogos
-        </Button>
+        <button
+          type="button"
+          onClick={onBackToReview}
+          className="-ml-1 flex items-center gap-1 self-start rounded font-label-md text-label-md uppercase tracking-wider text-outline transition-colors hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Sym name="arrow_back_ios_new" size={16} />
+          Voltar para os {lineCount} jogos
+        </button>
       )}
 
-      <NumberPicker game={game} onSubmit={onAdd} submitLabel="Continuar" />
+      <NumberPicker game={game} lineNumber={lineCount + 1} onSubmit={onAdd} />
 
-      <div className="space-y-3 border-t border-border pt-6">
-        <p className="text-center text-sm text-muted-foreground">
-          ou gere vários de uma vez
+      <div className="flex flex-col gap-space-sm rounded-xl bg-surface-container-low p-space-md shadow-card">
+        <p className="text-center font-body-sm text-body-sm text-outline">
+          Ou gere vários de uma vez, com sorteio criptográfico
         </p>
-        <div className="flex flex-wrap justify-center gap-2">
+        <div className="flex flex-wrap justify-center gap-space-xs">
           {QUICK_COUNTS.map((count) => (
-            <Button key={count} variant="outline" size="sm" onClick={() => generate(count)}>
+            <button
+              key={count}
+              type="button"
+              onClick={() => generate(count)}
+              className="touch-target rounded-full border border-primary/40 px-4 font-label-md text-label-md uppercase tracking-wider text-on-surface transition-colors hover:border-primary/70 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
               {count} jogos
-            </Button>
+            </button>
           ))}
         </div>
       </div>
 
-      <p className="text-center text-xs text-muted-foreground">{brand.oddsNotice}</p>
+      <p className="text-center font-label-xs text-label-xs text-outline">{brand.oddsNotice}</p>
     </div>
   );
 }
@@ -317,115 +334,187 @@ function StepReview({
   const brl = totals && rate ? convert(totals.total, rate) : null;
 
   return (
-    <div className="space-y-8">
-      {/* Jogos montados */}
-      <section className="space-y-3">
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 className="font-display text-lg font-semibold">
-            {lines.length} {lines.length === 1 ? 'jogo' : 'jogos'}
-          </h2>
-        </div>
+    <div className="flex flex-col gap-space-md pb-28">
+      {/* ---- jogos montados ------------------------------------------- */}
+      <section className="flex flex-col gap-space-sm">
+        <h2 className="flex items-center gap-1.5 font-headline-sm text-headline-sm text-on-surface">
+          <span aria-hidden className="h-4 w-1.5 shrink-0 rounded-full bg-primary" />
+          {lines.length} {lines.length === 1 ? 'jogo montado' : 'jogos montados'}
+        </h2>
 
-        <ul className="space-y-2">
+        <ul className="flex flex-col gap-space-xs">
           {lines.map((line, index) => (
             <li
               key={line.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-3"
+              className="flex items-center justify-between gap-space-sm rounded-xl bg-surface-container p-space-sm shadow-card"
             >
-              <div className="flex min-w-0 flex-wrap items-center gap-3">
-                <span className="tnum w-6 text-sm text-muted-foreground">
+              <div className="flex min-w-0 items-center gap-space-sm">
+                <span
+                  className="shrink-0 rounded bg-surface-container-highest px-1.5 py-0.5 font-label-xs text-label-xs font-bold uppercase tracking-wider"
+                  style={{ color: 'hsl(var(--game-bright, var(--primary)))' }}
+                >
                   {String(index + 1).padStart(2, '0')}
                 </span>
                 <NumberSequence
                   numbers={line.numbers}
                   specialNumbers={line.specialNumbers}
-                  size="sm"
+                  size="xs"
                 />
               </div>
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost" size="icon"
+              <div className="flex shrink-0 items-center gap-0.5">
+                <button
+                  type="button"
                   onClick={() => onDuplicate(line.id)}
                   aria-label={`Duplicar jogo ${index + 1}`}
+                  className="touch-target flex items-center justify-center rounded-full text-outline transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <Copy aria-hidden />
-                </Button>
-                <Button
-                  variant="ghost" size="icon"
+                  <Sym name="add_circle" size={18} />
+                </button>
+                <button
+                  type="button"
                   onClick={() => onRemove(line.id)}
                   aria-label={`Remover jogo ${index + 1}`}
-                  className="text-muted-foreground hover:text-destructive"
+                  className="touch-target flex items-center justify-center rounded-full text-outline transition-colors hover:bg-surface-container-high hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <Trash2 aria-hidden />
-                </Button>
+                  <Sym name="close" size={18} />
+                </button>
               </div>
             </li>
           ))}
         </ul>
 
-        <Button variant="outline" size="lg" block onClick={onAddMore}>
-          <Plus aria-hidden /> Adicionar outro jogo
-        </Button>
+        <button
+          type="button"
+          onClick={onAddMore}
+          className="touch-target flex items-center justify-center gap-2 rounded-full border border-primary/40 font-label-lg text-label-lg uppercase tracking-wide text-on-surface transition-colors hover:border-primary/70 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Sym name="add_circle" size={18} /> Adicionar outro jogo
+        </button>
       </section>
 
-      {/* Sorteios */}
-      <section className="space-y-3">
-        <h2 className="font-display text-lg font-semibold">Em quantos sorteios?</h2>
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Quantidade de sorteios">
+      {/* ---- sorteios --------------------------------------------------- */}
+      <section className="flex flex-col gap-space-sm rounded-xl bg-surface-container-low p-space-md shadow-card">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="font-label-lg text-label-lg font-semibold uppercase tracking-wider text-on-surface-variant">
+            Em quantos sorteios
+          </h2>
+          <span
+            className="rounded-full bg-surface-container-highest px-2 py-0.5 font-label-md text-label-md font-bold tabular-nums"
+            style={{ color: 'hsl(var(--game-bright, var(--primary)))' }}
+          >
+            {drawsCount}
+          </span>
+        </div>
+        <div className="grid grid-cols-4 gap-space-xs" role="group" aria-label="Quantidade de sorteios">
           {DRAW_PRESETS.filter((n) => n <= game.maxDrawsAhead).map((count) => (
-            <Button
+            <button
               key={count}
-              variant={drawsCount === count ? 'primary' : 'outline'}
-              size="lg"
+              type="button"
               onClick={() => onDrawsCountChange(count)}
               aria-pressed={drawsCount === count}
-              className="flex-1"
+              className={cn(
+                'touch-target rounded-lg font-display text-headline-sm font-bold transition-all',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                drawsCount === count
+                  ? 'glow-ball-violet bg-primary text-on-primary'
+                  : 'bg-surface-container text-on-surface-variant hover:text-on-surface',
+              )}
             >
               {count}
-            </Button>
+            </button>
           ))}
         </div>
       </section>
 
-      {/* Multiplicador, quando a modalidade oferece */}
+      {/* ---- multiplicador ---------------------------------------------
+          O Stitch desenha quatro degraus fixos ("2x Até $2M" … "5x Até $5M").
+          São regras da Mega Millions escritas no front, o que o briefing
+          proíbe — e que ficariam erradas em qualquer outra modalidade. Aqui
+          fica o que o banco de fato informa: rótulo e preço por jogo. Se um
+          dia `prize_tiers` trouxer os degraus, eles entram por dado. */}
       {game.multiplierEnabled && (
-        <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card p-4">
-          <Checkbox
-            checked={multiplier}
-            onCheckedChange={(checked) => onMultiplierChange(checked === true)}
-          />
-          <span className="flex-1">
-            <span className="block font-medium">{game.multiplierLabel}</span>
-            <span className="block text-sm text-muted-foreground">
-              + {formatUSD(game.multiplierPrice)} por jogo
+        <section className="flex items-center justify-between gap-space-sm rounded-xl bg-surface-container-low p-space-md shadow-card">
+          <div className="flex min-w-0 items-center gap-space-sm">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary/20 text-secondary">
+              <Sym name="bolt" size={18} />
             </span>
-          </span>
-        </label>
+            <span className="flex min-w-0 flex-col">
+              <span className="font-label-lg text-label-lg font-bold text-on-surface">
+                {game.multiplierLabel}
+              </span>
+              <span className="font-body-sm text-body-sm text-outline">
+                + {formatUSD(game.multiplierPrice)} por jogo, por sorteio
+              </span>
+            </span>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={multiplier}
+            aria-label={game.multiplierLabel ?? 'Multiplicador'}
+            onClick={() => onMultiplierChange(!multiplier)}
+            className={cn(
+              'relative flex h-6 w-12 shrink-0 items-center rounded-full p-0.5 transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
+              multiplier ? 'bg-secondary' : 'bg-surface-container-highest',
+            )}
+          >
+            <span
+              aria-hidden
+              className={cn(
+                'size-5 rounded-full transition-all duration-300',
+                multiplier ? 'translate-x-6 bg-on-secondary' : 'bg-outline-variant',
+              )}
+            />
+          </button>
+        </section>
       )}
 
-      {/* Preço — produto e taxa sempre separados */}
+      {/* ---- discriminação de valores -----------------------------------
+          Preço oficial e taxa SEMPRE em linhas separadas. */}
       {totals && (
-        <section className="space-y-3 rounded-xl border border-border bg-card p-5">
-          <dl className="space-y-2 text-sm">
+        <section className="flex flex-col gap-space-sm rounded-xl bg-surface-container-low p-space-md shadow-card">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="font-label-lg text-label-lg font-semibold uppercase tracking-wider text-on-surface-variant">
+              Discriminação de valores
+            </h2>
+            {rate && (
+              <span className="rounded bg-surface-container px-1.5 py-0.5 font-label-xs text-label-xs text-outline">
+                {formatRateLabel(rate)}
+              </span>
+            )}
+          </div>
+          <dl className="flex flex-col gap-2 font-body-md text-body-md">
             <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">Apostas</dt>
-              <dd className="tnum">{formatUSD(totals.official)}</dd>
+              <dt className="text-on-surface-variant">Apostas (preço oficial)</dt>
+              <dd className="tabular-nums text-on-surface">{formatUSD(totals.official)}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">Taxa de serviço</dt>
-              <dd className="tnum">{formatUSD(totals.fee)}</dd>
+              <dt className="text-on-surface-variant">Taxa de serviço</dt>
+              <dd className="tabular-nums text-on-surface">{formatUSD(totals.fee)}</dd>
             </div>
             <Separator />
-            <div className="flex items-baseline justify-between gap-4">
-              <dt className="font-semibold">Total</dt>
-              <dd className="tnum font-display text-2xl font-bold">{formatUSD(totals.total)}</dd>
+            <div className="flex items-baseline justify-between gap-4 rounded-lg bg-surface-container p-space-sm">
+              <div>
+                <dt className="font-label-xs text-label-xs uppercase tracking-wider text-outline">
+                  Total geral
+                </dt>
+                <dd className="font-display text-headline-md font-bold text-secondary">
+                  {formatUSD(totals.total)}
+                </dd>
+              </div>
+              {brl !== null && (
+                <div className="text-right">
+                  <span className="block font-label-xs text-label-xs uppercase tracking-wider text-tertiary">
+                    Em reais (estimativa)
+                  </span>
+                  <span className="block font-display text-headline-md font-extrabold text-tertiary">
+                    {formatBRL(brl)}
+                  </span>
+                </div>
+              )}
             </div>
           </dl>
-          {brl !== null && (
-            <p className="text-right text-sm text-muted-foreground">
-              ≈ {formatBRL(brl)} <span className="text-xs">(estimativa)</span>
-            </p>
-          )}
         </section>
       )}
 
@@ -433,9 +522,36 @@ function StepReview({
         <JurisdictionNotice jurisdiction={jurisdiction} />
       )}
 
-      <Button size="xl" block onClick={onConfirm}>
-        Adicionar ao carrinho
-      </Button>
+      {/* ---- barra fixa de confirmação (acima da barra de abas) ---------- */}
+      <div className="fixed inset-x-0 bottom-20 z-40 bg-surface-container-lowest/95 px-space-md py-3 shadow-commitbar backdrop-blur-xl lg:bottom-0">
+        <div className="mx-auto flex max-w-[560px] items-center justify-between gap-space-sm">
+          <div className="flex min-w-0 flex-col">
+            <div className="flex items-center gap-1.5">
+              <span
+                className="shrink-0 rounded bg-surface-container-high px-1.5 py-0.5 font-label-xs text-label-xs font-bold"
+                style={{ color: 'hsl(var(--game-bright, var(--primary)))' }}
+              >
+                {lines.length} {lines.length === 1 ? 'JOGO' : 'JOGOS'}
+              </span>
+              <span className="font-display text-headline-sm font-bold text-on-surface">
+                {totals ? formatUSD(totals.total) : '—'}
+              </span>
+            </div>
+            {brl !== null && (
+              <span className="truncate font-label-xs text-label-xs text-outline">
+                ≈ {formatBRL(brl)} (estimativa)
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="glow-gold flex shrink-0 items-center gap-1 rounded-full bg-secondary px-5 py-3.5 font-label-lg text-label-lg font-bold uppercase tracking-wide text-on-secondary transition-all hover:brightness-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+          >
+            Ao carrinho <Sym name="arrow_forward" size={18} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

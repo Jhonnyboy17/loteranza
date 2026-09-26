@@ -118,7 +118,7 @@ export function GameRow({
               className="flex items-center gap-1 rounded-full px-3 py-1.5 font-label-md text-label-md font-bold uppercase tracking-wider"
               style={{
                 background: 'hsl(var(--primary))',
-                color: 'hsl(var(--primary-foreground))',
+                color: 'hsl(var(--on-primary))',
               }}
             >
               Jogar <Sym name="arrow_forward" size={14} />

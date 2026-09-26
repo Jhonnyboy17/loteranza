@@ -47,7 +47,7 @@ export function HowItWorksPage() {
         {STEPS.map((step, index) => (
           <li key={step.title} className="surface flex flex-col gap-4 p-6 sm:flex-row sm:gap-6">
             <div className="flex shrink-0 items-start gap-4">
-              <span className="font-display text-4xl font-extrabold text-muted-foreground/30">
+              <span className="font-display text-4xl font-extrabold text-outline/70">
                 {String(index + 1).padStart(2, '0')}
               </span>
               <span className="mt-1 flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary">

@@ -38,7 +38,7 @@ function SectionHead({
       {href && hrefLabel && (
         <Link
           to={href}
-          className="flex shrink-0 items-center gap-0.5 rounded-full font-label-xs text-label-xs font-semibold uppercase tracking-wider text-outline transition-colors hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="-my-1.5 flex min-h-[24px] shrink-0 items-center gap-0.5 rounded-full px-1 py-1.5 font-label-xs text-label-xs font-semibold uppercase tracking-wider text-outline transition-colors hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {hrefLabel} <Sym name="chevron_right" size={14} />
         </Link>

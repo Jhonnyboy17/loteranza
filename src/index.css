@@ -82,6 +82,7 @@
        acima. Nenhum valor novo: só apelidos. */
     --background: var(--surface);
     --foreground: var(--on-surface);
+    --primary-foreground: var(--on-primary);
     --card: var(--surface-container);
     --card-foreground: var(--on-surface);
     --popover: var(--surface-container-high);

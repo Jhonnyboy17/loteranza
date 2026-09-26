@@ -34,12 +34,15 @@ export function JackpotHero({
   draw,
   rate,
   eyebrow,
+  showCta = true,
   className,
 }: {
   game: LotteryGame;
   draw: Draw | null;
   rate: ExchangeRate | null;
   eyebrow?: string;
+  /** Na própria página da modalidade o CTA seria circular; desliga-se aqui. */
+  showCta?: boolean;
   className?: string;
 }) {
   const jackpot = splitJackpot(draw?.advertisedJackpot ?? game.currentJackpot, game.currency);
@@ -137,11 +140,13 @@ export function JackpotHero({
           </p>
         )}
 
-        <Button asChild variant="jackpot" size="lg" className="mt-space-md rounded-full px-8">
-          <Link to={`/loterias/${game.gameKey}`}>
-            Jogar agora <Sym name="arrow_forward" size={18} />
-          </Link>
-        </Button>
+        {showCta && (
+          <Button asChild variant="jackpot" size="lg" className="mt-space-md rounded-full px-8">
+            <Link to={`/loterias/${game.gameKey}`}>
+              Jogar agora <Sym name="arrow_forward" size={18} />
+            </Link>
+          </Button>
+        )}
       </section>
     </GameTheme>
   );
