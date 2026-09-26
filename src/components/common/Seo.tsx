@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { brand } from '@/config/brand';
+import { env } from '@/config/env';
 
 /**
  * Metadados por rota (secao 49). Sem dependencia extra: manipula o head
@@ -43,8 +44,11 @@ export function Seo({ title, description, canonicalPath, noIndex, structuredData
     setMeta('meta[name="twitter:title"]', 'name', 'twitter:title', fullTitle);
     setMeta('meta[name="twitter:description"]', 'name', 'twitter:description', description);
 
+    // `env.noIndex` vale para o site inteiro (publicacao de demonstracao) e
+    // tem precedencia: nenhuma pagina pode se declarar indexavel sob ele.
+    const blocked = env.noIndex || noIndex;
     const robots = setMeta('meta[name="robots"]', 'name', 'robots',
-      noIndex ? 'noindex, nofollow' : 'index, follow');
+      blocked ? 'noindex, nofollow' : 'index, follow');
 
     let canonical: HTMLLinkElement | null = null;
     if (canonicalPath) {
@@ -68,7 +72,7 @@ export function Seo({ title, description, canonicalPath, noIndex, structuredData
 
     return () => {
       document.title = previousTitle;
-      robots.setAttribute('content', 'index, follow');
+      robots.setAttribute('content', env.noIndex ? 'noindex, nofollow' : 'index, follow');
       script?.remove();
     };
   }, [title, description, canonicalPath, noIndex, structuredData]);

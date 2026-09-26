@@ -1,0 +1,86 @@
+# Publica o protótipo no GitHub Pages a cada push no branch de trabalho.
+#
+# O que este deploy é: a interface rodando em MODO DEMONSTRAÇÃO. Não há
+# Supabase configurado, então a aplicação usa o provider de demonstração, os
+# três portões de transação nascem fechados e nenhuma compra é processada. É
+# de propósito — ver docs/DEPLOY.md.
+name: Publicar protótipo (GitHub Pages)
+
+on:
+  push:
+    branches: [claude/us-lottery-platform-compliance-odaruu]
+  workflow_dispatch:
+
+# Permissões mínimas para o deploy oficial do Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Um deploy por vez; não cancela o que já está no ar no meio do caminho.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Os mesmos portões que rodam localmente, antes de publicar qualquer coisa.
+      - name: Verificar tipos
+        run: npm run typecheck
+
+      - name: Verificar lint
+        run: npm run lint
+
+      - name: Construir
+        env:
+          # Pages de projeto serve em https://<user>.github.io/<repo>/
+          VITE_BASE: /${{ github.event.repository.name }}/
+          # Sem servidor que reescreva rotas: o app usa rotas com "#", que
+          # funcionam em qualquer host estático.
+          VITE_ROUTER: hash
+          # Protótipo não deve aparecer em busca: marca provisória e textos
+          # legais ainda pendentes de validação jurídica.
+          VITE_NOINDEX: 'true'
+          # Portão 1 de 3 permanece fechado. Não ligar aqui.
+          VITE_TRANSACTIONS_ENABLED: 'false'
+        run: npm run build
+
+      - name: Bloquear indexação e evitar 404 em link direto
+        run: |
+          printf 'User-agent: *\nDisallow: /\n' > dist/robots.txt
+          rm -f dist/sitemap.xml
+          # O Pages devolve 404.html para caminho desconhecido; sendo cópia do
+          # index, o app carrega e a rota é resolvida no cliente.
+          cp dist/index.html dist/404.html
+          # .nojekyll impede o Jekyll de ignorar pastas iniciadas com "_".
+          touch dist/.nojekyll
+
+      - uses: actions/configure-pages@v5
+        with:
+          # Liga o Pages na primeira execução, sem precisar mexer nas settings.
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

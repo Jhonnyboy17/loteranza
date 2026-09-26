@@ -28,6 +28,15 @@ export const env = {
   /** Portao 1 de 3. Nasce desligado por decisao de projeto. */
   transactionsEnabled: readBool(import.meta.env.VITE_TRANSACTIONS_ENABLED, false),
 
+  /**
+   * Publicacao de demonstracao: pede aos buscadores para NAO indexar.
+   *
+   * Um prototipo de loteria com marca provisoria e textos legais ainda em
+   * [CONTEUDO A SER VALIDADO POR ADVOGADO] nao deve aparecer em busca. Ligado
+   * no deploy do GitHub Pages; desligado (padrao) no site real.
+   */
+  noIndex: readBool(import.meta.env.VITE_NOINDEX, false),
+
   brandName: import.meta.env.VITE_BRAND_NAME?.trim() || 'Jackpot USA',
   legalEntity: import.meta.env.VITE_BRAND_LEGAL_ENTITY?.trim() || '',
   supportEmail: import.meta.env.VITE_SUPPORT_EMAIL?.trim() || 'suporte@exemplo.com',
