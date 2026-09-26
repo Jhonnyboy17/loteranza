@@ -25,7 +25,7 @@ export const demoGames: LotteryGame[] = [
       'Modalidade multiestadual dos Estados Unidos com sorteios três vezes por semana e jackpot acumulativo.',
     howToPlay:
       'Escolha 5 números de 1 a 69 e 1 número Powerball de 1 a 26. O jackpot sai com os 5 números mais o Powerball.',
-    logoUrl: null,
+    logoUrl: 'logos/powerball.svg',
     brandColor: '#E4434B',
     sortOrder: 10,
     officialPrice: 2,
@@ -67,11 +67,9 @@ export const demoGames: LotteryGame[] = [
       'Modalidade multiestadual com sorteios às terças e sextas-feiras e multiplicador já incluso na aposta.',
     howToPlay:
       'Escolha 5 números de 1 a 70 e 1 Mega Ball de 1 a 24. O jackpot sai com os 5 números mais a Mega Ball.',
-    // Para usar o logotipo em vez do nome: colocar o arquivo em
-    // public/logos/ e apontar aqui, com caminho relativo e sem barra
-    // inicial — ex. 'logos/mega-millions.png'. O prefixo do site (/ ou
+    // Caminho relativo, sem barra inicial. O prefixo do site (/ ou
     // /loteranza/) é resolvido no componente. Ver public/logos/README.md.
-    logoUrl: null,
+    logoUrl: 'logos/mega-millions.svg',
     brandColor: '#3B82F6',
     sortOrder: 20,
     officialPrice: 5,
@@ -121,7 +119,7 @@ function makeComingSoon(
     operatorName: null,
     description: 'Modalidade estadual. Estrutura preparada; ativação depende de configuração no painel.',
     howToPlay: null,
-    logoUrl: null,
+    logoUrl: `logos/${gameKey}.svg`,
     brandColor: color,
     sortOrder: order,
     officialPrice: 1,

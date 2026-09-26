@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 96" width="400" height="96" role="img" aria-label="POWERBALL">
+  <title>POWERBALL — marca provisória para teste</title>
+  <circle cx="48" cy="48" r="40" fill="none" stroke="#f17e84" stroke-width="7"/>
+  <circle cx="48" cy="48" r="27" fill="#f17e84"/>
+  <circle cx="48" cy="48" r="13" fill="#FFFFFF"/>
+  <text x="112" y="60" font-family="'Outfit','Trebuchet MS',Verdana,sans-serif" font-size="34" font-weight="800" letter-spacing="-0.5" fill="#f17e84">POWERBALL</text>
+</svg>

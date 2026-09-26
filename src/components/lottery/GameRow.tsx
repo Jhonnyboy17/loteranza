@@ -3,6 +3,7 @@ import type { Draw, ExchangeRate, LotteryGame } from '@/types/domain';
 import { convert } from '@/services/exchange/exchangeService';
 import { formatBRL, formatDrawMoment, splitJackpot } from '@/lib/format';
 import { Countdown } from '@/components/lottery/Countdown';
+import { GameWordmark } from '@/components/lottery/GameWordmark';
 import { GameTheme } from '@/components/lottery/GameTheme';
 import { Sym } from '@/components/ui/icon';
 import { cn } from '@/lib/utils';
@@ -46,27 +47,33 @@ export function GameRow({
   const body = (
     <>
       <div className="flex min-w-0 items-center gap-3">
-        {/* Emblema quadrado com a inicial: fundo e anel na cor do jogo.
-            Tinta a 10%, não os 15% do Stitch: a 15% o pior caso (violeta do
-            Lucky Day) dá 4,38:1 de contraste, abaixo do mínimo. A 10% sobe
-            para 4,74:1 e a diferença visual é imperceptível. */}
-        <span
-          aria-hidden
-          className="flex size-12 shrink-0 items-center justify-center rounded-xl border font-display text-lg font-black"
-          style={{
-            background: 'hsl(var(--game-bright, var(--primary)) / 0.10)',
-            borderColor: 'hsl(var(--game-bright, var(--primary)) / 0.35)',
-            color: 'hsl(var(--game-bright, var(--primary)))',
-          }}
-        >
-          {initial}
-        </span>
+        {/* Com logotipo cadastrado, ele substitui emblema E nome — foi o que
+            o cliente pediu. Sem logotipo, entra o emblema com a inicial:
+            tinta a 10%, não os 15% do Stitch, porque a 15% o pior caso dá
+            4,38:1, abaixo do mínimo. A 10% sobe para 4,74:1. */}
+        {!game.logoUrl && (
+          <span
+            aria-hidden
+            className="flex size-12 shrink-0 items-center justify-center rounded-xl border font-display text-lg font-black"
+            style={{
+              background: 'hsl(var(--game-bright, var(--primary)) / 0.10)',
+              borderColor: 'hsl(var(--game-bright, var(--primary)) / 0.35)',
+              color: 'hsl(var(--game-bright, var(--primary)))',
+            }}
+          >
+            {initial}
+          </span>
+        )}
 
         <div className="flex min-w-0 flex-col">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="truncate font-display text-base font-extrabold leading-tight text-on-surface">
-              {game.name}
-            </span>
+            {game.logoUrl ? (
+              <GameWordmark game={game} size="md" className="max-h-9" />
+            ) : (
+              <span className="truncate font-display text-base font-extrabold leading-tight text-on-surface">
+                {game.name}
+              </span>
+            )}
             {!playable && (
               <span className="rounded bg-surface-container-highest px-1.5 py-0.5 font-label-xs text-[0.5625rem] font-black uppercase text-on-surface-variant">
                 Em breve
