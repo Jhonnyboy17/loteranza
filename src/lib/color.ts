@@ -116,6 +116,32 @@ function resolveContrast(base: Hsl): { primary: Hsl; foreground: Hsl } {
   return { primary: base, foreground: white };
 }
 
+/**
+ * Superficie mais clara sobre a qual `bright` chega a ser usada como texto:
+ * `surface-container-highest` (#323440). Se a cor passa aqui, passa em todas
+ * as outras, que sao mais escuras.
+ */
+const LIGHTEST_SURFACE: Hsl = { h: 231, s: 12, l: 22 };
+
+/**
+ * Clareia a cor ate ela alcancar contraste minimo sobre a superficie mais
+ * clara em que sera usada.
+ *
+ * Sem isto, `bright` fica fixa em 72% de luminosidade e o resultado depende do
+ * matiz: amarelo e ciano passam com folga, azul e violeta nao. Um azul a 72%
+ * da 3,52:1 — abaixo do minimo. Como a cor da modalidade vem do banco, a
+ * proxima marca cadastrada poderia reintroduzir a falha; por isso a garantia
+ * fica aqui, e nao no componente que usa a cor.
+ */
+function ensureReadable(color: Hsl): Hsl {
+  let candidate = color;
+  for (let l = color.l; l <= 92; l += 1) {
+    candidate = { ...color, l };
+    if (contrast(candidate, LIGHTEST_SURFACE) >= MIN_CONTRAST) return candidate;
+  }
+  return candidate;
+}
+
 export interface GamePalette {
   /** Cor principal da modalidade. */
   primary: string;
@@ -125,7 +151,10 @@ export interface GamePalette {
   primarySoft: string;
   accent: string;
   accentForeground: string;
-  /** Versao clara da cor, para texto sobre fundo escuro. */
+  /**
+   * Versao clara da cor, para TEXTO sobre fundo escuro. Garantidamente legivel
+   * ate sobre a superficie mais clara do tema — ver `ensureReadable`.
+   */
   bright: string;
 }
 
@@ -152,6 +181,6 @@ export function derivePalette(hex: string | null | undefined): GamePalette | nul
     primarySoft: hslToToken({ h: base.h, s: Math.round(s * 0.5), l: 15 }),
     accent: hslToToken({ h: base.h, s: Math.round(s * 0.42), l: 17 }),
     accentForeground: hslToToken({ h: base.h, s: Math.min(88, s), l: 85 }),
-    bright: hslToToken({ h: base.h, s: Math.min(92, s + 6), l: 72 }),
+    bright: hslToToken(ensureReadable({ h: base.h, s: Math.min(92, s + 6), l: 72 })),
   };
 }

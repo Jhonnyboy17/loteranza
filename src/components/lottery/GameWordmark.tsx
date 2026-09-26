@@ -65,20 +65,34 @@ export function GameWordmark({
     );
   }
 
+  // Sem logotipo, o nome vira um LOCKUP: empilhado, entrelinha apertada e
+  // tracking fechado. Lido como marca, não como título. "Mega Millions" fica
+  // MEGA / MILLIONS, que é como o próprio nome se lê. A partir da terceira
+  // palavra o resto junta na segunda linha, para o bloco não virar uma torre.
+  const words = game.name.trim().split(/\s+/);
+  const lines = size === 'lg' && words.length > 1
+    ? [words[0], words.slice(1).join(' ')]
+    : [game.name];
+
   return (
     <span
       className={cn(
-        'inline-block font-display font-extrabold uppercase leading-none',
+        'inline-flex flex-col font-display font-black uppercase',
         size === 'lg'
-          ? 'text-[clamp(1.5rem,7vw,2.25rem)] tracking-[0.02em]'
+          ? 'gap-0 text-[clamp(1.75rem,9vw,2.75rem)] leading-[0.88] tracking-[-0.02em]'
           : size === 'md'
-            ? 'text-headline-sm tracking-tight'
-            : 'font-label-lg text-label-lg tracking-wider',
+            ? 'text-headline-sm leading-none tracking-tight'
+            : 'font-label-lg text-label-lg leading-none tracking-wider',
         className,
       )}
       style={{ color: 'hsl(var(--game-bright, var(--primary)))' }}
     >
-      {game.name}
+      <span className="sr-only">{game.name}</span>
+      {lines.map((line) => (
+        <span key={line} aria-hidden>
+          {line}
+        </span>
+      ))}
     </span>
   );
 }
