@@ -16,3 +16,6 @@ npm-debug.log*
 coverage
 .supabase
 supabase/.temp
+
+# Capturas de tela geradas para revisão; não fazem parte do build.
+.previews/
