@@ -43,7 +43,7 @@ export function Footer() {
   const minimumAge = jurisdiction?.minimumAge ?? 18;
 
   return (
-    <footer className="mt-16 border-t border-border bg-muted/30">
+    <footer className="mt-16 border-t border-outline-variant bg-surface-container-lowest pb-24 lg:pb-0">
       <div className="container py-12">
         <div className="grid gap-10 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div className="space-y-4">

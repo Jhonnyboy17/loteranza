@@ -12,12 +12,16 @@ const SIZES: Record<BallSize, string> = {
   lg: 'size-14 text-lg',
 };
 
+/**
+ * Estados de bola do Stitch. Sem borda: o que separa a bola do fundo é a
+ * elevação de superfície mais o brilho, não um contorno.
+ */
 const TONES: Record<BallTone, string> = {
-  main: 'bg-secondary text-foreground border-border',
-  special: 'bg-jackpot text-jackpot-foreground border-transparent',
-  muted: 'bg-muted text-muted-foreground border-transparent',
-  match: 'bg-success text-success-foreground border-transparent',
-  miss: 'bg-secondary/50 text-muted-foreground border-border opacity-60',
+  main: 'bg-surface-container-highest text-primary-fixed glow-ball-violet',
+  special: 'bg-secondary text-on-secondary-fixed glow-ball-gold',
+  muted: 'bg-surface-container-highest text-on-surface-variant',
+  match: 'bg-success text-success-foreground',
+  miss: 'bg-surface-container-high text-on-surface-variant opacity-60',
 };
 
 export interface NumberBallProps extends React.HTMLAttributes<HTMLSpanElement> {
@@ -35,7 +39,7 @@ export function NumberBall({
   return (
     <span
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-full border font-semibold tabular-nums shadow-ball',
+        'inline-flex shrink-0 items-center justify-center rounded-full font-display font-bold tabular-nums',
         SIZES[size],
         TONES[tone],
         animate && 'animate-ball-pop',
@@ -77,7 +81,7 @@ export function NumberSequence({
       ))}
       {specialNumbers.length > 0 && (
         <>
-          <span className="mx-0.5 text-muted-foreground" aria-hidden>|</span>
+          <span className="mx-0.5 text-outline" aria-hidden>|</span>
           {specialNumbers.map((n, i) => (
             <NumberBall
               key={`s-${n}-${i}`}

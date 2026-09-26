@@ -78,15 +78,17 @@ export function NumberGrid({
             onKeyDown={(event) => handleKeyDown(event, index)}
             onClick={() => onToggle(value)}
             className={cn(
-              'touch-target flex aspect-square w-full items-center justify-center rounded-full border',
-              'text-sm font-semibold tabular-nums transition',
+              'touch-target flex aspect-square w-full items-center justify-center rounded-full',
+              'font-display text-[0.8125rem] font-bold tabular-nums transition-all',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
               isSelected
                 ? tone === 'special'
-                  ? 'animate-ball-pop border-transparent bg-jackpot text-jackpot-foreground shadow-ball'
-                  : 'animate-ball-pop border-transparent bg-primary text-primary-foreground glow-primary'
-                : 'border-border bg-secondary/60 text-foreground hover:border-primary/50 hover:bg-accent',
-              isDisabled && 'cursor-not-allowed opacity-40 hover:border-border hover:bg-card',
+                  ? 'animate-ball-pop scale-105 bg-secondary text-on-secondary glow-ball-gold'
+                  : 'animate-ball-pop scale-105 bg-primary text-on-primary glow-ball-violet'
+                : tone === 'special'
+                  ? 'bg-surface-container-highest/60 text-secondary/70 hover:text-secondary active:scale-90'
+                  : 'bg-surface-container-highest/60 text-outline hover:text-on-surface active:scale-90',
+              isDisabled && 'cursor-not-allowed opacity-40 hover:text-outline',
             )}
           >
             {padBall(value)}

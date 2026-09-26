@@ -71,6 +71,38 @@ export function formatJackpotCompact(value: number | null | undefined, currency 
   return formatMoney(value, currency, true);
 }
 
+/**
+ * Mesma decomposição de `formatJackpotCompact`, mas em partes.
+ *
+ * O banner do Stitch imprime o símbolo, o número e a unidade em três tamanhos
+ * diferentes ("US$" pequeno, "680" gigante, "MILHÕES" médio), então precisa
+ * dos pedaços separados em vez da string pronta.
+ */
+export function splitJackpot(
+  value: number | null | undefined,
+  currency = 'USD',
+): { symbol: string; amount: string; unit: string | null; exact: string } | null {
+  if (value === null || value === undefined || Number.isNaN(value)) return null;
+  const symbol = currency === 'BRL' ? 'R$' : 'US$';
+  const abs = Math.abs(value);
+  const exact = formatMoney(value, currency, true);
+
+  if (abs >= 1_000_000_000) {
+    const n = value / 1_000_000_000;
+    return { symbol, amount: trimNumber(n), unit: n === 1 ? 'Bilhão' : 'Bilhões', exact };
+  }
+  if (abs >= 1_000_000) {
+    const n = value / 1_000_000;
+    return { symbol, amount: trimNumber(n), unit: n === 1 ? 'Milhão' : 'Milhões', exact };
+  }
+  return {
+    symbol,
+    amount: new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(value),
+    unit: null,
+    exact,
+  };
+}
+
 function trimNumber(n: number): string {
   const rounded = Math.round(n * 10) / 10;
   return new Intl.NumberFormat('pt-BR', {

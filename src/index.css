@@ -3,108 +3,178 @@
 @tailwind utilities;
 
 /* ==========================================================================
-   Jackpot USA — tokens de design
+   Nebula Jackpot — tokens de design
    ---------------------------------------------------------------------------
-   Identidade original: violeta profundo sobre quase-preto, com dourado âmbar
-   reservado exclusivamente para o jackpot.
+   Paleta gerada pelo Google Stitch, reproduzida hex a hex a partir do
+   tailwind.config inline das telas (design/stitch/<tela>/code.html). Convertida
+   para HSL porque o resto do sistema já trabalha em `hsl(var(--x) / alpha)`.
 
-   Escuro por padrão: `:root` já carrega o tema escuro. A paleta clara existe
-   em `.light` como alternativa, mas não é o default.
-
-   Sem estética de cassino: nada de neon saturado, roleta ou caça-níquel. O
-   brilho é discreto e usado só onde guia a ação (botão primário, jackpot).
+   Escuro por padrão: `:root` já é o tema escuro, como no Stitch. O tema claro
+   em `.light` usa os pares M3 correspondentes e existe como alternativa.
 
    Trocar a marca = trocar estas variáveis. Nenhum componente tem cor fixa.
    ========================================================================== */
 
 @layer base {
   :root {
-    /* Fundo quase-preto com leve viés violeta — evita o cinza "morto". */
-    --background: 258 32% 5%;
-    --foreground: 260 18% 96%;
+    /* ---- superfícies ---------------------------------------------------- */
+    --surface: 231 28% 9%;                  /* #11131e */
+    --surface-dim: 231 28% 9%;              /* #11131e */
+    --surface-bright: 236 11% 24%;          /* #373845 */
+    --surface-variant: 231 12% 22%;         /* #323440 */
+    --surface-tint: 258 100% 87%;           /* #d0bcff */
+    --surface-container-lowest: 226 37% 7%; /* #0b0e18 */
+    --surface-container-low: 231 21% 12%;   /* #191b26 */
+    --surface-container: 231 18% 14%;       /* #1d1f2a */
+    --surface-container-high: 231 15% 18%;  /* #272935 */
+    --surface-container-highest: 231 12% 22%; /* #323440 */
 
-    --card: 258 26% 8%;
-    --card-foreground: 260 18% 96%;
+    --on-surface: 240 36% 91%;              /* #e1e1f1 */
+    --on-surface-variant: 264 20% 80%;      /* #cbc3d7 */
+    --on-background: 240 36% 91%;           /* #e1e1f1 */
+    --inverse-surface: 240 36% 91%;         /* #e1e1f1 */
+    --inverse-on-surface: 231 13% 21%;      /* #2e303c */
 
-    --popover: 258 26% 10%;
-    --popover-foreground: 260 18% 96%;
+    /* ---- violeta --------------------------------------------------------- */
+    --primary: 258 100% 87%;                /* #d0bcff */
+    --primary-container: 258 100% 74%;      /* #a078ff */
+    --primary-fixed: 261 100% 93%;          /* #e9ddff */
+    --primary-fixed-dim: 258 100% 87%;      /* #d0bcff */
+    --on-primary: 265 100% 28%;             /* #3c0091 */
+    --on-primary-container: 264 100% 25%;   /* #340080 */
+    --on-primary-fixed: 263 100% 18%;       /* #23005c */
+    --on-primary-fixed-variant: 262 79% 42%;/* #5516be */
+    --inverse-primary: 259 66% 54%;         /* #6d3bd7 */
+    --primary-soft: 246 15% 27%;            /* violeta rebaixado p/ chips */
 
-    /* Violeta vibrante, mas abaixo do ponto em que vira neon. */
-    --primary: 263 88% 68%;
-    --primary-foreground: 258 40% 7%;
-    --primary-soft: 263 45% 16%;
+    /* ---- ouro: reservado ao jackpot e à ação principal -------------------- */
+    --secondary: 45 100% 76%;               /* #ffe083 */
+    --secondary-container: 49 100% 47%;     /* #eec200 */
+    --secondary-fixed: 45 100% 76%;         /* #ffe083 */
+    --secondary-fixed-dim: 49 100% 47%;     /* #eec200 */
+    --on-secondary: 47 100% 12%;            /* #3c2f00 */
+    --on-secondary-container: 48 100% 20%;  /* #645000 */
+    --on-secondary-fixed: 46 100% 7%;       /* #231b00 */
+    --on-secondary-fixed-variant: 48 100% 17%; /* #574500 */
 
-    --secondary: 258 20% 14%;
-    --secondary-foreground: 260 16% 92%;
+    /* ---- ciano: verificação e estados positivos --------------------------- */
+    --tertiary: 191 90% 63%;                /* #4cd7f6 */
+    --tertiary-container: 189 100% 36%;     /* #009eb9 */
+    --tertiary-fixed: 193 100% 84%;         /* #acedff */
+    --tertiary-fixed-dim: 191 90% 63%;      /* #4cd7f6 */
+    --on-tertiary: 189 100% 13%;            /* #003640 */
+    --on-tertiary-container: 190 100% 11%;  /* #002f38 */
+    --on-tertiary-fixed: 191 100% 7%;       /* #001f26 */
+    --on-tertiary-fixed-variant: 189 100% 18%; /* #004e5c */
 
-    --muted: 258 20% 12%;
-    --muted-foreground: 258 12% 64%;
+    /* ---- contornos -------------------------------------------------------- */
+    --outline: 263 9% 59%;                  /* #958ea0 — texto secundário */
+    --outline-variant: 259 11% 30%;         /* #494454 — SÓ borda/divisória */
 
-    --accent: 263 35% 17%;
-    --accent-foreground: 263 85% 86%;
+    /* ---- erro -------------------------------------------------------------- */
+    --error: 6 100% 84%;                    /* #ffb4ab */
+    --error-container: 356 100% 29%;        /* #93000a */
+    --on-error: 357 100% 21%;               /* #690005 */
+    --on-error-container: 6 100% 92%;       /* #ffdad6 */
 
-    /* Âmbar: cor exclusiva do jackpot. Não usar em mais nada. */
-    --jackpot: 42 96% 62%;
-    --jackpot-foreground: 40 70% 8%;
-    --jackpot-soft: 42 45% 14%;
+    /* ---- aliases legados ---------------------------------------------------
+       Mapeiam os nomes que os componentes já escritos usam para os tokens M3
+       acima. Nenhum valor novo: só apelidos. */
+    --background: var(--surface);
+    --foreground: var(--on-surface);
+    --card: var(--surface-container);
+    --card-foreground: var(--on-surface);
+    --popover: var(--surface-container-high);
+    --popover-foreground: var(--on-surface);
+    --muted: var(--surface-container-low);
+    --muted-foreground: var(--outline);
+    --accent: 243 18% 21%;
+    --accent-foreground: var(--primary-fixed);
+    --destructive: var(--error);
+    --destructive-foreground: var(--on-error);
+    --border: var(--outline-variant);
+    --input: var(--outline-variant);
+    --ring: var(--primary);
+    --jackpot: var(--secondary);
+    --jackpot-foreground: var(--on-secondary);
+    --jackpot-soft: 40 7% 24%;
+    --success: 142 69% 58%;                 /* #4ade80 */
+    --success-foreground: 150 60% 6%;
+    --warning: 49 100% 47%;                 /* #eec200 */
+    --warning-foreground: 48 100% 8%;
 
-    --success: 158 68% 46%;
-    --success-foreground: 158 50% 6%;
+    /* Cor viva do jogo em foco. <GameTheme> sobrescreve por escopo. */
+    --game-bright: var(--primary);
 
-    --warning: 38 92% 62%;
-    --warning-foreground: 38 60% 8%;
-
-    --destructive: 352 78% 62%;
-    --destructive-foreground: 352 40% 8%;
-
-    --border: 258 18% 17%;
-    --input: 258 18% 20%;
-    --ring: 263 88% 68%;
-
-    --shadow-color: 258 70% 2%;
-    --radius: 1rem;
+    --shadow-color: 231 41% 3%;
+    --radius: 0.75rem;
   }
 
-  /* Tema claro opcional. Aplicar a classe `light` no elemento <html>. */
+  /* Tema claro opcional (pares M3 correspondentes). Aplicar `light` no <html>. */
   .light {
-    --background: 260 30% 98%;
-    --foreground: 258 35% 10%;
+    --surface: 285 100% 98%;
+    --surface-dim: 285 11% 86%;
+    --surface-bright: 285 100% 98%;
+    --surface-variant: 278 22% 90%;
+    --surface-tint: 259 66% 54%;
+    --surface-container-lowest: 0 0% 100%;
+    --surface-container-low: 285 44% 96%;
+    --surface-container: 285 27% 94%;
+    --surface-container-high: 285 19% 92%;
+    --surface-container-highest: 280 17% 90%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 258 35% 10%;
+    --on-surface: 264 8% 12%;
+    --on-surface-variant: 267 6% 29%;
+    --on-background: 264 8% 12%;
+    --inverse-surface: 270 6% 20%;
+    --inverse-on-surface: 285 33% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 258 35% 10%;
+    --primary: 259 66% 54%;
+    --primary-container: 261 100% 93%;
+    --primary-fixed: 261 100% 93%;
+    --primary-fixed-dim: 258 100% 87%;
+    --on-primary: 0 0% 100%;
+    --on-primary-container: 263 100% 18%;
+    --on-primary-fixed: 263 100% 18%;
+    --on-primary-fixed-variant: 262 79% 42%;
+    --inverse-primary: 258 100% 87%;
+    --primary-soft: 261 100% 93%;
 
-    --primary: 263 72% 56%;
-    --primary-foreground: 0 0% 100%;
-    --primary-soft: 263 70% 96%;
+    --secondary: 47 100% 21%;
+    --secondary-container: 45 100% 76%;
+    --secondary-fixed: 45 100% 76%;
+    --secondary-fixed-dim: 49 100% 47%;
+    --on-secondary: 0 0% 100%;
+    --on-secondary-container: 49 100% 6%;
+    --on-secondary-fixed: 46 100% 7%;
+    --on-secondary-fixed-variant: 48 100% 17%;
 
-    --secondary: 258 22% 95%;
-    --secondary-foreground: 258 30% 18%;
+    --tertiary: 188 100% 24%;
+    --tertiary-container: 193 100% 84%;
+    --tertiary-fixed: 193 100% 84%;
+    --tertiary-fixed-dim: 191 90% 63%;
+    --on-tertiary: 0 0% 100%;
+    --on-tertiary-container: 191 100% 7%;
+    --on-tertiary-fixed: 191 100% 7%;
+    --on-tertiary-fixed-variant: 189 100% 18%;
 
-    --muted: 258 22% 96%;
-    --muted-foreground: 258 12% 44%;
+    --outline: 270 4% 48%;
+    --outline-variant: 273 10% 79%;
 
-    --accent: 263 60% 96%;
-    --accent-foreground: 263 60% 32%;
+    --error: 0 75% 42%;
+    --error-container: 6 100% 92%;
+    --on-error: 0 0% 100%;
+    --on-error-container: 358 100% 13%;
 
-    --jackpot: 38 92% 48%;
-    --jackpot-foreground: 38 70% 12%;
-    --jackpot-soft: 42 92% 94%;
-
+    --accent: 261 100% 93%;
+    --accent-foreground: 263 100% 18%;
+    --jackpot: 47 100% 21%;
+    --jackpot-foreground: 0 0% 100%;
+    --jackpot-soft: 45 100% 90%;
     --success: 158 62% 34%;
     --success-foreground: 0 0% 100%;
-
     --warning: 34 90% 44%;
     --warning-foreground: 34 70% 12%;
-
-    --destructive: 352 72% 48%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 258 20% 90%;
-    --input: 258 20% 88%;
-    --ring: 263 72% 56%;
 
     --shadow-color: 258 40% 25%;
   }
@@ -119,29 +189,16 @@
     color-scheme: dark;
   }
 
-  .light html,
   html.light {
     color-scheme: light;
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-surface text-on-surface font-sans antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     overflow-wrap: break-word;
-
-    /* Dois halos violeta muito sutis, fixos no topo. Dão profundidade ao
-       quase-preto sem competir com o conteúdo. */
-    background-image:
-      radial-gradient(60rem 40rem at 15% -10%, hsl(263 80% 30% / 0.22), transparent 65%),
-      radial-gradient(50rem 34rem at 88% -6%, hsl(288 70% 32% / 0.14), transparent 62%);
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-  }
-
-  .light body {
-    background-image:
-      radial-gradient(60rem 40rem at 15% -10%, hsl(263 80% 70% / 0.16), transparent 65%),
-      radial-gradient(50rem 34rem at 88% -6%, hsl(288 70% 72% / 0.10), transparent 62%);
+    /* O Stitch trava o scroll elástico para a casca parecer app. */
+    overscroll-behavior: none;
   }
 
   h1, h2, h3, h4 {
@@ -150,28 +207,30 @@
 
   /* Acessibilidade: foco sempre visível, nunca removido. */
   :focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-surface;
   }
 
   ::selection {
     background-color: hsl(var(--primary) / 0.35);
-    color: hsl(var(--foreground));
+    color: hsl(var(--on-surface));
   }
 
-  /* Barra de rolagem discreta, alinhada ao tema. */
+  /* O Stitch esconde a barra de rolagem por completo (`::-webkit-scrollbar
+     { display:none }`). Isso remove uma pista de navegação para quem usa
+     mouse, então aqui ela fica discreta em vez de invisível. */
   * {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--border)) transparent;
+    scrollbar-color: hsl(var(--outline-variant)) transparent;
   }
   *::-webkit-scrollbar { width: 10px; height: 10px; }
   *::-webkit-scrollbar-track { background: transparent; }
   *::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--border));
+    background-color: hsl(var(--outline-variant));
     border-radius: 999px;
     border: 3px solid transparent;
     background-clip: content-box;
   }
-  *::-webkit-scrollbar-thumb:hover { background-color: hsl(var(--muted-foreground) / 0.5); }
+  *::-webkit-scrollbar-thumb:hover { background-color: hsl(var(--outline) / 0.6); }
 
   .tnum {
     font-variant-numeric: tabular-nums;
@@ -194,32 +253,21 @@
   .skip-link {
     @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100]
            focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2
-           focus:text-primary-foreground focus:shadow-lift;
+           focus:text-on-primary focus:shadow-lift;
   }
 
-  /* Superfície padrão: borda sutil + um fio de luz no topo, que é o que
-     separa os cards do fundo escuro sem precisar de borda forte. */
+  /* Card padrão do Stitch: sem borda, separado do fundo pela elevação de
+     superfície (surface-container) mais sombra. */
   .surface {
-    @apply relative rounded-xl border border-border bg-card shadow-card;
+    @apply relative rounded-xl bg-surface-container shadow-card;
   }
-  .surface::before {
-    content: '';
-    @apply pointer-events-none absolute inset-x-0 top-0 h-px rounded-t-xl;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      hsl(var(--foreground) / 0.10),
-      transparent
-    );
-  }
-  .light .surface::before { display: none; }
 
   .notice-strip {
-    @apply flex items-start gap-3 rounded-xl border px-4 py-3 text-sm;
+    @apply flex items-start gap-3 rounded-xl border px-4 py-3 text-body-sm;
   }
 
   .skeleton {
-    @apply relative overflow-hidden rounded-md bg-muted;
+    @apply relative overflow-hidden rounded-lg bg-surface-container-high;
   }
   .skeleton::after {
     @apply absolute inset-0 -translate-x-full animate-shimmer;
@@ -227,10 +275,11 @@
     background-image: linear-gradient(
       90deg,
       transparent,
-      hsl(var(--foreground) / 0.07),
+      hsl(var(--on-surface) / 0.07),
       transparent
     );
   }
+
 }
 
 @layer utilities {
@@ -240,9 +289,10 @@
     min-width: 44px;
   }
 
-  .safe-bottom {
-    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-  }
+  /* Recortes da área segura (notch / barra de gestos), como no Stitch. */
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .safe-bottom { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
 
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar {
@@ -250,13 +300,26 @@
     scrollbar-width: none;
   }
 
+  /* Halos de fundo do Stitch: manchas de cor muito desfocadas que dão
+     profundidade ao quase-preto sem competir com o conteúdo. */
+  .aura-violet {
+    @apply pointer-events-none absolute rounded-full;
+    background-color: hsl(var(--primary) / 0.10);
+    filter: blur(80px);
+  }
+  .aura-gold {
+    @apply pointer-events-none absolute rounded-full;
+    background-color: hsl(var(--secondary) / 0.10);
+    filter: blur(90px);
+  }
+
   /* Texto em degradê violeta. Reservado a títulos de destaque. */
   .text-gradient {
     background-image: linear-gradient(
       100deg,
-      hsl(var(--foreground)),
-      hsl(263 90% 80%) 55%,
-      hsl(288 85% 78%)
+      hsl(var(--on-surface)),
+      hsl(var(--primary)) 55%,
+      hsl(288 85% 84%)
     );
     -webkit-background-clip: text;
     background-clip: text;
@@ -265,16 +328,26 @@
 
   /* Degradê âmbar exclusivo do valor do jackpot. */
   .text-gradient-jackpot {
-    background-image: linear-gradient(100deg, hsl(42 96% 68%), hsl(32 94% 60%));
+    background-image: linear-gradient(100deg, hsl(var(--secondary)), hsl(var(--secondary-container)));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
-  /* Brilho discreto sob o botão primário. */
+  /* Brilhos nomeados do Stitch. */
   .glow-primary {
-    box-shadow:
-      0 0 0 1px hsl(var(--primary) / 0.25),
-      0 8px 28px -10px hsl(var(--primary) / 0.65);
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.25), 0 8px 28px -10px hsl(var(--primary) / 0.65);
+  }
+  .glow-gold {
+    box-shadow: 0 0 20px hsl(var(--secondary) / 0.40);
+  }
+  .glow-ball-violet {
+    box-shadow: 0 0 12px hsl(var(--primary) / 0.70);
+  }
+  .glow-ball-gold {
+    box-shadow: 0 0 16px hsl(var(--secondary) / 0.85);
+  }
+  .drop-glow-gold {
+    filter: drop-shadow(0 0 25px hsl(var(--secondary) / 0.45));
   }
 }

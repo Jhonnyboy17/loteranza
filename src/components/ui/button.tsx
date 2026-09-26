@@ -7,23 +7,34 @@ import { cn } from '@/lib/utils';
 const buttonVariants = cva(
   'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ' +
     'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ' +
-    'focus-visible:ring-offset-2 focus-visible:ring-offset-background ' +
+    'focus-visible:ring-offset-2 focus-visible:ring-offset-surface ' +
     'disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
+        // Violeta claro sobre texto violeta-escuro — o par do Stitch (7,7:1).
         primary:
-          'bg-primary text-primary-foreground hover:bg-primary/90 glow-primary ' +
+          'bg-primary text-on-primary hover:brightness-110 glow-primary ' +
           'hover:shadow-glow transition-shadow',
+        // CTA dourado do Stitch: a única ação que recebe brilho âmbar.
         jackpot:
-          'bg-jackpot text-jackpot-foreground hover:bg-jackpot/90 shadow-soft font-bold',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+          'bg-secondary text-on-secondary hover:brightness-110 glow-gold font-bold ' +
+          'uppercase tracking-wide',
+        // Violeta cheio (botões secundários de ação, ex. "Ver Scan HD").
+        // Texto em on-primary-fixed, não on-primary: sobre #a078ff o primeiro
+        // dá 5,4:1 e o segundo só 4,1:1. Ver CONFORMIDADE.md §10.
+        violet:
+          'bg-primary-container text-on-primary-fixed hover:brightness-110 shadow-soft font-bold',
+        // Neutra: elevação de superfície, sem cor de marca.
+        secondary:
+          'bg-surface-container-high text-on-surface hover:bg-surface-container-highest',
+        // "Ghost" do Stitch: transparente com contorno violeta.
         outline:
-          'border border-border bg-card/60 backdrop-blur hover:border-primary/40 ' +
-          'hover:bg-accent hover:text-accent-foreground',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        subtle: 'bg-muted text-foreground hover:bg-muted/70',
-        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+          'border border-primary/40 bg-transparent text-on-surface backdrop-blur ' +
+          'hover:border-primary/70 hover:bg-primary/10',
+        ghost: 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface',
+        subtle: 'bg-surface-container-low text-on-surface hover:bg-surface-container',
+        destructive: 'bg-error text-on-error hover:brightness-110',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
