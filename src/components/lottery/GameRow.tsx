@@ -94,10 +94,16 @@ export function GameRow({
 
           {/* Sem `truncate`: a linha quebra em duas em vez de cortar a data
               quando o nome da modalidade é longo. */}
-          <span className="mt-0.5 font-label-xs text-label-xs font-medium leading-tight text-on-surface-variant">
-            {brl !== null && <>≈ {formatBRL(brl, true)}</>}
-            {brl !== null && draw && ' · '}
-            {draw && formatDrawMoment(draw.drawAt, game.timezone)}
+          {/* Cada pedaço é indivisível, então a linha quebra ENTRE eles e
+              nunca no meio de "Sábado • 22:59". */}
+          <span className="mt-0.5 flex flex-wrap gap-x-1 font-label-xs text-label-xs font-medium leading-tight text-on-surface-variant">
+            {brl !== null && <span className="whitespace-nowrap">≈ {formatBRL(brl, true)}</span>}
+            {brl !== null && draw && <span aria-hidden>·</span>}
+            {draw && (
+              <span className="whitespace-nowrap">
+                {formatDrawMoment(draw.drawAt, game.timezone)}
+              </span>
+            )}
           </span>
         </div>
       </div>

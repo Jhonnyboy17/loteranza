@@ -67,6 +67,10 @@ export const demoGames: LotteryGame[] = [
       'Modalidade multiestadual com sorteios às terças e sextas-feiras e multiplicador já incluso na aposta.',
     howToPlay:
       'Escolha 5 números de 1 a 70 e 1 Mega Ball de 1 a 24. O jackpot sai com os 5 números mais a Mega Ball.',
+    // Para usar o logotipo em vez do nome: colocar o arquivo em
+    // public/logos/ e apontar aqui, com caminho relativo e sem barra
+    // inicial — ex. 'logos/mega-millions.png'. O prefixo do site (/ ou
+    // /loteranza/) é resolvido no componente. Ver public/logos/README.md.
     logoUrl: null,
     brandColor: '#3B82F6',
     sortOrder: 20,
@@ -88,8 +92,8 @@ export const demoGames: LotteryGame[] = [
     drawTimeLocal: '23:00',
     salesCutoffMinutes: 60,
     timezone: 'America/New_York',
-    currentJackpot: 96_000_000,
-    currentJackpotCash: 44_100_000,
+    currentJackpot: 486_000_000,
+    currentJackpotCash: 231_700_000,
     jackpotUpdatedAt: new Date().toISOString(),
     nextDrawId: null,
     salesEnabled: false,
