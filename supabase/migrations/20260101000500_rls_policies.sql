@@ -120,14 +120,14 @@ create policy payment_providers_write on public.payment_providers
 drop policy if exists profiles_self_read on public.profiles;
 create policy profiles_self_read on public.profiles
   for select using (
-    id = auth.uid()
+    id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','ADMIN','COMPLIANCE','SUPPORT']::public.app_role[])
   );
 
 drop policy if exists profiles_self_update on public.profiles;
 create policy profiles_self_update on public.profiles
-  for update using (id = auth.uid())
-  with check (id = auth.uid());
+  for update using (id = (select auth.uid()))
+  with check (id = (select auth.uid()));
 
 drop policy if exists profiles_staff_update on public.profiles;
 create policy profiles_staff_update on public.profiles
@@ -136,7 +136,7 @@ create policy profiles_staff_update on public.profiles
 
 drop policy if exists addresses_owner on public.addresses;
 create policy addresses_owner on public.addresses
-  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+  for all using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 drop policy if exists addresses_staff_read on public.addresses;
 create policy addresses_staff_read on public.addresses
   for select using (public.has_role(array['SUPER_ADMIN','COMPLIANCE','SUPPORT']::public.app_role[]));
@@ -144,7 +144,7 @@ create policy addresses_staff_read on public.addresses
 -- operators: cada um enxerga o proprio papel; gestao so por SUPER_ADMIN.
 drop policy if exists operators_self_read on public.operators;
 create policy operators_self_read on public.operators
-  for select using (user_id = auth.uid() or public.has_role(array['SUPER_ADMIN','ADMIN']::public.app_role[]));
+  for select using (user_id = (select auth.uid()) or public.has_role(array['SUPER_ADMIN','ADMIN']::public.app_role[]));
 drop policy if exists operators_admin_write on public.operators;
 create policy operators_admin_write on public.operators
   for all using (public.has_role(array['SUPER_ADMIN']::public.app_role[]))
@@ -155,7 +155,7 @@ create policy operators_admin_write on public.operators
 drop policy if exists geo_self_read on public.geolocation_events;
 create policy geo_self_read on public.geolocation_events
   for select using (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','COMPLIANCE']::public.app_role[])
   );
 
@@ -164,7 +164,7 @@ create policy geo_self_read on public.geolocation_events
 drop policy if exists compliance_self_read on public.compliance_checks;
 create policy compliance_self_read on public.compliance_checks
   for select using (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','COMPLIANCE','ADMIN']::public.app_role[])
   );
 
@@ -172,12 +172,12 @@ create policy compliance_self_read on public.compliance_checks
 drop policy if exists kyc_self_read on public.kyc_checks;
 create policy kyc_self_read on public.kyc_checks
   for select using (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','COMPLIANCE']::public.app_role[])
   );
 drop policy if exists kyc_self_insert on public.kyc_checks;
 create policy kyc_self_insert on public.kyc_checks
-  for insert with check (user_id = auth.uid());
+  for insert with check (user_id = (select auth.uid()));
 drop policy if exists kyc_staff_update on public.kyc_checks;
 create policy kyc_staff_update on public.kyc_checks
   for update using (public.has_role(array['SUPER_ADMIN','COMPLIANCE']::public.app_role[]))
@@ -186,42 +186,42 @@ create policy kyc_staff_update on public.kyc_checks
 drop policy if exists rg_limits_owner on public.responsible_gaming_limits;
 create policy rg_limits_owner on public.responsible_gaming_limits
   for select using (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','COMPLIANCE','SUPPORT']::public.app_role[])
   );
 drop policy if exists rg_limits_insert on public.responsible_gaming_limits;
 create policy rg_limits_insert on public.responsible_gaming_limits
-  for insert with check (user_id = auth.uid());
+  for insert with check (user_id = (select auth.uid()));
 
 drop policy if exists self_exclusions_owner on public.self_exclusions;
 create policy self_exclusions_owner on public.self_exclusions
   for select using (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','COMPLIANCE','SUPPORT']::public.app_role[])
   );
 drop policy if exists self_exclusions_insert on public.self_exclusions;
 create policy self_exclusions_insert on public.self_exclusions
-  for insert with check (user_id = auth.uid());
+  for insert with check (user_id = (select auth.uid()));
 
 drop policy if exists consent_owner_read on public.consent_logs;
 create policy consent_owner_read on public.consent_logs
   for select using (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','COMPLIANCE']::public.app_role[])
   );
 drop policy if exists consent_owner_insert on public.consent_logs;
 create policy consent_owner_insert on public.consent_logs
-  for insert with check (user_id = auth.uid());
+  for insert with check (user_id = (select auth.uid()));
 
 drop policy if exists data_requests_owner on public.data_requests;
 create policy data_requests_owner on public.data_requests
   for select using (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','COMPLIANCE']::public.app_role[])
   );
 drop policy if exists data_requests_insert on public.data_requests;
 create policy data_requests_insert on public.data_requests
-  for insert with check (user_id = auth.uid());
+  for insert with check (user_id = (select auth.uid()));
 
 -- --------------------------------------------------------------------------
 -- Pedidos e pagamentos
@@ -229,18 +229,18 @@ create policy data_requests_insert on public.data_requests
 drop policy if exists orders_owner_read on public.orders;
 create policy orders_owner_read on public.orders
   for select using (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','ADMIN','COMPLIANCE','FINANCE','PURCHASER','TICKET_VERIFIER','SUPPORT']::public.app_role[])
   );
 -- O cliente pode criar/editar apenas rascunhos aguardando pagamento.
 -- Precificacao e compliance sao recalculados no servidor.
 drop policy if exists orders_owner_insert on public.orders;
 create policy orders_owner_insert on public.orders
-  for insert with check (user_id = auth.uid() and status = 'pending_payment');
+  for insert with check (user_id = (select auth.uid()) and status = 'pending_payment');
 drop policy if exists orders_owner_update on public.orders;
 create policy orders_owner_update on public.orders
-  for update using (user_id = auth.uid() and status = 'pending_payment')
-  with check (user_id = auth.uid() and status in ('pending_payment','cancelled'));
+  for update using (user_id = (select auth.uid()) and status = 'pending_payment')
+  with check (user_id = (select auth.uid()) and status in ('pending_payment','cancelled'));
 drop policy if exists orders_staff_update on public.orders;
 create policy orders_staff_update on public.orders
   for update using (public.has_role(array['SUPER_ADMIN','ADMIN','COMPLIANCE','FINANCE','PURCHASER','TICKET_VERIFIER']::public.app_role[]))
@@ -249,25 +249,25 @@ create policy orders_staff_update on public.orders
 drop policy if exists order_lines_read on public.order_lines;
 create policy order_lines_read on public.order_lines
   for select using (
-    exists (select 1 from public.orders o where o.id = order_id and o.user_id = auth.uid())
+    exists (select 1 from public.orders o where o.id = order_id and o.user_id = (select auth.uid()))
     or public.has_role(array['SUPER_ADMIN','ADMIN','COMPLIANCE','PURCHASER','TICKET_VERIFIER','SUPPORT']::public.app_role[])
   );
 drop policy if exists order_lines_owner_write on public.order_lines;
 create policy order_lines_owner_write on public.order_lines
   for all using (
     exists (select 1 from public.orders o
-            where o.id = order_id and o.user_id = auth.uid() and o.status = 'pending_payment')
+            where o.id = order_id and o.user_id = (select auth.uid()) and o.status = 'pending_payment')
   )
   with check (
     exists (select 1 from public.orders o
-            where o.id = order_id and o.user_id = auth.uid() and o.status = 'pending_payment')
+            where o.id = order_id and o.user_id = (select auth.uid()) and o.status = 'pending_payment')
   );
 
 -- Pagamentos: somente leitura para o cliente. Escrita exclusiva do servidor.
 drop policy if exists payments_read on public.payments;
 create policy payments_read on public.payments
   for select using (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','ADMIN','FINANCE','COMPLIANCE']::public.app_role[])
   );
 
@@ -277,7 +277,7 @@ create policy payments_read on public.payments
 drop policy if exists tickets_read on public.tickets;
 create policy tickets_read on public.tickets
   for select using (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','ADMIN','COMPLIANCE','PURCHASER','TICKET_VERIFIER','SUPPORT','FINANCE']::public.app_role[])
   );
 drop policy if exists tickets_staff_write on public.tickets;
@@ -288,7 +288,7 @@ create policy tickets_staff_write on public.tickets
 drop policy if exists ticket_images_read on public.ticket_images;
 create policy ticket_images_read on public.ticket_images
   for select using (
-    exists (select 1 from public.tickets t where t.id = ticket_id and t.user_id = auth.uid())
+    exists (select 1 from public.tickets t where t.id = ticket_id and t.user_id = (select auth.uid()))
     or public.has_role(array['SUPER_ADMIN','ADMIN','PURCHASER','TICKET_VERIFIER','SUPPORT']::public.app_role[])
   );
 drop policy if exists ticket_images_staff_write on public.ticket_images;
@@ -315,7 +315,7 @@ create policy vault_events_insert on public.ticket_vault_events
 drop policy if exists prize_claims_read on public.prize_claims;
 create policy prize_claims_read on public.prize_claims
   for select using (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','ADMIN','FINANCE','COMPLIANCE','SUPPORT']::public.app_role[])
   );
 drop policy if exists prize_claims_staff_write on public.prize_claims;
@@ -326,7 +326,7 @@ create policy prize_claims_staff_write on public.prize_claims
 drop policy if exists prize_events_read on public.prize_claim_events;
 create policy prize_events_read on public.prize_claim_events
   for select using (
-    exists (select 1 from public.prize_claims c where c.id = claim_id and c.user_id = auth.uid())
+    exists (select 1 from public.prize_claims c where c.id = claim_id and c.user_id = (select auth.uid()))
     or public.has_role(array['SUPER_ADMIN','ADMIN','FINANCE','COMPLIANCE','SUPPORT']::public.app_role[])
   );
 drop policy if exists prize_events_write on public.prize_claim_events;
@@ -339,44 +339,44 @@ create policy prize_events_write on public.prize_claim_events
 drop policy if exists subscriptions_owner on public.subscriptions;
 create policy subscriptions_owner on public.subscriptions
   for select using (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','ADMIN','FINANCE','SUPPORT']::public.app_role[])
   );
 drop policy if exists subscriptions_owner_update on public.subscriptions;
 create policy subscriptions_owner_update on public.subscriptions
-  for update using (user_id = auth.uid()) with check (user_id = auth.uid());
+  for update using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 drop policy if exists favorites_owner on public.favorites;
 create policy favorites_owner on public.favorites
-  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+  for all using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 drop policy if exists jackpot_alerts_owner on public.jackpot_alerts;
 create policy jackpot_alerts_owner on public.jackpot_alerts
-  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+  for all using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 drop policy if exists notifications_owner_read on public.notifications;
 create policy notifications_owner_read on public.notifications
   for select using (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','ADMIN','SUPPORT']::public.app_role[])
   );
 drop policy if exists notifications_owner_update on public.notifications;
 create policy notifications_owner_update on public.notifications
-  for update using (user_id = auth.uid()) with check (user_id = auth.uid());
+  for update using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 drop policy if exists notif_prefs_owner on public.notification_preferences;
 create policy notif_prefs_owner on public.notification_preferences
-  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+  for all using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 drop policy if exists support_tickets_owner on public.support_tickets;
 create policy support_tickets_owner on public.support_tickets
   for select using (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     or public.has_role(array['SUPER_ADMIN','ADMIN','SUPPORT','COMPLIANCE']::public.app_role[])
   );
 drop policy if exists support_tickets_insert on public.support_tickets;
 create policy support_tickets_insert on public.support_tickets
-  for insert with check (user_id = auth.uid());
+  for insert with check (user_id = (select auth.uid()));
 drop policy if exists support_tickets_staff_update on public.support_tickets;
 create policy support_tickets_staff_update on public.support_tickets
   for update using (public.has_role(array['SUPER_ADMIN','ADMIN','SUPPORT']::public.app_role[]))
@@ -387,14 +387,14 @@ drop policy if exists support_messages_read on public.support_messages;
 create policy support_messages_read on public.support_messages
   for select using (
     (not is_internal and exists (
-      select 1 from public.support_tickets s where s.id = ticket_id and s.user_id = auth.uid()))
+      select 1 from public.support_tickets s where s.id = ticket_id and s.user_id = (select auth.uid())))
     or public.has_role(array['SUPER_ADMIN','ADMIN','SUPPORT','COMPLIANCE']::public.app_role[])
   );
 drop policy if exists support_messages_insert on public.support_messages;
 create policy support_messages_insert on public.support_messages
   for insert with check (
-    (author_id = auth.uid() and not is_internal and exists (
-      select 1 from public.support_tickets s where s.id = ticket_id and s.user_id = auth.uid()))
+    (author_id = (select auth.uid()) and not is_internal and exists (
+      select 1 from public.support_tickets s where s.id = ticket_id and s.user_id = (select auth.uid())))
     or public.has_role(array['SUPER_ADMIN','ADMIN','SUPPORT']::public.app_role[])
   );
 

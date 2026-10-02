@@ -12,7 +12,7 @@ create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions, pg_temp
 as $$
 begin
   insert into public.profiles (id, email, full_name, phone, date_of_birth, residence_country)
@@ -48,22 +48,26 @@ create sequence if not exists public.support_ref_seq start 1000;
 create sequence if not exists public.claim_ref_seq start 1000;
 
 create or replace function public.next_order_number()
-returns text language sql volatile as $$
+returns text language sql volatile
+set search_path = public, extensions, pg_temp as $$
   select 'JP-' || to_char(now(), 'YYMM') || '-' || lpad(nextval('public.order_number_seq')::text, 6, '0');
 $$;
 
 create or replace function public.next_ticket_ref()
-returns text language sql volatile as $$
+returns text language sql volatile
+set search_path = public, extensions, pg_temp as $$
   select 'TK-' || to_char(now(), 'YYMM') || '-' || lpad(nextval('public.ticket_ref_seq')::text, 6, '0');
 $$;
 
 create or replace function public.next_support_ref()
-returns text language sql volatile as $$
+returns text language sql volatile
+set search_path = public, extensions, pg_temp as $$
   select 'SP-' || to_char(now(), 'YYMM') || '-' || lpad(nextval('public.support_ref_seq')::text, 6, '0');
 $$;
 
 create or replace function public.next_claim_ref()
-returns text language sql volatile as $$
+returns text language sql volatile
+set search_path = public, extensions, pg_temp as $$
   select 'PC-' || to_char(now(), 'YYMM') || '-' || lpad(nextval('public.claim_ref_seq')::text, 6, '0');
 $$;
 
@@ -77,14 +81,14 @@ alter table public.prize_claims alter column claim_ref set default public.next_c
 -- --------------------------------------------------------------------------
 create or replace function public.setting_bool(p_key text, p_default boolean default false)
 returns boolean
-language sql stable security definer set search_path = public
+language sql stable security definer set search_path = public, extensions, pg_temp
 as $$
   select coalesce((select (value #>> '{}')::boolean from public.system_settings where key = p_key), p_default);
 $$;
 
 create or replace function public.setting_numeric(p_key text, p_default numeric default 0)
 returns numeric
-language sql stable security definer set search_path = public
+language sql stable security definer set search_path = public, extensions, pg_temp
 as $$
   select coalesce((select (value #>> '{}')::numeric from public.system_settings where key = p_key), p_default);
 $$;
@@ -95,7 +99,7 @@ $$;
 -- --------------------------------------------------------------------------
 create or replace function public.resolve_jurisdiction(p_country text, p_state text default null)
 returns public.jurisdiction_rules
-language sql stable security definer set search_path = public
+language sql stable security definer set search_path = public, extensions, pg_temp
 as $$
   select j.*
   from public.jurisdiction_rules j
@@ -110,7 +114,7 @@ $$;
 -- --------------------------------------------------------------------------
 create or replace function public.spent_in_window(p_user uuid, p_window interval)
 returns numeric
-language sql stable security definer set search_path = public
+language sql stable security definer set search_path = public, extensions, pg_temp
 as $$
   select coalesce(sum(o.total), 0)
   from public.orders o
@@ -133,7 +137,7 @@ create or replace function public.evaluate_compliance(
 ) returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions, pg_temp
 as $$
 declare
   v_profile      public.profiles;
@@ -347,7 +351,7 @@ create or replace function public.calculate_order_totals(p_order_id uuid)
 returns void
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions, pg_temp
 as $$
 declare
   v_official numeric(14,2) := 0;
@@ -385,7 +389,7 @@ create or replace function public.match_ticket_against_result(p_ticket_id uuid)
 returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions, pg_temp
 as $$
 declare
   v_ticket   public.tickets;
@@ -445,7 +449,7 @@ create or replace function public.compare_all_tickets(p_draw_id uuid)
 returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions, pg_temp
 as $$
 declare
   v_ticket record;
@@ -504,7 +508,7 @@ create or replace function public.verify_ticket_against_order(p_ticket_id uuid)
 returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions, pg_temp
 as $$
 declare
   v_ticket public.tickets;
@@ -553,7 +557,7 @@ create or replace function public.generate_upcoming_draws(p_game_id uuid, p_coun
 returns int
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions, pg_temp
 as $$
 declare
   g            public.lottery_games;

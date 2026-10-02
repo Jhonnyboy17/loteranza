@@ -54,7 +54,42 @@ jobs:
           VITE_NOINDEX: 'true'
           # Portão 1 de 3 permanece fechado. Não ligar aqui.
           VITE_TRANSACTIONS_ENABLED: 'false'
+          # Backend real. A chave anon é pública por desenho: é ela que o
+          # navegador apresenta, e tudo o que protege os dados é RLS — ativado
+          # E forçado nas 38 tabelas, com 73 policies. A service role key nunca
+          # chega aqui; operações privilegiadas passam por Edge Function.
+          #
+          # Ficam como variáveis do repositório (Settings → Secrets and
+          # variables → Actions → Variables) para poderem ser rotacionadas sem
+          # commit. Sem elas o build cai no provider DEMO, que não é erro —
+          # apenas deixa de mostrar os dados reais.
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
+
+      - name: Conferir qual backend entrou no build
+        run: |
+          if [ -n "${{ vars.VITE_SUPABASE_URL }}" ] && [ -n "${{ vars.VITE_SUPABASE_ANON_KEY }}" ]; then
+            echo "- Backend: **Supabase real** (\`${{ vars.VITE_SUPABASE_URL }}\`)" >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "## Publicado em modo DEMO"
+              echo
+              echo "O build não recebeu as credenciais do Supabase, então a"
+              echo "aplicação está rodando sobre o provider de dados em memória."
+              echo "Para apontar para o banco real, defina duas **variáveis** em:"
+              echo
+              echo "   https://github.com/${{ github.repository }}/settings/variables/actions"
+              echo
+              echo "| Nome | Valor |"
+              echo "| --- | --- |"
+              echo "| \`VITE_SUPABASE_URL\`      | a URL do projeto Supabase |"
+              echo "| \`VITE_SUPABASE_ANON_KEY\` | a chave anon/publishable do projeto |"
+              echo
+              echo "Depois rode o workflow de novo. Os portões de transação"
+              echo "continuam fechados de qualquer forma."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Bloquear indexação e evitar 404 em link direto
         run: |

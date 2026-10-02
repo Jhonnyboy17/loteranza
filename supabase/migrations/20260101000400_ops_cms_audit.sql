@@ -138,6 +138,7 @@ create index if not exists audit_logs_user_idx on public.audit_logs(user_id, cre
 create or replace function public.audit_logs_immutable()
 returns trigger
 language plpgsql
+set search_path = public, extensions, pg_temp
 as $$
 begin
   raise exception 'audit_logs e append-only: % nao e permitido', tg_op;
@@ -160,7 +161,7 @@ create or replace function public.write_audit_log(
 ) returns void
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions, pg_temp
 as $$
 declare
   v_role public.app_role;

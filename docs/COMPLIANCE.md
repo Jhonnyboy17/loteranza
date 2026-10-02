@@ -49,6 +49,64 @@ Executados contra PostgreSQL 16 real:
 Os cenários 6 e 7 são os importantes: mesmo com **todos** os portões abertos, idade e
 autoexclusão derrubam o veredito.
 
+O cenário 1 foi reexecutado no projeto Supabase real (`pymgliyofizgfirekepg`,
+PostgreSQL 17), com um usuário deliberadamente **sem nenhum defeito próprio** —
+maior de idade, KYC aprovado, sem restrição de jogo responsável, valor dentro
+dos limites. Veredito `BLOCKED`, derrubado apenas pelos dois portões de
+autorização:
+
+```
+transactions_enabled_check  falhou  GLOBAL_TRANSACTIONS_DISABLED
+jurisdiction_check          falhou  JURISDICTION_DISABLED
+age_check                   ok
+identity_check              ok
+responsible_gaming_check    ok
+purchase_limits_check       ok
+```
+
+## Superfície exposta ao cliente
+
+RLS protege linhas, mas não cobre tudo. Duas lacunas vinham dos privilégios
+que o Supabase concede por padrão a `anon` e `authenticated`, e foram fechadas
+na migration `0700_privilege_hardening`:
+
+**`TRUNCATE` não passa por RLS.** Com o privilégio padrão, uma sessão
+autenticada poderia esvaziar `audit_logs`, `jurisdiction_rules` ou
+`system_settings`. O gatilho `audit_logs_immutable` cobre apenas
+`UPDATE`/`DELETE` — uma trilha só é de fato append-only depois de revogar
+`TRUNCATE`. Revogados também `REFERENCES` e `TRIGGER`, que nada no produto usa.
+
+**Funções `SECURITY DEFINER` ignoram RLS** e ficam expostas em
+`/rest/v1/rpc/<nome>`. Três consequências concretas, todas fechadas:
+
+| Função | O que o cliente conseguia |
+| --- | --- |
+| `evaluate_compliance` | passar `p_country`/`p_state` próprios e gravar o veredito em qualquer pedido — exatamente o contorno de geolocalização que o projeto proíbe |
+| `spent_in_window` | ler o gasto de outro usuário passando o `uuid` dele |
+| `setting_bool` / `setting_numeric` | ler configuração marcada como não pública |
+| `write_audit_log` | inserir registros na trilha de auditoria |
+
+Nenhuma delas é chamada pelo frontend: todas vêm das Edge Functions com a
+`service_role`. `EXECUTE` foi revogado de `PUBLIC`, `anon` e `authenticated` —
+o `REVOKE` de `PUBLIC` é indispensável, porque o Postgres concede `EXECUTE` ao
+pseudo-papel `PUBLIC` em toda função nova e isso cobre os dois papéis mesmo
+depois de revogá-los nominalmente.
+
+`has_role()` e `is_staff()` continuam executáveis de propósito: as 73 policies
+as chamam, e expressão de policy é avaliada com os privilégios de quem
+consulta. As duas são fixadas em `auth.uid()`, não aceitam identidade vinda do
+chamador e devolvem apenas um booleano sobre o próprio solicitante.
+
+Verificado no banco real, atuando como `anon`:
+
+| Tabela | Linhas visíveis | Esperado |
+| --- | --- | --- |
+| `lottery_games` | 6 de 6 | catálogo é público |
+| `draws` / `draw_results` | 28 / 12 | resultados são públicos |
+| `system_settings` | 8 de 11 | só `is_public = true` |
+| `cms_content` | 2 de 10 | só `is_published = true` |
+| `profiles`, `orders`, `tickets`, `payments`, `ticket_vault`, `audit_logs`, `compliance_checks`, `geolocation_events`, `kyc_checks`, `operators` | 0 | nenhuma é pública |
+
 ## Geolocalização
 
 A decisão de jurisdição usa dados resolvidos **no servidor**:

@@ -10,8 +10,8 @@
 --     jurisdicao explicitamente (jurisdiction_rules.transactions_enabled).
 -- ===========================================================================
 
-create extension if not exists "pgcrypto";
-create extension if not exists "citext";
+create extension if not exists "pgcrypto" with schema extensions;
+create extension if not exists "citext" with schema extensions;
 
 -- --------------------------------------------------------------------------
 -- Papeis (RBAC). CUSTOMER e o default de qualquer conta criada.
@@ -142,12 +142,14 @@ create or replace function public.current_user_id()
 returns uuid
 language sql
 stable
+set search_path = public, extensions, pg_temp
 as $$ select auth.uid() $$;
 
 -- Mantem updated_at coerente sem depender da aplicacao.
 create or replace function public.touch_updated_at()
 returns trigger
 language plpgsql
+set search_path = public, extensions, pg_temp
 as $$
 begin
   new.updated_at := now();

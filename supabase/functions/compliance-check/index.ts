@@ -94,7 +94,10 @@ Deno.serve(async (req) => {
 
   if (error) return json({ error: 'evaluation_failed', detail: error.message }, 500, origin);
 
+  // p_actor explicito: esta chamada usa a service role, onde auth.uid() e nulo.
+  // Sem ele a trilha de auditoria registraria a avaliacao sem autor.
   await admin.rpc('write_audit_log', {
+    p_actor: user.id,
     p_action: 'compliance.evaluate',
     p_entity: 'compliance_checks',
     p_entity_id: body.order_id ?? user.id,

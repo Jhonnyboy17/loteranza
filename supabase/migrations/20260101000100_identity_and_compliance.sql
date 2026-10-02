@@ -10,7 +10,7 @@ create table if not exists public.profiles (
   id                   uuid primary key references auth.users(id) on delete cascade,
   full_name            text,
   display_name         text,
-  email                citext,
+  email                extensions.citext,
   phone                text,
   phone_verified_at    timestamptz,
   date_of_birth        date,
@@ -83,7 +83,7 @@ returns boolean
 language sql
 stable
 security definer
-set search_path = public
+set search_path = public, extensions, pg_temp
 as $$
   select exists (
     select 1
@@ -99,7 +99,7 @@ returns boolean
 language sql
 stable
 security definer
-set search_path = public
+set search_path = public, extensions, pg_temp
 as $$
   select exists (
     select 1 from public.operators o

@@ -160,7 +160,9 @@ Deno.serve(async (req) => {
   // Recalculo final no banco — fonte de verdade do total.
   await admin.rpc('calculate_order_totals', { p_order_id: order.id });
 
+  // p_actor explicito: esta chamada usa a service role, onde auth.uid() e nulo.
   await admin.rpc('write_audit_log', {
+    p_actor: user.id,
     p_action: 'order.create',
     p_entity: 'orders',
     p_entity_id: order.id,
