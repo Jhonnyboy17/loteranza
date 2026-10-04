@@ -88,6 +88,8 @@ function defaultSettings(): SystemSettings {
     fxSpreadPercent: 0,
     rgIncreaseCooldownHours: 24,
     prizeManualReviewThreshold: 600,
+    jackpotMaxAgeHours: 12,
+    fxMaxAgeHours: 24,
     brandName: 'Jackpot USA',
     supportEmail: 'suporte@exemplo.com',
   };

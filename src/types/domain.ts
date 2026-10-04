@@ -475,6 +475,10 @@ export interface SystemSettings {
   fxSpreadPercent: number;
   rgIncreaseCooldownHours: number;
   prizeManualReviewThreshold: number;
+  /** Acima disso o premio deixa de ser apresentado como valor atual. */
+  jackpotMaxAgeHours: number;
+  /** Acima disso a conversao para real e omitida em vez de estimada com taxa velha. */
+  fxMaxAgeHours: number;
   brandName: string;
   supportEmail: string;
 }

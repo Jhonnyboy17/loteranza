@@ -231,6 +231,8 @@ const SETTING_KEYS: Record<string, keyof SystemSettings> = {
   fx_spread_percent: 'fxSpreadPercent',
   'rg.increase_cooldown_hours': 'rgIncreaseCooldownHours',
   'prize.manual_review_threshold': 'prizeManualReviewThreshold',
+  jackpot_max_age_hours: 'jackpotMaxAgeHours',
+  fx_max_age_hours: 'fxMaxAgeHours',
   brand_name: 'brandName',
   support_email: 'supportEmail',
 };

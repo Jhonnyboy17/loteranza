@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import type { Draw, ExchangeRate, LotteryGame } from '@/types/domain';
 import { formatBRL, formatDateTime, formatDrawMoment, splitJackpot, timeZoneLabel } from '@/lib/format';
 import { convert, formatRateLabel } from '@/services/exchange/exchangeService';
+import { describeAge, freshness } from '@/lib/freshness';
+import { usePlatform } from '@/contexts/PlatformContext';
 import { Countdown } from '@/components/lottery/Countdown';
 import { GameTheme } from '@/components/lottery/GameTheme';
 import { GameWordmark } from '@/components/lottery/GameWordmark';
@@ -54,13 +56,35 @@ export function JackpotHero({
   showCta?: boolean;
   className?: string;
 }) {
+  const { settings } = usePlatform();
+
+  // Validade antes de qualquer coisa. Um valor vencido nao e exibido como
+  // premio atual: vira "ultimo valor informado", com a data. Esconder o numero
+  // por completo seria pior — o visitante perde a referencia e nao entende o
+  // que houve —, mas apresenta-lo como se fosse de agora e justamente o
+  // jackpot falso que o briefing proibe.
+  //
+  // Dado demonstrativo fica de fora da regra, e nao por conveniencia: um
+  // jackpot `is_demo` ja se apresenta como demonstrativo em toda a interface,
+  // entao avisar que ele esta "desatualizado" nao acrescenta verdade nenhuma —
+  // so troca um rotulo correto por outro confuso. A trava existe para o caso
+  // perigoso, que e o valor REAL congelado parecendo atual.
+  const jackpotAge = freshness(game.jackpotUpdatedAt, settings.jackpotMaxAgeHours);
+  const jackpotStale = !game.isDemo && jackpotAge.state !== 'fresh';
+
   const jackpot = splitJackpot(draw?.advertisedJackpot ?? game.currentJackpot, game.currency);
   // `convert` usa a taxa efetiva (com spread) — a MESMA que o carrinho e o
   // checkout aplicam. Mostrar aqui a taxa nominal daria um número diferente do
   // que o usuário vê ao pagar, que é exatamente o tipo de divergência que o
   // briefing proíbe.
   const amount = draw?.advertisedJackpot ?? game.currentJackpot;
-  const brlValue = rate && amount !== null ? convert(amount, rate) : null;
+  // Taxa vencida nao gera conversao. O checkout congela a taxa no pedido, entao
+  // cotacao velha nao e detalhe cosmetico: e vender com cambio de outro dia.
+  const rateAge = freshness(rate?.capturedAt, settings.fxMaxAgeHours);
+  const rateUsable = rate !== null && (rate.isDemo || rateAge.state === 'fresh');
+  // Nao converte um valor que a propria tela acabou de dizer que nao e atual:
+  // "premio a confirmar" com um equivalente em reais logo abaixo se contradiz.
+  const brlValue = rateUsable && amount !== null && !jackpotStale ? convert(amount, rate) : null;
   // Forma compacta ("≈ R$ 2,6 bilhões"): a conversão é estimada, e o centavo
   // exato de um valor aproximado finge uma precisão que não existe. O número
   // cheio segue no title e para leitor de tela.
@@ -94,7 +118,23 @@ export function JackpotHero({
           )}
 
           {/* ---- valor --------------------------------------------------- */}
-          {jackpot ? (
+          {jackpot && jackpotStale ? (
+            <div className="mt-space-lg flex w-full flex-col items-center">
+              <p className="font-headline-md text-headline-md font-bold text-on-surface">
+                Prêmio a confirmar
+              </p>
+              <p className="mt-space-xs max-w-sm font-body-sm text-body-sm text-on-surface-variant">
+                {jackpotAge.state === 'stale'
+                  ? `Último valor informado: ${jackpot.symbol} ${jackpot.amount}${
+                      jackpot.unit ? ` ${jackpot.unit.toLowerCase()}` : ''
+                    }, atualizado ${describeAge(jackpotAge.ageHours)}.`
+                  : `Último valor informado: ${jackpot.symbol} ${jackpot.amount}${
+                      jackpot.unit ? ` ${jackpot.unit.toLowerCase()}` : ''
+                    }, sem data de atualização.`}{' '}
+                Não exibimos como valor atual enquanto não houver confirmação da fonte.
+              </p>
+            </div>
+          ) : jackpot ? (
             <p
               className="mt-space-lg flex w-full items-baseline justify-center gap-1"
               title={jackpot.exact}
@@ -147,7 +187,8 @@ export function JackpotHero({
               tamanho da escala e sem destaque, para não disputar com o
               prêmio. A data vai sem o ano para caber em uma linha no celular;
               o carimbo completo segue no title. */}
-          {rate && (
+          {/* Rodape da conversao: so existe se houver conversao. */}
+          {brlValue !== null && rate && (
             <p
               className="mt-1.5 font-label-xs text-label-xs text-on-surface-variant/75"
               title={`Cotação captada em ${formatDateTime(rate.capturedAt)}`}
