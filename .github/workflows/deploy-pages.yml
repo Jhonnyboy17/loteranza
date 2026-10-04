@@ -46,6 +46,52 @@ jobs:
       - name: Verificar lint
         run: npm run lint
 
+      # As variáveis do repositório têm prioridade, mas são conferidas antes de
+      # entrar no build. Uma chave colada com quebra de linha ou truncada é o
+      # erro mais fácil de cometer nessa tela, e o sintoma é cruel: o app entra
+      # em modo Supabase, as requisições são recusadas e a tela fica girando —
+      # parece falta de dado, mas é credencial inválida. Formato errado aqui
+      # vale o mesmo que variável ausente, e o build usa o valor conhecido.
+      #
+      # A chave anon é pública por desenho: é ela que o navegador apresenta, e
+      # quem protege os dados é o RLS — ativado E forçado nas 38 tabelas, com
+      # 73 policies. A service role key nunca chega aqui; operação privilegiada
+      # passa por Edge Function.
+      - name: Resolver credenciais do Supabase
+        env:
+          VAR_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VAR_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          PADRAO_URL='https://pymgliyofizgfirekepg.supabase.co'
+          PADRAO_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5bWdsaXlvZml6Z2ZpcmVrZXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MDExOTIsImV4cCI6MjEwNjQ3NzE5Mn0.rI-jOw1jMC4QgomucPKs8s2gVhpTOzJJQxi5JZF9iL8'
+
+          # tr -d remove espaço e quebra de linha: é exatamente o que uma
+          # colagem torta deixa para trás.
+          URL=$(printf '%s' "$VAR_URL" | tr -d '[:space:]')
+          KEY=$(printf '%s' "$VAR_KEY" | tr -d '[:space:]')
+
+          ORIGEM_URL='variável do repositório'
+          ORIGEM_KEY='variável do repositório'
+
+          case "$URL" in
+            https://*.supabase.co) ;;
+            *) URL="$PADRAO_URL"; ORIGEM_URL='valor padrão (variável ausente ou inválida)' ;;
+          esac
+
+          # JWT tem três segmentos base64url separados por ponto. Trunque a
+          # chave e ela deixa de casar.
+          if ! printf '%s' "$KEY" | grep -Eq '^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$'; then
+            KEY="$PADRAO_KEY"
+            ORIGEM_KEY='valor padrão (variável ausente ou inválida)'
+          fi
+
+          {
+            echo "VITE_SUPABASE_URL=$URL"
+            echo "VITE_SUPABASE_ANON_KEY=$KEY"
+            echo "ORIGEM_URL=$ORIGEM_URL"
+            echo "ORIGEM_KEY=$ORIGEM_KEY"
+          } >> "$GITHUB_ENV"
+
       - name: Construir
         env:
           # Pages de projeto serve em https://<user>.github.io/<repo>/
@@ -58,42 +104,37 @@ jobs:
           VITE_NOINDEX: 'true'
           # Portão 1 de 3 permanece fechado. Não ligar aqui.
           VITE_TRANSACTIONS_ENABLED: 'false'
-          # Backend real. A chave anon é pública por desenho: é ela que o
-          # navegador apresenta, e tudo o que protege os dados é RLS — ativado
-          # E forçado nas 38 tabelas, com 73 policies. A service role key nunca
-          # chega aqui; operações privilegiadas passam por Edge Function.
-          #
-          # Ficam como variáveis do repositório (Settings → Secrets and
-          # variables → Actions → Variables) para poderem ser rotacionadas sem
-          # commit. Sem elas o build cai no provider DEMO, que não é erro —
-          # apenas deixa de mostrar os dados reais.
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          # VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY vêm do passo anterior.
         run: npm run build
 
-      - name: Conferir qual backend entrou no build
+      # Grava o veredito num arquivo servido junto com o site. Log de Actions
+      # expira e nem sempre é acessível; esta URL responde a qualquer momento,
+      # de qualquer aparelho, e diz contra o que o site foi construído.
+      - name: Registrar qual backend entrou no build
         run: |
-          if [ -n "${{ vars.VITE_SUPABASE_URL }}" ] && [ -n "${{ vars.VITE_SUPABASE_ANON_KEY }}" ]; then
-            echo "- Backend: **Supabase real** (\`${{ vars.VITE_SUPABASE_URL }}\`)" >> "$GITHUB_STEP_SUMMARY"
-          else
-            {
-              echo "## Publicado em modo DEMO"
-              echo
-              echo "O build não recebeu as credenciais do Supabase, então a"
-              echo "aplicação está rodando sobre o provider de dados em memória."
-              echo "Para apontar para o banco real, defina duas **variáveis** em:"
-              echo
-              echo "   https://github.com/${{ github.repository }}/settings/variables/actions"
-              echo
-              echo "| Nome | Valor |"
-              echo "| --- | --- |"
-              echo "| \`VITE_SUPABASE_URL\`      | a URL do projeto Supabase |"
-              echo "| \`VITE_SUPABASE_ANON_KEY\` | a chave anon/publishable do projeto |"
-              echo
-              echo "Depois rode o workflow de novo. Os portões de transação"
-              echo "continuam fechados de qualquer forma."
-            } >> "$GITHUB_STEP_SUMMARY"
-          fi
+          cat > dist/diagnostico.json <<JSON
+          {
+            "commit": "${{ github.sha }}",
+            "construido_em": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "supabase_url": "$VITE_SUPABASE_URL",
+            "chave_anon_tamanho": ${#VITE_SUPABASE_ANON_KEY},
+            "origem_url": "$ORIGEM_URL",
+            "origem_chave": "$ORIGEM_KEY",
+            "transacoes_habilitadas": false,
+            "observacao": "Os tres portoes permanecem fechados. Compra alguma e processada."
+          }
+          JSON
+          {
+            echo "### Backend deste build"
+            echo
+            echo "| | |"
+            echo "| --- | --- |"
+            echo "| URL | \`$VITE_SUPABASE_URL\` |"
+            echo "| Origem da URL | $ORIGEM_URL |"
+            echo "| Origem da chave | $ORIGEM_KEY |"
+            echo
+            echo "Confira a qualquer momento em \`/loteranza/diagnostico.json\`."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Bloquear indexação e evitar 404 em link direto
         run: |
