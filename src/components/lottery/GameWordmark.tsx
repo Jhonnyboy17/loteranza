@@ -35,7 +35,7 @@ export function GameWordmark({
   className,
 }: {
   game: Pick<LotteryGame, 'name' | 'shortName' | 'logoUrl' | 'brandColor'>;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
 }) {
   if (game.logoUrl) {
@@ -48,7 +48,13 @@ export function GameWordmark({
           // O sombreamento destaca o logotipo do fundo escuro sem alterá-lo,
           // o que importa para marca de terceiro: nada de recolorir.
           'drop-shadow-[0_4px_16px_rgba(0,0,0,0.7)]',
-          size === 'lg' ? 'max-h-16' : size === 'md' ? 'max-h-9' : 'max-h-6',
+          size === 'xl'
+            ? 'max-h-[clamp(4.5rem,22vw,7.5rem)]'
+            : size === 'lg'
+              ? 'max-h-16'
+              : size === 'md'
+                ? 'max-h-9'
+                : 'max-h-6',
           className,
         )}
         loading="lazy"
@@ -70,7 +76,7 @@ export function GameWordmark({
   // MEGA / MILLIONS, que é como o próprio nome se lê. A partir da terceira
   // palavra o resto junta na segunda linha, para o bloco não virar uma torre.
   const words = game.name.trim().split(/\s+/);
-  const lines = size === 'lg' && words.length > 1
+  const lines = (size === 'lg' || size === 'xl') && words.length > 1
     ? [words[0], words.slice(1).join(' ')]
     : [game.name];
 
@@ -78,9 +84,11 @@ export function GameWordmark({
     <span
       className={cn(
         'inline-flex flex-col font-display font-black uppercase',
-        size === 'lg'
-          ? 'gap-0 text-[clamp(1.75rem,9vw,2.75rem)] leading-[0.88] tracking-[-0.02em]'
-          : size === 'md'
+        size === 'xl'
+          ? 'gap-0 text-[clamp(2.25rem,12vw,4rem)] leading-[0.86] tracking-[-0.03em]'
+          : size === 'lg'
+            ? 'gap-0 text-[clamp(1.75rem,9vw,2.75rem)] leading-[0.88] tracking-[-0.02em]'
+            : size === 'md'
             ? 'text-headline-sm leading-none tracking-tight'
             : 'font-label-lg text-label-lg leading-none tracking-wider',
         className,

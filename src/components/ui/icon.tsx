@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
   ArrowRight, Banknote, BadgeCheck, Camera, Check, CheckCheck, CheckCircle2,
-  ChevronLeft, ChevronRight, Clock, CreditCard, Download, Fingerprint, History,
+  CalendarDays, ChevronLeft, ChevronRight, Clock, CreditCard, Download, Fingerprint, History,
   Home, Lock, Menu, MousePointerClick, Package, PlusCircle, QrCode, ReceiptText,
   RefreshCw, RotateCcw, ScanLine, ShieldCheck, ShoppingCart, Sparkles, Star, Store,
   Ticket, Timer, Trophy, User, UserRound, Wallet, Wand2, X, Zap,
@@ -31,6 +31,7 @@ const ICONS = {
   auto_fix_high: Wand2,
   badge: UserRound,
   bolt: Zap,
+  calendar_month: CalendarDays,
   check: Check,
   check_circle: CheckCircle2,
   chevron_right: ChevronRight,

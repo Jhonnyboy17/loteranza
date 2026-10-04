@@ -294,44 +294,89 @@
 
   /* Aura luminosa animada atrás do herói: ouro no centro, violeta na borda,
      girando e respirando devagar. */
-  /* Aura do herói: a camada que faz o card parecer iluminado por dentro.
-     Vinda do Stitch, porém rebaixada — a original competia com o valor do
-     prêmio, que é o único elemento que deve puxar o olho. Deslocada para
-     cima e para a esquerda, acompanha a leitura do bloco em vez de ficar
-     centrada atrás de tudo. Parada: o brilho pulsante somava movimento a uma
-     tela que já tem uma contagem regressiva correndo. */
+  /* Aura do herói: o halo que ilumina o card por dentro. A cor sai de
+     `--game-bright`, definida por <GameTheme> a partir de
+     `lottery_games.brand_color` — então a Mega Millions acende azul, a
+     Powerball vermelho, e uma modalidade nova acende sozinha. Nada de cor
+     fixa aqui: seria a mesma regra de jogo duplicada em CSS que o briefing
+     proíbe no código. */
   .hero-aura {
-    background: radial-gradient(
-      ellipse 70% 60% at 25% 25%,
-      hsl(var(--secondary) / 0.14) 0%,
-      hsl(var(--primary-container) / 0.20) 45%,
-      transparent 72%
-    );
+    background:
+      radial-gradient(
+        ellipse 85% 48% at 50% -5%,
+        hsl(var(--game-bright, var(--primary)) / 0.34) 0%,
+        hsl(var(--game-bright, var(--primary)) / 0.12) 45%,
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 65% 45% at 50% 104%,
+        hsl(var(--game-bright, var(--primary)) / 0.16) 0%,
+        transparent 62%
+      );
   }
 
-  /* Profundidade do card: sombra projetada e um fio de 1px. Antes era um anel
-     dourado pulsante; o fio neutro deixa o ouro exclusivo do prêmio e do
-     botão, que é o que dá hierarquia. */
+  /* Fundo e profundidade do card, também tingidos pela modalidade. */
   .hero-card {
+    background:
+      linear-gradient(
+        180deg,
+        hsl(var(--accent, var(--surface-container-high))) 0%,
+        hsl(var(--primary-soft, var(--surface-container-lowest))) 55%,
+        hsl(var(--surface-container-lowest)) 100%
+      );
     box-shadow:
-      0 24px 48px -24px hsl(var(--primary-container) / 0.35),
-      0 0 0 1px hsl(var(--on-surface) / 0.07),
-      /* Fio claro na aresta superior: simula luz vinda de cima e separa o
-         card do fundo sem precisar de borda visível. */
-      inset 0 1px 0 hsl(0 0% 100% / 0.07);
+      0 28px 60px -28px hsl(var(--game-bright, var(--primary)) / 0.30),
+      0 0 0 1px hsl(var(--game-bright, var(--primary)) / 0.22),
+      inset 0 1px 0 hsl(0 0% 100% / 0.08);
   }
 
-  /* CTA: preenchimento sólido, sem halo. O brilho externo é o traço que faz
-     um botão parecer de cassino; a elevação discreta no hover basta para
-     dizer que é clicável. */
+  /* Algarismo do prêmio em ouro escovado.
+     O degradê corre no texto (background-clip), com um fio escuro embaixo que
+     dá relevo e um halo discreto que o descola do fundo. O tom mais escuro do
+     degradê é o que define a legibilidade, e é ele que o auditor de contraste
+     mede: como a cor computada vira `transparent`, só a medição por pixel
+     diz a verdade aqui. */
+  .jackpot-metal {
+    background-image: linear-gradient(
+      177deg,
+      hsl(50 100% 95%) 0%,
+      hsl(46 100% 78%) 26%,
+      hsl(43 98% 62%) 50%,
+      hsl(38 92% 48%) 68%,
+      hsl(46 100% 84%) 92%,
+      hsl(44 100% 74%) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    filter:
+      drop-shadow(0 1px 0 hsl(40 90% 92% / 0.45))
+      drop-shadow(0 3px 1px hsl(30 75% 20% / 0.6))
+      drop-shadow(0 0 30px hsl(45 100% 62% / 0.38));
+  }
+
+  /* CTA dourado com halo, como na referência. O halo é ESTÁTICO: o que o
+     briefing proíbe é urgência fabricada (pulsar, piscar, contador falso),
+     não um botão bonito. O prazo ao lado é real e sai de `salesCloseAt`. */
   .hero-cta {
+    background-image: linear-gradient(
+      180deg,
+      hsl(48 100% 82%) 0%,
+      hsl(45 100% 70%) 48%,
+      hsl(42 98% 60%) 100%
+    );
+    box-shadow:
+      0 0 28px hsl(45 100% 65% / 0.38),
+      inset 0 1px 0 hsl(0 0% 100% / 0.45);
     transition:
-      background-color 0.18s ease,
       transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
       box-shadow 0.18s ease;
   }
   .hero-cta:hover {
-    box-shadow: 0 8px 20px -8px hsl(var(--secondary) / 0.55);
+    box-shadow:
+      0 0 38px hsl(45 100% 65% / 0.52),
+      inset 0 1px 0 hsl(0 0% 100% / 0.45);
   }
   .hero-cta:active {
     transform: scale(0.985);
