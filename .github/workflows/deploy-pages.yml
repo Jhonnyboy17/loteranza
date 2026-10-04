@@ -1,9 +1,13 @@
 # Publica o protótipo no GitHub Pages a cada push no branch de trabalho.
 #
-# O que este deploy é: a interface rodando em MODO DEMONSTRAÇÃO. Não há
-# Supabase configurado, então a aplicação usa o provider de demonstração, os
-# três portões de transação nascem fechados e nenhuma compra é processada. É
-# de propósito — ver docs/DEPLOY.md.
+# O que este deploy é: a interface lendo do Supabase real, com os três portões
+# de transação fechados. Nenhuma compra é processada e nenhum pagamento é
+# cobrado — não por falta de código, mas porque o Compliance Engine recusa:
+# kill switch global desligado e nenhuma jurisdição habilitada.
+#
+# Se as variáveis VITE_SUPABASE_* não estiverem definidas no repositório, o
+# build não quebra: cai no provider de demonstração e o resumo do run diz
+# como apontar para o banco. Ver docs/DEPLOY.md.
 name: Publicar protótipo (GitHub Pages)
 
 on:
