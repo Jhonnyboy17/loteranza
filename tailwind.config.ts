@@ -179,7 +179,7 @@ const config: Config = {
         'label-xs': ['10px', { lineHeight: '14px', letterSpacing: '0.08em', fontWeight: '700' }],
         // O jackpot precisa encolher sozinho em telas estreitas: a versão
         // fluida evita quebrar "US$ 1.230 MILHÕES" no meio.
-        'jackpot-fluid': ['clamp(2.75rem, 13vw, 4.5rem)', { lineHeight: '1.04', letterSpacing: '-0.04em', fontWeight: '800' }],
+        'jackpot-fluid': ['clamp(2.75rem, 13vw, 6.5rem)', { lineHeight: '1.04', letterSpacing: '-0.04em', fontWeight: '800' }],
       },
 
       spacing: {
