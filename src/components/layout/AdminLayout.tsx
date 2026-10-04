@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet } from 'react-router-dom';
 import {
   Banknote, BarChart3, Building2, ClipboardList, Coins, CreditCard, FileText,
   Gavel, LayoutDashboard, LifeBuoy, Menu, ReceiptText, RotateCcw, ScanLine,
-  ScrollText, Settings, ShieldCheck, Ticket, Trophy, Users, Vault,
+  RefreshCw, ScrollText, Settings, ShieldCheck, Ticket, Trophy, Users, Vault,
 } from 'lucide-react';
 import type { AppRole } from '@/types/domain';
 import { isDemoDataMode } from '@/config/env';
@@ -49,6 +49,7 @@ export const ADMIN_NAV: { group: string; items: NavItem[] }[] = [
       { to: '/admin/sorteios', label: 'Sorteios', icon: Coins, roles: ['SUPER_ADMIN', 'ADMIN'] },
       { to: '/admin/resultados', label: 'Resultados', icon: BarChart3, roles: ['SUPER_ADMIN', 'ADMIN'] },
       { to: '/admin/premios', label: 'Prêmios', icon: Trophy, roles: ['SUPER_ADMIN', 'ADMIN', 'FINANCE', 'COMPLIANCE'] },
+      { to: '/admin/sincronizacao', label: 'Sincronização', icon: RefreshCw, roles: ['SUPER_ADMIN', 'ADMIN', 'COMPLIANCE'] },
     ],
   },
   {

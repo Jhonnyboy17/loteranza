@@ -142,6 +142,83 @@ repositório, para que um `supabase db push` futuro não tente reaplicá-las.
 Sobraram ali 7 linhas com versão `202610…`, resíduo das aplicações parciais;
 são inócuas, mas podem ser removidas com um `delete` pelo SQL Editor.
 
+## Sincronização automática
+
+Jackpots, resultados e cotação são atualizados por rotinas agendadas dentro do
+próprio banco: `pg_cron` dispara, `pg_net` chama as Edge Functions, e o segredo
+compartilhado fica no Vault. Não há servidor extra nem runner de CI no caminho.
+
+| Rotina | Quando | O que faz |
+| --- | --- | --- |
+| `sync-jackpots` | a cada 4h | regenera o calendário e busca o valor anunciado |
+| `sync-results-numbers` | de hora em hora | números sorteados → `draw_result_observations` → conciliação |
+| `sync-results-breakdown` | a cada 6h | quantos ganharam cada faixa → `draw_prize_breakdown` |
+| `sync-exchange-rate` | a cada 6h | cotação USD/BRL, com o spread aplicado no servidor |
+| `reconcile-dispatches` | a cada 5min | traduz a resposta HTTP em diagnóstico legível |
+
+Os números rodam de hora em hora de propósito: a função só olha sorteios sem
+resultado oficial dos últimos 7 dias, então se limita sozinha e não precisa
+conhecer o calendário de cada loteria — que muda com o horário de verão
+americano.
+
+### Resultado só vira oficial com duas fontes
+
+Cada fonte grava sua leitura em `draw_result_observations`, e
+`reconcile_draw_result()` promove a oficial apenas quando **duas fontes
+independentes concordam**. Divergência não escolhe a leitura mais conveniente:
+segura em preliminar e aparece em **Admin → Sincronização**.
+
+Oficial significa "resultado conferido", não "pode pagar":
+`tickets.prize_confirmed` continua `false` e `prize_claims` segue exigindo
+dupla aprovação.
+
+Com `results_require_two_sources = false` em `system_settings`, uma fonte basta
+— útil em teste, desaconselhado em produção.
+
+### O que falta para ligar
+
+**1. O segredo.** Já existe no Vault, gerado dentro do banco para nunca
+transitar por chat ou log. Leia-o uma vez no SQL Editor:
+
+```sql
+select decrypted_secret from vault.decrypted_secrets where name = 'sync_secret';
+```
+
+e cadastre o valor como secret `SYNC_SECRET` das Edge Functions, em
+Supabase → Edge Functions → Secrets. Até lá as chamadas respondem 401 — que é
+falhar fechado, e aparece no painel como *"HTTP 401: a Edge Function recusou o
+segredo"*.
+
+**2. A fonte.** Enquanto `LOTTERY_DATA_PROVIDERS` não existir, vale `demo`, que
+não busca nada e **não inventa nada** — as rotinas rodam, registram execução e
+não escrevem valor. Para ligar uma fonte real:
+
+1. crie `supabase/functions/_shared/providers/<nome>.ts` implementando
+   `LotteryProvider`;
+2. registre-o em `LOTTERY_PROVIDERS` no `index.ts` ao lado;
+3. defina o secret `LOTTERY_DATA_PROVIDERS` com o nome (lista separada por
+   vírgula para usar duas fontes).
+
+Nenhum outro arquivo muda. Nome desconhecido é erro ruidoso, não queda
+silenciosa para `demo`.
+
+**3. Os demais secrets** já listados abaixo (`ALLOWED_ORIGINS`, `IP_HASH_SALT`).
+
+### Quando o dado vence
+
+`jackpot_max_age_hours` (12) e `fx_max_age_hours` (24), em `system_settings`,
+definem a validade. Passou disso, a interface mostra **"Prêmio a confirmar"**
+com o último valor conhecido e a data, em vez de anunciar como atual — e omite
+a conversão em reais. Dado `is_demo` fica de fora da regra, porque já se
+apresenta como demonstrativo.
+
+### Divergência entre repositório e funções publicadas
+
+As Edge Functions foram publicadas por chamada de API, colando o conteúdo. Os
+arquivos do repositório são a fonte de verdade; as cópias publicadas podem ter
+comentários abreviados. Um `supabase functions deploy` a partir do repositório
+alinha as duas.
+
 ## Sair do modo demonstração
 
 Ordem recomendada:

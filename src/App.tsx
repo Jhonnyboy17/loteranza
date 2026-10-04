@@ -43,6 +43,7 @@ import { AdminPurchaseQueue } from '@/pages/admin/AdminPurchaseQueue';
 import { AdminOrders, AdminTickets, AdminVault } from '@/pages/admin/AdminOrders';
 import { AdminDraws, AdminGames, AdminResults } from '@/pages/admin/AdminCatalog';
 import { AdminJurisdictions } from '@/pages/admin/AdminJurisdictions';
+import { AdminDataSync } from '@/pages/admin/AdminDataSync';
 import {
   AdminAuditLogs, AdminCompliance, AdminContent, AdminOperators, AdminSettings,
 } from '@/pages/admin/AdminSystem';
@@ -139,6 +140,7 @@ const router = createRouter([
       { path: 'cofre', element: <Guard roles={['SUPER_ADMIN', 'ADMIN', 'TICKET_VERIFIER']}><AdminVault /></Guard> },
       { path: 'sorteios', element: <Guard roles={['SUPER_ADMIN', 'ADMIN']}><AdminDraws /></Guard> },
       { path: 'resultados', element: <Guard roles={['SUPER_ADMIN', 'ADMIN']}><AdminResults /></Guard> },
+      { path: 'sincronizacao', element: <Guard roles={['SUPER_ADMIN', 'ADMIN', 'COMPLIANCE']}><AdminDataSync /></Guard> },
       { path: 'premios', element: <Guard roles={['SUPER_ADMIN', 'ADMIN', 'FINANCE', 'COMPLIANCE']}><AdminPrizes /></Guard> },
       { path: 'clientes', element: <Guard roles={['SUPER_ADMIN', 'ADMIN', 'SUPPORT', 'COMPLIANCE']}><AdminCustomers /></Guard> },
       { path: 'kyc', element: <Guard roles={['SUPER_ADMIN', 'COMPLIANCE']}><AdminKyc /></Guard> },
