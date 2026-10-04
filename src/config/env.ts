@@ -15,15 +15,52 @@ function readBool(value: string | undefined, fallback = false): boolean {
   return value.trim().toLowerCase() === 'true';
 }
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim() ?? '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() ?? '';
+/**
+ * Credencial malformada vale como credencial ausente.
+ *
+ * O motivo e concreto. O supabase-js coloca a chave nos cabecalhos `apikey` e
+ * `Authorization`, e cabecalho HTTP so aceita ISO-8859-1. Uma chave copiada de
+ * uma interface pode trazer reticencias, espaco de largura zero ou aspa curva
+ * sem que nada apareca na tela; ai o `fetch` estoura antes de qualquer
+ * requisicao sair, com a mensagem "String contains non ISO-8859-1 code point".
+ *
+ * Aceitando a chave assim, o app entraria em modo Supabase, toda chamada
+ * falharia na origem e a tela ficaria carregando para sempre — parece falta de
+ * dado, e nao e. Recusando-a aqui, o app cai no provider de demonstracao: a
+ * interface continua utilizavel e o console diz exatamente o que houve.
+ *
+ * O teste e a propria regra do cabecalho (ASCII imprimivel), nao o formato da
+ * chave: ha a chave anon em JWT e a publicavel em `sb_publishable_...`, e nao
+ * cabe a este arquivo decidir qual delas e a correta.
+ */
+function usableCredential(value: string): boolean {
+  return value.length > 0 && /^[\x21-\x7e]+$/.test(value);
+}
+
+const rawUrl = import.meta.env.VITE_SUPABASE_URL?.trim() ?? '';
+const rawAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() ?? '';
+
+const credentialsUsable = usableCredential(rawUrl) && usableCredential(rawAnonKey);
+
+if (!credentialsUsable && (rawUrl || rawAnonKey)) {
+  // Nao imprime a chave: diz onde esta o defeito e segue.
+  console.error(
+    '[config] Credenciais do Supabase descartadas por conterem caractere ' +
+      'invalido para cabecalho HTTP (fora do ASCII imprimivel). Causa comum: ' +
+      'valor colado de uma interface, trazendo reticencias ou espaco de ' +
+      'largura zero. A aplicacao segue com dados de demonstracao.',
+  );
+}
+
+const supabaseUrl = credentialsUsable ? rawUrl : '';
+const supabaseAnonKey = credentialsUsable ? rawAnonKey : '';
 
 export const env = {
   supabaseUrl,
   supabaseAnonKey,
 
-  /** true somente quando ha credenciais completas de Supabase configuradas. */
-  hasSupabase: Boolean(supabaseUrl && supabaseAnonKey),
+  /** true somente quando ha credenciais completas e utilizaveis. */
+  hasSupabase: credentialsUsable,
 
   /** Portao 1 de 3. Nasce desligado por decisao de projeto. */
   transactionsEnabled: readBool(import.meta.env.VITE_TRANSACTIONS_ENABLED, false),
