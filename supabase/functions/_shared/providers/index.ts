@@ -1,7 +1,8 @@
 import { demoFxProvider, demoLotteryProvider } from './demo.ts';
+import { nyOpenDataProvider } from './nyOpenData.ts';
 import type { FxProvider, LotteryProvider } from './types.ts';
 
-export type { DrawNumbers, FxProvider, JackpotSnapshot, LotteryProvider, PrizeTierResult } from './types.ts';
+export type { DrawNumbers, FxProvider, GameSpec, JackpotSnapshot, LotteryProvider, PrizeTierResult } from './types.ts';
 
 /**
  * Registro de provedores.
@@ -20,6 +21,7 @@ export type { DrawNumbers, FxProvider, JackpotSnapshot, LotteryProvider, PrizeTi
  */
 const LOTTERY_PROVIDERS: Record<string, LotteryProvider> = {
   demo: demoLotteryProvider,
+  'ny-open-data': nyOpenDataProvider,
 };
 
 const FX_PROVIDERS: Record<string, FxProvider> = {

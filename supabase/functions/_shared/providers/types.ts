@@ -14,6 +14,19 @@
  * abaixo de onde alguem perceberia.
  */
 
+/**
+ * O que a rotina ja sabe do jogo ao pedir um resultado.
+ *
+ * As contagens viajam junto de proposito: elas vivem em lottery_games e o
+ * provedor nunca as embute. E isso que permite um parser interpretar fontes
+ * de formatos diferentes sem fixar "5 dezenas e 1 especial" em lugar nenhum.
+ */
+export interface GameSpec {
+  gameKey: string;
+  mainCount: number;
+  specialCount: number;
+}
+
 /** Numeros sorteados, como uma fonte os reporta. */
 export interface DrawNumbers {
   gameKey: string;
@@ -53,14 +66,14 @@ export interface LotteryProvider {
   /** Vai para `draw_results.source`; precisa ser estavel e distinguivel. */
   readonly name: string;
   fetchJackpots(gameKeys: string[]): Promise<JackpotSnapshot[]>;
-  fetchDrawNumbers(gameKey: string, drawDate: string): Promise<DrawNumbers | null>;
+  fetchDrawNumbers(game: GameSpec, drawDate: string): Promise<DrawNumbers | null>;
   /**
    * A quebra sai HORAS depois dos numeros, porque o premio e pari-mutuel e
    * depende de fechar a apuracao das vendas. `null` aqui costuma significar
    * "ainda nao publicada", nao "erro" — por isso e um estagio separado, que
    * volta mais tarde.
    */
-  fetchPrizeBreakdown(gameKey: string, drawDate: string): Promise<PrizeTierResult[] | null>;
+  fetchPrizeBreakdown(game: GameSpec, drawDate: string): Promise<PrizeTierResult[] | null>;
 }
 
 export interface FxProvider {

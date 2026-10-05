@@ -1,6 +1,6 @@
 import { adminClient } from '../_shared/client.ts';
 import { corsHeaders, json } from '../_shared/cors.ts';
-import { isDemoOnly, lotteryProviders } from '../_shared/providers/index.ts';
+import { type GameSpec, isDemoOnly, lotteryProviders } from '../_shared/providers/index.ts';
 import { requireSyncSecret } from '../_shared/syncAuth.ts';
 import { SyncRun } from '../_shared/syncRun.ts';
 
@@ -67,12 +67,23 @@ Deno.serve(async (req) => {
   }
 });
 
+/** As contagens vem do banco, nunca do codigo: e o que permite um provedor
+ *  interpretar formatos diferentes sem fixar as regras de cada jogo. */
+function gameSpec(joined: unknown): GameSpec {
+  const g = joined as { game_key: string; main_numbers_count: number; special_numbers_count: number };
+  return {
+    gameKey: g.game_key,
+    mainCount: g.main_numbers_count,
+    specialCount: g.special_numbers_count,
+  };
+}
+
 /** Sorteios ja realizados, nos ultimos dias, ainda sem resultado oficial. */
 async function pendingDraws(admin: ReturnType<typeof adminClient>, days: number) {
   const since = new Date(Date.now() - days * 86_400_000).toISOString();
   const { data } = await admin
     .from('draws')
-    .select('id, draw_date, draw_at, game_id, lottery_games!inner(game_key)')
+    .select('id, draw_date, draw_at, game_id, lottery_games!inner(game_key, main_numbers_count, special_numbers_count)')
     .lt('draw_at', new Date().toISOString())
     .gte('draw_at', since)
     .order('draw_at', { ascending: false });
@@ -88,15 +99,20 @@ async function ingestNumbers(
   const outcome: Record<string, unknown>[] = [];
 
   for (const draw of draws) {
-    const gameKey = (draw.lottery_games as unknown as { game_key: string }).game_key;
+    const game = gameSpec(draw.lottery_games);
 
     for (const provider of providers) {
       try {
-        const reading = await provider.fetchDrawNumbers(gameKey, draw.draw_date);
+        const reading = await provider.fetchDrawNumbers(game, draw.draw_date);
         // null nao e erro: significa que a fonte ainda nao publicou.
         if (!reading) continue;
 
-        await admin.from('draw_result_observations').upsert({
+        // O erro PRECISA ser conferido: o banco valida a leitura contra as
+        // regras do jogo (validate_draw_observation) e recusa numero fora da
+        // faixa, dezena repetida ou quantidade errada. Ignorar o retorno
+        // transformaria essa recusa em "sucesso" no diario de execucao, que e
+        // pior do que nao ter a trava.
+        const { error: obsError } = await admin.from('draw_result_observations').upsert({
           draw_id: draw.id,
           source: provider.name,
           main_numbers: reading.mainNumbers,
@@ -110,18 +126,28 @@ async function ingestNumbers(
           observed_at: new Date().toISOString(),
         }, { onConflict: 'draw_id,source' });
 
+        if (obsError) {
+          throw new Error(`leitura recusada pelo banco: ${obsError.message}`);
+        }
+
         run.success();
       } catch (error) {
         // Falha de uma fonte num sorteio nao derruba o lote: as demais
         // leituras ainda valem, e e delas que sai a concordancia.
         run.failure();
-        outcome.push({ draw: draw.draw_date, game: gameKey, provider: provider.name, error: String(error) });
+        outcome.push({ draw: draw.draw_date, game: game.gameKey, provider: provider.name, error: String(error) });
       }
     }
 
-    const { data: verdict } = await admin.rpc('reconcile_draw_result', { p_draw_id: draw.id });
-    if (verdict && (verdict as { status?: string }).status !== 'NO_OBSERVATIONS') {
-      outcome.push({ draw: draw.draw_date, game: gameKey, ...(verdict as object) });
+    const { data: verdict, error: verdictError } = await admin
+      .rpc('reconcile_draw_result', { p_draw_id: draw.id });
+    if (verdictError) {
+      // Conciliacao que falha em silencio deixaria leituras gravadas sem
+      // nunca virarem resultado, e o painel diria que tudo correu bem.
+      run.failure();
+      outcome.push({ draw: draw.draw_date, game: game.gameKey, error: `conciliacao: ${verdictError.message}` });
+    } else if (verdict && (verdict as { status?: string }).status !== 'NO_OBSERVATIONS') {
+      outcome.push({ draw: draw.draw_date, game: game.gameKey, ...(verdict as object) });
     }
   }
 
@@ -137,14 +163,14 @@ async function ingestBreakdown(
   // So faz sentido buscar a quebra de sorteio que ja tem resultado conhecido.
   const { data: results } = await admin
     .from('draw_results')
-    .select('draw_id, draws!inner(draw_date, draw_at, lottery_games!inner(game_key))')
+    .select('draw_id, draws!inner(draw_date, draw_at, lottery_games!inner(game_key, main_numbers_count, special_numbers_count))')
     .gte('draws.draw_at', new Date(Date.now() - 14 * 86_400_000).toISOString());
 
   const outcome: Record<string, unknown>[] = [];
 
   for (const row of results ?? []) {
-    const draw = row.draws as unknown as { draw_date: string; lottery_games: { game_key: string } };
-    const gameKey = draw.lottery_games.game_key;
+    const draw = row.draws as unknown as { draw_date: string; lottery_games: unknown };
+    const game = gameSpec(draw.lottery_games);
 
     const { count } = await admin
       .from('draw_prize_breakdown')
@@ -154,22 +180,25 @@ async function ingestBreakdown(
 
     for (const provider of providers) {
       try {
-        const tiers = await provider.fetchPrizeBreakdown(gameKey, draw.draw_date);
+        const tiers = await provider.fetchPrizeBreakdown(game, draw.draw_date);
         // null aqui costuma ser "ainda nao publicada", nao erro: a rotina
         // volta no proximo agendamento.
         if (!tiers || tiers.length === 0) continue;
 
-        const { data: applied } = await admin.rpc('upsert_prize_breakdown', {
+        const { data: applied, error: applyError } = await admin.rpc('upsert_prize_breakdown', {
           p_draw_id: row.draw_id,
           p_rows: tiers.map((t) => ({ tier_key: t.tierKey, winners: t.winners, amount: t.amount })),
         });
+        if (applyError) {
+          throw new Error(`gravar quebra por faixa: ${applyError.message}`);
+        }
 
         run.success();
-        outcome.push({ draw: draw.draw_date, game: gameKey, provider: provider.name, ...(applied as object) });
+        outcome.push({ draw: draw.draw_date, game: game.gameKey, provider: provider.name, ...(applied as object) });
         break; // a quebra de uma fonte basta; nao ha o que conciliar aqui
       } catch (error) {
         run.failure();
-        outcome.push({ draw: draw.draw_date, game: gameKey, provider: provider.name, error: String(error) });
+        outcome.push({ draw: draw.draw_date, game: game.gameKey, provider: provider.name, error: String(error) });
       }
     }
   }

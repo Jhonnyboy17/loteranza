@@ -1,5 +1,5 @@
 import type {
-  DrawNumbers, FxProvider, JackpotSnapshot, LotteryProvider, PrizeTierResult,
+  DrawNumbers, FxProvider, GameSpec, JackpotSnapshot, LotteryProvider, PrizeTierResult,
 } from './types.ts';
 
 /**
@@ -17,10 +17,10 @@ export const demoLotteryProvider: LotteryProvider = {
   fetchJackpots(_gameKeys: string[]): Promise<JackpotSnapshot[]> {
     return Promise.resolve([]);
   },
-  fetchDrawNumbers(_gameKey: string, _drawDate: string): Promise<DrawNumbers | null> {
+  fetchDrawNumbers(_game: GameSpec, _drawDate: string): Promise<DrawNumbers | null> {
     return Promise.resolve(null);
   },
-  fetchPrizeBreakdown(_gameKey: string, _drawDate: string): Promise<PrizeTierResult[] | null> {
+  fetchPrizeBreakdown(_game: GameSpec, _drawDate: string): Promise<PrizeTierResult[] | null> {
     return Promise.resolve(null);
   },
 };
