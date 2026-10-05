@@ -196,7 +196,27 @@ segredo"*.
 
 **2. A fonte.** Enquanto `LOTTERY_DATA_PROVIDERS` não existir, vale `demo`, que
 não busca nada e **não inventa nada** — as rotinas rodam, registram execução e
-não escrevem valor. Para ligar uma fonte real:
+não escrevem valor.
+
+Provedores já registrados:
+
+| Nome | Cobre | Não cobre |
+| --- | --- | --- |
+| `demo` | nada, de propósito | — |
+| `ny-open-data` | números sorteados e multiplicador de Powerball e Mega Millions | jackpot, quebra por faixa |
+
+`ny-open-data` lê os dados abertos da loteria do estado de Nova York
+(`d6yy-54nr` e `5xaw-6ayf`, plataforma Socrata). Sem chave e sem contrato; o
+secret `NY_OPEN_DATA_APP_TOKEN` é opcional e só afeta limite de requisição.
+
+Os dois datasets **não têm o mesmo formato** — Powerball traz as seis dezenas
+juntas em `winning_numbers`, Mega Millions traz cinco ali e a sexta em
+`mega_ball`. O parser resolve isso pelas contagens de `lottery_games`, nunca
+por número fixo no código, e levanta erro quando a forma não casa com nenhuma
+das duas hipóteses: dezena errada gravada como leitura de fonte é pior do que
+leitura nenhuma, porque a conciliação pode promovê-la a oficial.
+
+Para ligar outra fonte:
 
 1. crie `supabase/functions/_shared/providers/<nome>.ts` implementando
    `LotteryProvider`;
@@ -206,6 +226,19 @@ não escrevem valor. Para ligar uma fonte real:
 
 Nenhum outro arquivo muda. Nome desconhecido é erro ruidoso, não queda
 silenciosa para `demo`.
+
+> **Duas fontes precisam ser independentes.** Dois raspadores do mesmo site
+> não são duas fontes: eles concordam até quando a leitura está errada, e a
+> conciliação promoveria o erro a oficial. Independência real significa
+> sistemas de origem diferentes — o registro próprio de um estado contra o de
+> outro.
+
+**2b. A trava de sanidade.** Toda leitura passa por
+`validate_draw_observation()`, trigger em `draw_result_observations`, que
+recusa quantidade errada de dezenas, número fora da faixa configurada no jogo
+e dezena principal repetida. Fica no banco e não no provedor porque a regra já
+vive uma vez só em `lottery_games` — assim ela vale para qualquer fonte
+futura, sem depender de quem escrever o próximo arquivo lembrar de checar.
 
 **3. Os demais secrets** já listados abaixo (`ALLOWED_ORIGINS`, `IP_HASH_SALT`).
 
