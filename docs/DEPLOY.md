@@ -11,13 +11,16 @@ build antes de publicar — se algum falhar, nada vai ao ar.
 
 ### O que esta publicação é, e o que não é
 
-É a **interface rodando em modo demonstração**. Não há Supabase configurado,
-então:
+É a **interface ligada no Supabase real, mas sem transação**. Os dados de
+catálogo, sorteios e resultados vêm do banco; o que não acontece é venda:
 
-- os dados vêm do provider de demonstração (`src/services/lottery/demoProvider.ts`);
 - os três portões de transação nascem fechados;
 - o Compliance Engine nunca aprova, porque nenhuma jurisdição está habilitada;
 - nenhuma compra é processada e nenhum pagamento é cobrado.
+
+Se as credenciais do Supabase faltarem ou chegarem inválidas ao build, o app
+cai no provider de demonstração (`src/services/lottery/demoProvider.ts`) em
+vez de quebrar — e o `dist/diagnostico.json` registra qual dos dois entrou.
 
 O banner de demonstração diz isso em toda página. É de propósito: o objetivo
 é mostrar e testar a interface, não vender nada.
@@ -67,11 +70,13 @@ O projeto Supabase existe e está provisionado:
 
 O que está aplicado:
 
-- **38 tabelas**, todas com RLS **ativado e forçado** (`force row level
+- **40 tabelas**, todas com RLS **ativado e forçado** (`force row level
   security`): a política vale até para o dono da tabela.
-- **73 policies**, **21 funções** — todas com `search_path` fixado — e **23
+- **75 policies**, **26 funções** — todas com `search_path` fixado — e **22
   triggers**, incluindo `audit_logs_no_update`, que torna `audit_logs`
   append-only.
+- **2 views** (`sync_health` e `draw_results_pending_review`), ambas fechadas
+  a quem não é staff.
 - **5 Edge Functions** publicadas e ACTIVE.
 - Seed demonstrativo: 6 modalidades, 28 sorteios, 12 resultados
   (`is_official = false`), 11 FAQs, 10 blocos de CMS.
