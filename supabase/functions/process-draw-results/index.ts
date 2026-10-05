@@ -1,5 +1,6 @@
 import { adminClient } from '../_shared/client.ts';
 import { corsHeaders, json } from '../_shared/cors.ts';
+import { requireSyncSecret } from '../_shared/syncAuth.ts';
 
 /**
  * Conferencia automatica pos-sorteio (secao 23).
@@ -19,10 +20,8 @@ Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders(origin) });
 
-  const secret = req.headers.get('x-sync-secret');
-  if (!secret || secret !== Deno.env.get('SYNC_SECRET')) {
-    return json({ error: 'unauthorized' }, 401, origin);
-  }
+  const auth = requireSyncSecret(req, origin);
+  if (!auth.ok) return auth.response;
 
   let body: { draw_id?: string };
   try {

@@ -1,6 +1,7 @@
 import { adminClient } from '../_shared/client.ts';
 import { corsHeaders, json } from '../_shared/cors.ts';
 import { isDemoOnly, lotteryProviders } from '../_shared/providers/index.ts';
+import { requireSyncSecret } from '../_shared/syncAuth.ts';
 import { SyncRun } from '../_shared/syncRun.ts';
 
 /**
@@ -21,10 +22,8 @@ Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders(origin) });
 
-  const secret = req.headers.get('x-sync-secret');
-  if (!secret || secret !== Deno.env.get('SYNC_SECRET')) {
-    return json({ error: 'unauthorized' }, 401, origin);
-  }
+  const auth = requireSyncSecret(req, origin);
+  if (!auth.ok) return auth.response;
 
   const admin = adminClient();
   let providers;
