@@ -11,15 +11,45 @@ import {
 } from '@/components/ui/table';
 import { EmptyState, LoadingRows } from '@/components/common/states';
 import { NumberSequence } from '@/components/lottery/NumberBall';
+import { JackpotDialog } from '@/components/admin/JackpotDialog';
+import { describeAge, freshness } from '@/lib/freshness';
+import { cn } from '@/lib/utils';
+import type { LotteryGame } from '@/types/domain';
 
 /**
  * Gestao das modalidades. Em producao a escrita destas configuracoes passa
  * pelas policies de RLS (ADMIN/SUPER_ADMIN) e por Edge Functions; aqui a tela
  * exibe a configuracao vigente e de onde ela vem.
  */
+/**
+ * Idade do jackpot ao lado do valor.
+ *
+ * Existe porque a atualizacao e manual: sem ver o que venceu, o operador nao
+ * sabe o que precisa digitar. O vermelho nao e alarme decorativo — e o aviso
+ * de que o site ja parou de exibir aquele numero como atual.
+ */
+function JackpotAge({ game, maxAgeHours }: { game: LotteryGame; maxAgeHours: number }) {
+  const age = freshness(game.jackpotUpdatedAt, maxAgeHours);
+  if (age.state === 'unknown') {
+    return <span className="block text-xs text-muted-foreground">nunca atualizado</span>;
+  }
+  return (
+    <span
+      className={cn(
+        'block text-xs',
+        age.state === 'stale' ? 'font-medium text-destructive' : 'text-muted-foreground',
+      )}
+    >
+      {describeAge(age.ageHours ?? 0)}
+      {age.state === 'stale' && ' · vencido'}
+    </span>
+  );
+}
+
 export function AdminGames() {
   const gamesQuery = useGames();
   const { settings } = usePlatform();
+  const [jackpotGame, setJackpotGame] = React.useState<LotteryGame | null>(null);
 
   return (
     <div className="space-y-6">
@@ -57,6 +87,7 @@ export function AdminGames() {
                 <TableHead>Corte</TableHead>
                 <TableHead>Jackpot</TableHead>
                 <TableHead>Venda</TableHead>
+                <TableHead><span className="sr-only">Ações</span></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -88,11 +119,22 @@ export function AdminGames() {
                     {game.drawTimeLocal}
                   </TableCell>
                   <TableCell className="tnum text-sm">{game.salesCutoffMinutes} min</TableCell>
-                  <TableCell className="tnum">{formatJackpotCompact(game.currentJackpot)}</TableCell>
+                  <TableCell className="tnum">
+                    {formatJackpotCompact(game.currentJackpot)}
+                    <JackpotAge game={game} maxAgeHours={settings.jackpotMaxAgeHours} />
+                  </TableCell>
                   <TableCell>
                     <Badge variant={game.salesEnabled ? 'success' : 'neutral'}>
                       {game.salesEnabled ? 'ativa' : 'desativada'}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outline" size="sm"
+                      onClick={() => setJackpotGame(game)}
+                    >
+                      Atualizar jackpot
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -100,6 +142,13 @@ export function AdminGames() {
           </Table>
         </TableWrapper>
       )}
+
+      <JackpotDialog
+        game={jackpotGame}
+        open={jackpotGame !== null}
+        onOpenChange={(open) => { if (!open) setJackpotGame(null); }}
+        maxAgeHours={settings.jackpotMaxAgeHours}
+      />
     </div>
   );
 }
