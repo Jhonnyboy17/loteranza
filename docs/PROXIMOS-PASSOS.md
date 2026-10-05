@@ -5,10 +5,11 @@ Estado conferido direto no banco em **2026-10-05**:
 | | |
 | --- | --- |
 | Contas de usuário | 1 (`jonathangabriel88@gmail.com`) |
-| Operadores ativos | **0** ← trava o `/admin` inteiro |
-| `SYNC_SECRET` na Edge Function | **ausente** ← a automação responde 401 |
-| Fonte de dados real | **nenhuma** (só o provedor `demo`) |
-| Agendamentos ativos | 5 (rodando) |
+| Operadores ativos | ✅ 1 (`SUPER_ADMIN`) — passo 1 feito |
+| `SYNC_SECRET` na Edge Function | ✅ definido — passo 2 feito, painel verde |
+| `ALLOWED_ORIGINS` / `IP_HASH_SALT` | **ausentes** ← passos 3 e 4 |
+| Fonte de dados real | **nenhuma** (só o provedor `demo`) ← passo 5 |
+| Agendamentos ativos | 5 (rodando, respondendo 200) |
 | Fila de conferência de resultados | 14 |
 | Portão 2 (kill switch global) | `false` |
 | Portão 3 (jurisdições habilitadas) | 0 de 5 |
