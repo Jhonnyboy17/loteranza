@@ -78,15 +78,28 @@ function gameSpec(joined: unknown): GameSpec {
   };
 }
 
-/** Sorteios ja realizados, nos ultimos dias, ainda sem resultado oficial. */
+/**
+ * Sorteios ja realizados, nos ultimos dias, ainda sem resultado oficial.
+ *
+ * O `!draws_game_id_fkey` nao e enfeite: existem DOIS caminhos entre draws e
+ * lottery_games (draws.game_id aponta para o jogo, e lottery_games.next_draw_id
+ * aponta de volta para o sorteio). Sem dizer qual usar, o PostgREST recusa a
+ * consulta com PGRST201 em vez de escolher um.
+ *
+ * E o erro PRECISA ser conferido: com `data ?? []` a recusa virava lista
+ * vazia, a rotina respondia "0 sorteios examinados" e marcava sucesso. Ficou
+ * invisivel enquanto so havia provedor demo, porque a funcao saia antes de
+ * chegar aqui; apareceu no minuto em que uma fonte real foi ligada.
+ */
 async function pendingDraws(admin: ReturnType<typeof adminClient>, days: number) {
   const since = new Date(Date.now() - days * 86_400_000).toISOString();
-  const { data } = await admin
+  const { data, error } = await admin
     .from('draws')
-    .select('id, draw_date, draw_at, game_id, lottery_games!inner(game_key, main_numbers_count, special_numbers_count)')
+    .select('id, draw_date, draw_at, game_id, lottery_games!draws_game_id_fkey!inner(game_key, main_numbers_count, special_numbers_count)')
     .lt('draw_at', new Date().toISOString())
     .gte('draw_at', since)
     .order('draw_at', { ascending: false });
+  if (error) throw new Error(`listar sorteios pendentes: ${error.message}`);
   return data ?? [];
 }
 
@@ -161,10 +174,13 @@ async function ingestBreakdown(
   run: SyncRun,
 ) {
   // So faz sentido buscar a quebra de sorteio que ja tem resultado conhecido.
-  const { data: results } = await admin
+  // O embed aninhado de lottery_games precisa da mesma desambiguacao de FK que
+  // pendingDraws, pelo mesmo motivo.
+  const { data: results, error: resultsError } = await admin
     .from('draw_results')
-    .select('draw_id, draws!inner(draw_date, draw_at, lottery_games!inner(game_key, main_numbers_count, special_numbers_count))')
+    .select('draw_id, draws!inner(draw_date, draw_at, lottery_games!draws_game_id_fkey!inner(game_key, main_numbers_count, special_numbers_count))')
     .gte('draws.draw_at', new Date(Date.now() - 14 * 86_400_000).toISOString());
+  if (resultsError) throw new Error(`listar resultados sem quebra: ${resultsError.message}`);
 
   const outcome: Record<string, unknown>[] = [];
 
@@ -172,10 +188,13 @@ async function ingestBreakdown(
     const draw = row.draws as unknown as { draw_date: string; lottery_games: unknown };
     const game = gameSpec(draw.lottery_games);
 
-    const { count } = await admin
+    const { count, error: countError } = await admin
       .from('draw_prize_breakdown')
       .select('id', { count: 'exact', head: true })
       .eq('draw_id', row.draw_id);
+    // Contagem que falha em silencio viraria 0, e a rotina buscaria de novo
+    // uma quebra que ja esta gravada.
+    if (countError) throw new Error(`contar quebra existente: ${countError.message}`);
     if ((count ?? 0) > 0) continue; // ja temos a quebra deste sorteio
 
     for (const provider of providers) {
