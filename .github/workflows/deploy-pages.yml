@@ -115,6 +115,10 @@ jobs:
       # expira e nem sempre é acessível; esta URL responde a qualquer momento,
       # de qualquer aparelho, e diz contra o que o site foi construído.
       - name: Registrar qual backend entrou no build
+        env:
+          # Precisa repetir aqui: `env` de um passo nao vaza para o proximo.
+          # Era essa a causa de o arquivo dizer "false" com o build em true.
+          VITE_TRANSACTIONS_ENABLED: 'true'
         run: |
           cat > dist/diagnostico.json <<JSON
           {
@@ -124,8 +128,8 @@ jobs:
             "chave_anon_tamanho": ${#VITE_SUPABASE_ANON_KEY},
             "origem_url": "$ORIGEM_URL",
             "origem_chave": "$ORIGEM_KEY",
-            "transacoes_habilitadas": false,
-            "observacao": "Os tres portoes permanecem fechados. Compra alguma e processada."
+            "portao1_interface": $VITE_TRANSACTIONS_ENABLED,
+            "observacao": "portao1_interface diz apenas se a interface saiu do modo demonstracao. A venda ainda depende do kill switch global, da jurisdicao e do veredito do Compliance Engine, todos no banco."
           }
           JSON
           {
