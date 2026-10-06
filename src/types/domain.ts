@@ -469,7 +469,14 @@ export interface AuditLogEntry {
 export interface SystemSettings {
   transactionsEnabled: boolean;
   demoMode: boolean;
-  sanctionsProviderEnabled: boolean;
+  /**
+   * Triagem de sancoes. Os tres valores sao os mesmos do banco, e nenhum
+   * deles afirma uma checagem que nao houve:
+   *   provider       rodou de verdade;
+   *   risk_accepted  NAO rodou, e isso fica registrado por extenso;
+   *   none           nao rodou e o pedido para em revisao manual.
+   */
+  sanctionsScreeningMode: 'provider' | 'risk_accepted' | 'none';
   lotteryDataProvider: string;
   fxProvider: string;
   fxSpreadPercent: number;

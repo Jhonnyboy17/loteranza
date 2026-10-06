@@ -19,6 +19,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrapper,
 } from '@/components/ui/table';
 import { EmptyState } from '@/components/common/states';
+import { sanctionsLabel } from '@/services/compliance/engine';
 
 /* ==========================================================================
  * Configurações do sistema — inclui o kill switch global
@@ -108,8 +109,8 @@ export function AdminSettings() {
         <div className="space-y-3">
           <ProviderRow
             label="Triagem de sanções"
-            value={settings.sanctionsProviderEnabled ? 'Configurado' : 'Não configurado'}
-            enabled={settings.sanctionsProviderEnabled}
+            value={sanctionsLabel(settings.sanctionsScreeningMode)}
+            enabled={settings.sanctionsScreeningMode === 'provider'}
             note="Enquanto não houver provedor, a verificação de sanções falha e o pedido vai para revisão manual."
           />
           <ProviderRow
@@ -265,7 +266,7 @@ export function AdminCompliance() {
         <MetricCard label="Pedidos em revisão" value={String(pending.length)} />
         <MetricCard
           label="Triagem de sanções"
-          value={settings.sanctionsProviderEnabled ? 'ativa' : 'não configurada'}
+          value={sanctionsLabel(settings.sanctionsScreeningMode)}
         />
         <MetricCard label="Registros de auditoria" value={String(demo.auditLogs.length)} />
       </section>

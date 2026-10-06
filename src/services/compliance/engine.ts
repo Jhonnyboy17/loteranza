@@ -176,11 +176,19 @@ export function evaluateCompliance(input: ComplianceInput): ComplianceVerdict {
   }
 
   // --- Sancoes ------------------------------------------------------------
+  // Espelha os tres modos do banco. O veredito que vale e sempre o do
+  // servidor; esta copia existe para a tela poder explicar antes de pedir.
   if (jurisdiction?.transactionsEnabled) {
-    if (settings.sanctionsProviderEnabled) {
+    if (settings.sanctionsScreeningMode === 'provider') {
       checks.push(
         check('sanctions_check', true, 'OK',
           'Triagem de sanções executada pelo provedor configurado.'),
+      );
+    } else if (settings.sanctionsScreeningMode === 'risk_accepted') {
+      checks.push(
+        check('sanctions_check', true, 'SANCTIONS_SCREENING_NOT_CONTRACTED',
+          'Triagem de sanções não contratada. A operação segue por decisão '
+          + 'administrativa do operador, e essa ausência fica registrada.'),
       );
     } else {
       checks.push(
@@ -247,3 +255,23 @@ export const CHECK_LABELS: Record<ComplianceCheckKind, string> = {
   sanctions_check: 'Triagem de sanções',
   payment_eligibility_check: 'Elegibilidade de pagamento',
 };
+
+/** Rotulo do modo de triagem, para o painel. */
+export function sanctionsLabel(mode: SystemSettings['sanctionsScreeningMode']): string {
+  switch (mode) {
+    case 'provider':      return 'ativa (provedor configurado)';
+    case 'risk_accepted': return 'não contratada — risco assumido pelo operador';
+    default:              return 'não configurada — pedidos param em revisão manual';
+  }
+}
+
+/** Verde só quando a triagem existe de verdade. */
+export function sanctionsBadge(
+  mode: SystemSettings['sanctionsScreeningMode'],
+): 'success' | 'warning' | 'neutral' {
+  switch (mode) {
+    case 'provider':      return 'success';
+    case 'risk_accepted': return 'warning';
+    default:              return 'neutral';
+  }
+}

@@ -82,7 +82,7 @@ function defaultSettings(): SystemSettings {
     // precisa estar habilitada e o Compliance Engine precisa aprovar.
     transactionsEnabled: false,
     demoMode: true,
-    sanctionsProviderEnabled: false,
+    sanctionsScreeningMode: 'none',
     lotteryDataProvider: 'demo',
     fxProvider: 'demo',
     fxSpreadPercent: 0,

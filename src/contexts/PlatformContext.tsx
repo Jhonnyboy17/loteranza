@@ -225,7 +225,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
 const SETTING_KEYS: Record<string, keyof SystemSettings> = {
   transactions_enabled: 'transactionsEnabled',
   demo_mode: 'demoMode',
-  sanctions_provider_enabled: 'sanctionsProviderEnabled',
+  sanctions_screening_mode: 'sanctionsScreeningMode',
   lottery_data_provider: 'lotteryDataProvider',
   fx_provider: 'fxProvider',
   fx_spread_percent: 'fxSpreadPercent',

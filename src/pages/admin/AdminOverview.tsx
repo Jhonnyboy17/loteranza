@@ -13,6 +13,7 @@ import { Seo } from '@/components/common/Seo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/common/states';
+import { sanctionsBadge, sanctionsLabel } from '@/services/compliance/engine';
 
 export function AdminOverview() {
   const demo = useDemoState();
@@ -99,8 +100,8 @@ export function AdminOverview() {
               <Badge variant={enabledJurisdictions.length > 0 ? 'success' : 'neutral'}>
                 Jurisdições habilitadas: {enabledJurisdictions.length}/{jurisdictions.length}
               </Badge>
-              <Badge variant={settings.sanctionsProviderEnabled ? 'success' : 'neutral'}>
-                Triagem de sanções: {settings.sanctionsProviderEnabled ? 'ativa' : 'não configurada'}
+              <Badge variant={sanctionsBadge(settings.sanctionsScreeningMode)}>
+                Triagem de sanções: {sanctionsLabel(settings.sanctionsScreeningMode)}
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
