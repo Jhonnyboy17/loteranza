@@ -102,8 +102,12 @@ jobs:
           # Protótipo não deve aparecer em busca: marca provisória e textos
           # legais ainda pendentes de validação jurídica.
           VITE_NOINDEX: 'true'
-          # Portão 1 de 3 permanece fechado. Não ligar aqui.
-          VITE_TRANSACTIONS_ENABLED: 'false'
+          # Portão 1 de 3, aberto por decisão do operador para habilitar a
+          # venda ao Brasil. Abrir aqui NÃO vende nada sozinho: o pedido ainda
+          # passa pelo kill switch global (portão 2), pela jurisdição (portão
+          # 3) e pelo veredito do Compliance Engine. Este portão apenas deixa
+          # a interface sair do modo demonstração.
+          VITE_TRANSACTIONS_ENABLED: 'true'
           # VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY vêm do passo anterior.
         run: npm run build
 
