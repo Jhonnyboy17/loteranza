@@ -10,8 +10,9 @@ import { usePlatform } from '@/contexts/PlatformContext';
 import { useToast } from '@/components/ui/toast';
 import { evaluateCompliance, resolveJurisdiction } from '@/services/compliance/engine';
 import { describeGeoSignal } from '@/services/compliance/geolocation';
-import { availableMethods } from '@/services/payments';
 import { demoStore, buildDemoOrder } from '@/services/platform/demoStore';
+import { requireSupabase } from '@/lib/supabase';
+import { PaymentPanel } from '@/components/checkout/PaymentPanel';
 import { formatUSD } from '@/lib/format';
 import { Seo } from '@/components/common/Seo';
 import { Button } from '@/components/ui/button';
@@ -55,6 +56,10 @@ export function CheckoutPage() {
   const [locating, setLocating] = React.useState(false);
   const [verdict, setVerdict] = React.useState<ComplianceVerdict | null>(null);
   const [placing, setPlacing] = React.useState(false);
+  // Pedido REAL, criado no servidor. E dele que sai o valor a cobrar: o
+  // pagamento nunca e aberto a partir do carrinho, que vive no navegador.
+  const [pendingOrderId, setPendingOrderId] = React.useState<string | null>(null);
+  const [orderError, setOrderError] = React.useState<string | null>(null);
 
   // Jurisdição efetiva: quando há sinal do dispositivo, ele tem precedência
   // sobre a dica local do navegador.
@@ -77,7 +82,6 @@ export function CheckoutPage() {
   }, [profile, effectiveJurisdiction, settings, geo, totals.total, items]);
 
   const approved = verdict?.status === 'APPROVED';
-  const paymentMethods = availableMethods(effectiveJurisdiction);
 
   const handleLocate = async () => {
     setLocating(true);
@@ -95,6 +99,48 @@ export function CheckoutPage() {
       setLocating(false);
     }
   };
+
+  /**
+   * Cria o pedido no servidor antes de abrir o pagamento.
+   *
+   * O carrinho vive no navegador e por isso nao serve de base para cobranca:
+   * `create-order` recalcula preco a partir de lottery_games, valida as linhas
+   * contra as regras do jogo e congela a cotacao. O id que volta e o unico que
+   * o pagamento aceita.
+   */
+  const ensureOrder = React.useCallback(async (): Promise<string | null> => {
+    if (pendingOrderId) return pendingOrderId;
+    const item = items[0];
+    if (!item) return null;
+
+    setPlacing(true);
+    setOrderError(null);
+    try {
+      const { data, error } = await requireSupabase().functions.invoke('create-order', {
+        body: {
+          game_key: item.gameKey,
+          draw_id: item.drawId,
+          draws_count: item.drawsCount,
+          lines: item.lines.map((line) => ({
+            numbers: line.numbers,
+            special_numbers: line.specialNumbers,
+            is_quick_pick: line.isQuickPick,
+          })),
+        },
+      });
+      if (error) throw error;
+
+      const id = (data as { order?: { id?: string } } | null)?.order?.id ?? null;
+      if (!id) throw new Error('O servidor não devolveu o pedido.');
+      setPendingOrderId(id);
+      return id;
+    } catch (err) {
+      setOrderError(err instanceof Error ? err.message : String(err));
+      return null;
+    } finally {
+      setPlacing(false);
+    }
+  }, [items, pendingOrderId]);
 
   const placeDemoOrder = () => {
     if (!profile) return;
@@ -294,9 +340,12 @@ export function CheckoutPage() {
                 <Button variant="outline" onClick={() => setStep('identificacao')}>Voltar</Button>
                 <Button
                   size="lg"
-                  onClick={() => {
+                  onClick={async () => {
                     const result = runComplianceCheck();
-                    if (result.status === 'APPROVED') setStep('pagamento');
+                    if (result.status === 'APPROVED') {
+                      await ensureOrder();
+                      setStep('pagamento');
+                    }
                   }}
                 >
                   <ShieldCheck aria-hidden /> Verificar elegibilidade
@@ -337,10 +386,24 @@ export function CheckoutPage() {
                 <TransactionsDisabledNotice
                   message="A verificação de elegibilidade precisa ser aprovada antes do pagamento."
                 />
-              ) : paymentMethods.length === 0 ? (
-                <TransactionsDisabledNotice
-                  message="Nenhum meio de pagamento habilitado para a sua jurisdição."
-                />
+              ) : orderError ? (
+                <div className="space-y-space-sm">
+                  <p role="alert" className="text-sm font-medium text-destructive">
+                    Não foi possível criar o pedido: {orderError}
+                  </p>
+                  <Button variant="outline" onClick={() => { void ensureOrder(); }} loading={placing}>
+                    Tentar de novo
+                  </Button>
+                </div>
+              ) : !pendingOrderId ? (
+                <div className="space-y-space-sm">
+                  <p className="text-sm text-muted-foreground">
+                    Criando o pedido no servidor — é ele que define o valor a cobrar.
+                  </p>
+                  <Button variant="outline" onClick={() => { void ensureOrder(); }} loading={placing}>
+                    Criar pedido
+                  </Button>
+                </div>
               ) : (
                 <>
                   <p className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -348,21 +411,12 @@ export function CheckoutPage() {
                     Os dados do meio de pagamento são processados pelo provedor. Esta plataforma
                     não recebe nem armazena o número completo do cartão.
                   </p>
-                  <ul className="flex flex-col gap-space-xs">
-                    {paymentMethods.map((method) => (
-                      <li
-                        key={method}
-                        className="flex items-center gap-space-sm rounded-lg bg-surface-container-high p-space-sm"
-                      >
-                        <span className="flex size-8 shrink-0 items-center justify-center rounded bg-surface-container text-tertiary">
-                          <Sym name={paymentIcon(method)} size={20} />
-                        </span>
-                        <span className="font-label-lg text-label-lg font-semibold text-on-surface">
-                          {method}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                  <PaymentPanel
+                    orderId={pendingOrderId}
+                    payerName={profile?.fullName}
+                    payerEmail={profile?.email}
+                    onPaid={() => setStep('confirmacao')}
+                  />
                 </>
               )}
               <Button variant="outline" onClick={() => setStep('elegibilidade')}>Voltar</Button>
@@ -418,7 +472,7 @@ export function CheckoutPage() {
             totals={totals}
             actionLabel={approved ? 'Ir para o pagamento' : 'Compra ainda não disponível'}
             actionDisabled={!approved}
-            onAction={() => setStep('pagamento')}
+            onAction={async () => { await ensureOrder(); setStep('pagamento'); }}
             footer={
               <p className="text-xs text-muted-foreground">
                 Total recalculado no servidor no momento do pagamento. A cotação registrada no
@@ -448,14 +502,6 @@ function StepCard({ title, children }: { title: string; children: React.ReactNod
   );
 }
 
-/** Ícone por rótulo de meio de pagamento, sem acoplar a um provedor. */
-function paymentIcon(method: string): IconName {
-  const m = method.toLowerCase();
-  if (m.includes('pix')) return 'qr_code_2';
-  if (m.includes('cart')) return 'credit_card';
-  if (m.includes('transf') || m.includes('banc')) return 'payments';
-  return 'payments';
-}
 
 /**
  * O que a plataforma garante — e o que ela NÃO pode garantir.
