@@ -54,6 +54,59 @@ export function isSandbox(): boolean {
   return token().startsWith('TEST-');
 }
 
+/**
+ * Recusa do provedor, com o corpo cru preservado.
+ *
+ * `message` e uma frase para a tela; `raw` e o JSON inteiro, que vai para
+ * `payments.failure_message` e serve para depurar meses depois. Sao coisas
+ * diferentes e por isso ficam em campos diferentes: despejar o JSON na tela
+ * do cliente nao ajuda ninguem a resolver nada.
+ */
+export class MercadoPagoError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly providerError: string | null,
+    readonly raw: string,
+  ) {
+    super(message);
+    this.name = 'MercadoPagoError';
+  }
+}
+
+/**
+ * Recusas conhecidas, traduzidas com o conserto junto.
+ *
+ * Sem isso o operador recebe "unauthorized" e precisa procurar na internet o
+ * que o provedor quis dizer — foi exatamente o que aconteceu aqui.
+ *
+ * O PROVEDOR USA DOIS LUGARES PARA DIZER O QUE DEU ERRADO
+ *   Em algumas recusas o codigo util esta em `error`
+ *   ("invalid_back_urls"). Em outras `error` vem generico e o codigo util
+ *   esta em `cause[0].code` — foi o caso do 401 de credenciais, que chegou
+ *   como `{"error":"unauthorized", cause:[{"code":7, ...}]}`. Procurar so em
+ *   `error` deixaria justamente esse de fora, entao os dois sao consultados.
+ */
+const POR_ERROR: Record<string, string> = {
+  invalid_back_urls:
+    'As URLs de retorno estao em formato invalido. Normalmente isso significa '
+    + 'que o secret PUBLIC_SITE_URL nao esta definido nesta Edge Function.',
+  invalid_users:
+    'O pagador e o recebedor sao a mesma conta do Mercado Pago. Use outro '
+    + 'e-mail de pagador, ou um usuario de teste.',
+};
+
+const POR_CAUSA: Record<string, string> = {
+  // "Unauthorized use of live credentials"
+  '7':
+    'A chamada foi autenticada com credenciais de PRODUCAO que nao estao '
+    + 'ativadas nesta conta do Mercado Pago. Dois caminhos: trocar o secret '
+    + 'MERCADOPAGO_ACCESS_TOKEN pelo token de TESTE (comeca com TEST-) para '
+    + 'seguir testando, ou concluir a ativacao das credenciais de producao no '
+    + 'painel do Mercado Pago. Veja metadata.sandbox no registro do pagamento '
+    + 'para confirmar qual credencial foi usada.',
+};
+
 async function call<T>(
   path: string,
   body: unknown,
@@ -74,9 +127,34 @@ async function call<T>(
 
   const text = await res.text();
   if (!res.ok) {
-    // A mensagem do provedor e muito mais util que "HTTP 400" e nao contem
-    // segredo: e a descricao do campo que ele recusou.
-    throw new Error(`Mercado Pago respondeu HTTP ${res.status}: ${text.slice(0, 400)}`);
+    let corpo: {
+      message?: string;
+      error?: string;
+      cause?: Array<{ code?: unknown; description?: string }>;
+    } | null = null;
+    try {
+      corpo = JSON.parse(text);
+    } catch {
+      corpo = null;
+    }
+
+    const codigo = typeof corpo?.error === 'string' ? corpo.error : null;
+    const causa = corpo?.cause?.[0]?.code;
+    const causaCodigo = causa === undefined || causa === null ? null : String(causa);
+    const frase = corpo?.message
+      ?? corpo?.cause?.[0]?.description
+      ?? `HTTP ${res.status}`;
+    const explicacao = (codigo ? POR_ERROR[codigo] : undefined)
+      ?? (causaCodigo ? POR_CAUSA[causaCodigo] : undefined);
+
+    throw new MercadoPagoError(
+      explicacao ? `${frase}. ${explicacao}` : `Mercado Pago recusou: ${frase}`,
+      res.status,
+      // Prefere a causa especifica ao codigo generico: "7" distingue, e
+      // "unauthorized" nao.
+      causaCodigo !== null && POR_CAUSA[causaCodigo] ? `cause_${causaCodigo}` : codigo,
+      text.slice(0, 1000),
+    );
   }
   return JSON.parse(text) as T;
 }

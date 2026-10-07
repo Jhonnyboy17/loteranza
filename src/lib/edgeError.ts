@@ -41,6 +41,7 @@ const MENSAGENS: Record<string, string> = {
   payment_refused: 'O pagamento não foi liberado.',
   unsupported_method: 'Este meio de pagamento ainda não está implementado.',
   provider_error: 'O provedor de pagamento recusou a cobrança.',
+  missing_configuration: 'Falta uma configuração no servidor para este meio de pagamento.',
 };
 
 export interface ErroDeFuncao {

@@ -1,6 +1,8 @@
 import { adminClient, requireUser, userClient } from '../_shared/client.ts';
 import { json, preflight } from '../_shared/cors.ts';
-import { createCardPreference, createPixPayment, isSandbox } from '../_shared/mercadopago.ts';
+import {
+  createCardPreference, createPixPayment, isSandbox, MercadoPagoError,
+} from '../_shared/mercadopago.ts';
 
 /**
  * Abertura de cobranca.
@@ -131,6 +133,29 @@ Deno.serve(async (req) => {
     }
 
     if (intent.method === 'card') {
+      // Sem PUBLIC_SITE_URL as back_urls sairiam como "/#/meus-jogos" — um
+      // caminho relativo, que o Mercado Pago recusa com
+      // "back_urls invalid. Wrong format". Mandar um valor que sabemos invalido
+      // e esperar o provedor reclamar troca uma configuracao faltando por um
+      // erro que nao diz o que fazer. Melhor parar aqui e nomear o secret.
+      if (siteUrl === '') {
+        const motivo = 'O secret PUBLIC_SITE_URL nao esta definido nesta Edge Function. '
+          + 'Sem ele o Checkout Pro nao tem para onde devolver o cliente. '
+          + 'Defina com o endereco do site (ex.: https://jhonnyboy17.github.io/loteranza). '
+          + 'O PIX nao depende dele.';
+
+        // A tentativa precisa ser encerrada aqui tambem: begin_payment ja criou
+        // a linha, e deixa-la em aberto trava a proxima tentativa do pedido.
+        await admin.from('payments').update({
+          status: 'failed',
+          failure_message: motivo,
+          metadata: { sandbox: isSandbox() },
+          updated_at: new Date().toISOString(),
+        }).eq('id', intent.payment_id);
+
+        return json({ error: 'missing_configuration', reason: motivo }, 503, origin);
+      }
+
       const preference = await createCardPreference({
         amount: Number(intent.amount),
         title: description,
@@ -163,14 +188,33 @@ Deno.serve(async (req) => {
 
     return json({ error: 'unsupported_method', reason: `Meio ${intent.method} nao implementado` }, 400, origin);
   } catch (error) {
-    // A tentativa fica registrada como falha para nao ficar aberta para sempre
-    // ocupando o lugar de uma nova no reaproveitamento de begin_payment.
+    const mp = error instanceof MercadoPagoError ? error : null;
+
+    // DUAS COISAS DIFERENTES, EM CAMPOS DIFERENTES
+    //   `failure_message` guarda o corpo cru do provedor: e com ele que se
+    //   depura meses depois, e ele nao cabe numa tela.
+    //   `reason` leva a frase pronta, com o conserto junto quando o codigo do
+    //   provedor e conhecido.
+    //   `metadata.sandbox` registra em qual credencial a tentativa rodou. Sem
+    //   isso, diante de "Unauthorized use of live credentials" nao ha como
+    //   saber do lado de ca se o token era de teste ou de producao — e foi
+    //   exatamente essa a duvida que custou tempo.
     await admin.from('payments').update({
       status: 'failed',
-      failure_message: String(error).slice(0, 500),
+      failure_code: mp?.providerError ?? null,
+      failure_message: (mp?.raw ?? String(error)).slice(0, 1000),
+      metadata: {
+        sandbox: isSandbox(),
+        provider_status: mp?.status ?? null,
+        provider_error: mp?.providerError ?? null,
+      },
       updated_at: new Date().toISOString(),
     }).eq('id', intent.payment_id);
 
-    return json({ error: 'provider_error', reason: String(error).slice(0, 500) }, 502, origin);
+    return json({
+      error: 'provider_error',
+      provider_code: mp?.providerError ?? null,
+      reason: (mp?.message ?? String(error)).slice(0, 500),
+    }, 502, origin);
   }
 });
