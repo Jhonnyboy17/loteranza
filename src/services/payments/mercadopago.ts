@@ -1,4 +1,5 @@
 import { requireSupabase } from '@/lib/supabase';
+import { descreverErroDeFuncao } from '@/lib/edgeError';
 
 /**
  * Cliente da Edge Function de pagamento.
@@ -59,13 +60,16 @@ export async function startPayment(input: StartPaymentInput): Promise<PaymentSta
   });
 
   if (error) {
-    // A funcao devolve o motivo no corpo mesmo em erro; preferimos ele a
-    // "Edge Function returned a non-2xx status code", que nao ajuda ninguem.
-    const detail = (error as { context?: { body?: unknown } }).context?.body;
-    const parsed = typeof detail === 'string' ? safeParse(detail) : detail;
-    const reason = (parsed as { reason?: string; error?: string } | null)?.reason
-      ?? (parsed as { error?: string } | null)?.error;
-    throw new PaymentError(reason ?? error.message);
+    // A funcao devolve o motivo no corpo mesmo em erro, e e ele que a tela
+    // precisa mostrar.
+    //
+    // A versao anterior tentava ler `error.context.body` como se fosse texto.
+    // `context` e um Response, e `.body` dele e um ReadableStream — nunca uma
+    // string. Entao o parse nunca acontecia, `reason` saia undefined e caia-se
+    // sempre no fallback "Edge Function returned a non-2xx status code". A
+    // intencao estava certa e o efeito era zero.
+    const { codigo, mensagem } = await descreverErroDeFuncao(error);
+    throw new PaymentError(mensagem, codigo ?? undefined);
   }
 
   const payload = data as Record<string, unknown>;
@@ -92,14 +96,6 @@ export async function startPayment(input: StartPaymentInput): Promise<PaymentSta
     currency: String(payload.currency),
     redirectUrl: String(payload.redirect_url),
   };
-}
-
-function safeParse(value: string): unknown {
-  try {
-    return JSON.parse(value);
-  } catch {
-    return null;
-  }
 }
 
 export type PaymentWatchStatus =

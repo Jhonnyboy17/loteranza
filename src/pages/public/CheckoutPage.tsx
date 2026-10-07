@@ -12,8 +12,10 @@ import { evaluateCompliance, resolveJurisdiction } from '@/services/compliance/e
 import { describeGeoSignal } from '@/services/compliance/geolocation';
 import { demoStore, buildDemoOrder } from '@/services/platform/demoStore';
 import { requireSupabase } from '@/lib/supabase';
+import { descreverErroDeFuncao, type ErroDeFuncao } from '@/lib/edgeError';
+import { lotteryData } from '@/services/lottery';
 import { PaymentPanel } from '@/components/checkout/PaymentPanel';
-import { formatUSD } from '@/lib/format';
+import { formatDrawMoment, formatUSD } from '@/lib/format';
 import { Seo } from '@/components/common/Seo';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -45,7 +47,7 @@ type StepKey = (typeof STEPS)[number]['key'];
 export function CheckoutPage() {
   const navigate = useNavigate();
   const { isAuthenticated, profile } = useAuth();
-  const { items, totals, clear } = useCart();
+  const { items, totals, clear, setItemDraw } = useCart();
   const {
     settings, jurisdictions, jurisdiction, geo, assumedCountry,
     requestPreciseLocation, globalTransactionsEnabled,
@@ -59,7 +61,7 @@ export function CheckoutPage() {
   // Pedido REAL, criado no servidor. E dele que sai o valor a cobrar: o
   // pagamento nunca e aberto a partir do carrinho, que vive no navegador.
   const [pendingOrderId, setPendingOrderId] = React.useState<string | null>(null);
-  const [orderError, setOrderError] = React.useState<string | null>(null);
+  const [orderError, setOrderError] = React.useState<ErroDeFuncao | null>(null);
 
   // Jurisdição efetiva: quando há sinal do dispositivo, ele tem precedência
   // sobre a dica local do navegador.
@@ -135,12 +137,52 @@ export function CheckoutPage() {
       setPendingOrderId(id);
       return id;
     } catch (err) {
-      setOrderError(err instanceof Error ? err.message : String(err));
+      // O motivo vem no CORPO da resposta, nao na message do erro — ver
+      // src/lib/edgeError.ts. Sem esta leitura, "sales_closed" chegava aqui
+      // como "Edge Function returned a non-2xx status code".
+      setOrderError(await descreverErroDeFuncao(err));
       return null;
     } finally {
       setPlacing(false);
     }
   }, [items, pendingOrderId]);
+
+  /**
+   * Caminho de saida do `sales_closed`.
+   *
+   * Busca o proximo sorteio da modalidade e aponta o item para ele. NAO faz
+   * isso sozinho no erro: a pessoa escolheu um sorteio, e trocar a data da
+   * aposta em silencio seria decidir no lugar dela. Aqui ela ve qual fechou,
+   * ve qual e o proximo, e confirma.
+   */
+  const trocarParaProximoSorteio = React.useCallback(async () => {
+    const item = items[0];
+    if (!item) return;
+
+    setPlacing(true);
+    try {
+      const proximo = await lotteryData.getUpcomingDraw(item.gameId);
+      if (!proximo) {
+        setOrderError({
+          codigo: 'draw_not_found',
+          mensagem: 'Não há sorteio futuro cadastrado para esta modalidade. '
+            + 'Tente novamente mais tarde.',
+          status: null,
+        });
+        return;
+      }
+      setItemDraw(item.id, proximo.id);
+      setOrderError(null);
+      toast({
+        title: 'Sorteio atualizado',
+        description: `Seus jogos passaram para o sorteio de ${formatDrawMoment(proximo.drawAt)}.`,
+      });
+    } catch (err) {
+      setOrderError(await descreverErroDeFuncao(err));
+    } finally {
+      setPlacing(false);
+    }
+  }, [items, setItemDraw, toast]);
 
   const placeDemoOrder = () => {
     if (!profile) return;
@@ -389,11 +431,30 @@ export function CheckoutPage() {
               ) : orderError ? (
                 <div className="space-y-space-sm">
                   <p role="alert" className="text-sm font-medium text-destructive">
-                    Não foi possível criar o pedido: {orderError}
+                    Não foi possível criar o pedido: {orderError.mensagem}
                   </p>
-                  <Button variant="outline" onClick={() => { void ensureOrder(); }} loading={placing}>
-                    Tentar de novo
-                  </Button>
+                  {orderError.codigo === 'sales_closed' ? (
+                    <>
+                      <p className="text-sm text-muted-foreground">
+                        Seus números continuam aqui. Podemos movê-los para o próximo
+                        sorteio desta modalidade — nada é cobrado nesta etapa.
+                      </p>
+                      <div className="flex flex-wrap gap-space-sm">
+                        <Button onClick={() => { void trocarParaProximoSorteio(); }} loading={placing}>
+                          Usar o próximo sorteio
+                        </Button>
+                        <Button variant="outline" asChild>
+                          <Link to={`/loterias/${items[0]?.gameKey ?? ''}`}>
+                            Escolher outro sorteio
+                          </Link>
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <Button variant="outline" onClick={() => { void ensureOrder(); }} loading={placing}>
+                      Tentar de novo
+                    </Button>
+                  )}
                 </div>
               ) : !pendingOrderId ? (
                 <div className="space-y-space-sm">

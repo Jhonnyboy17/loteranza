@@ -29,6 +29,17 @@ interface CartContextValue {
   duplicateLine: (itemId: string, lineId: string) => void;
   removeItem: (itemId: string) => void;
   setDrawsCount: (itemId: string, drawsCount: number) => void;
+  /**
+   * Aponta o item para outro sorteio.
+   *
+   * O carrinho vive no localStorage e guarda o `drawId` do momento em que o
+   * jogo foi montado. Sorteio fecha vendas; carrinho esquecido de um dia para
+   * o outro aponta para sorteio morto, e o servidor recusa com `sales_closed`
+   * — corretamente. Isto existe para a tela poder trocar o sorteio depois de
+   * DIZER qual era e qual passa a ser, nunca em silêncio: a pessoa escolheu
+   * aquele sorteio.
+   */
+  setItemDraw: (itemId: string, drawId: string | null) => void;
   clear: () => void;
 }
 
@@ -148,6 +159,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
+  const setItemDraw = React.useCallback<CartContextValue['setItemDraw']>((itemId, drawId) => {
+    setItems((current) =>
+      current.map((item) => (item.id === itemId ? { ...item, drawId } : item)),
+    );
+  }, []);
+
   const clear = React.useCallback(() => setItems([]), []);
 
   const totals = React.useMemo(() => calculateCartTotals(items, rate), [items, rate]);
@@ -159,10 +176,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const value = React.useMemo<CartContextValue>(
     () => ({
       items, totals, rate, itemCount: items.length, lineCount, isOpen, setOpen,
-      addItem, addLinesToItem, removeLine, duplicateLine, removeItem, setDrawsCount, clear,
+      addItem, addLinesToItem, removeLine, duplicateLine, removeItem, setDrawsCount,
+      setItemDraw, clear,
     }),
     [items, totals, rate, lineCount, isOpen, addItem, addLinesToItem, removeLine,
-     duplicateLine, removeItem, setDrawsCount, clear],
+     duplicateLine, removeItem, setDrawsCount, setItemDraw, clear],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
