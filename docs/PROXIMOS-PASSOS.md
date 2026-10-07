@@ -1,6 +1,6 @@
 # Próximos passos — o que depende de você
 
-Estado conferido direto no banco em **2026-10-05**:
+Estado conferido direto no banco em **2026-10-07**:
 
 | | |
 | --- | --- |
@@ -8,15 +8,22 @@ Estado conferido direto no banco em **2026-10-05**:
 | Operadores ativos | ✅ 1 (`SUPER_ADMIN`) — passo 1 feito |
 | `SYNC_SECRET` na Edge Function | ✅ definido — passo 2 feito, painel verde |
 | `ALLOWED_ORIGINS` / `IP_HASH_SALT` | ✅ definidos — passos 3 e 4 feitos |
-| Fonte de dados real | provedor `ny-open-data` pronto e publicado; falta ligar o secret `LOTTERY_DATA_PROVIDERS` ← passo 5 |
-| Agendamentos ativos | 5 (rodando, respondendo 200) |
-| Fila de conferência de resultados | 14 |
-| Portão 2 (kill switch global) | `false` |
-| Portão 3 (jurisdições habilitadas) | 0 de 5 |
+| Fonte de resultados | ✅ `ny-open-data` ligado (`LOTTERY_DATA_PROVIDERS`) |
+| Fonte de câmbio | ✅ `frankfurter,er-api` — duas fontes, com recusa na divergência |
+| Jackpots | ✅ reais, conferidos em duas fontes; **entrada manual** (ver 5.1) |
+| Pagamento | ✅ Mercado Pago em **sandbox** (PIX inline + cartão no Checkout Pro) |
+| Rótulo de demonstração | ✅ desligado (`demo_mode = false`) |
+| Portão 1 (`VITE_TRANSACTIONS_ENABLED`) | 🔴 **aberto** |
+| Portão 2 (kill switch global) | 🔴 **aberto** (`true`) |
+| Portão 3 (jurisdições habilitadas) | 🔴 **1 de 5 aberta: Brasil** |
+| Triagem de sanções | ⚠️ `risk_accepted` — não roda, e o registro diz isso |
+| KYC | ⚠️ `approved` à mão na conta de teste; sem provedor contratado |
 
-Os itens estão em ordem de bloqueio: o 1 trava o painel, o 2 trava a
-automação, o 3 e o 4 são segurança, o 5 é o único que exige **decisão** sua e
-não só um clique.
+**Os três portões estão abertos.** Isso foi decisão sua, registrada em
+`audit_logs`. O que ainda impede uma venda de verdade não é portão: é
+credencial de teste no Mercado Pago. Com credencial de produção, o site passa
+a cobrar. Os itens marcados ⚠️ são o que falta para isso ser defensável — leia
+o passo 7 antes de trocar a credencial.
 
 ---
 
@@ -184,7 +191,51 @@ escolhida. A ligação é um arquivo novo em
 `LOTTERY_DATA_PROVIDERS` com o nome dela. Nenhum outro arquivo muda — a
 camada de provedor existe exatamente para isso.
 
-Mesma coisa para câmbio, no secret `FX_PROVIDER`.
+### 5.1 Onde isso está hoje
+
+**Resultados** — `ny-open-data` ligado. É o registro de dados abertos do
+estado de Nova York: API documentada, sem chave, sem contrato. Entrega data,
+números e multiplicador. **Não** entrega detalhamento por faixa nem jackpot.
+Como é uma fonte só, todo resultado continua entrando como preliminar e
+esperando conferência — por isso a fila ainda existe. Falta a **segunda**
+fonte, e ela precisa ser independente de verdade: dois raspadores do mesmo
+site erram juntos.
+
+**Câmbio** — `frankfurter,er-api`, duas fontes públicas sem chave. A rotina
+confronta as duas e **não grava nada** quando divergem acima de
+`fx_max_divergence_percent` (2%). Cotação entra congelada no pedido e vira
+cobrança: número não conferido é pior que cotação vencida, porque a vencida a
+interface recusa sozinha. Na primeira execução real: 4,9686 contra 4,980405,
+divergência de 0,24%, gravado.
+
+> Até 07/10/2026 não havia fonte de câmbio nenhuma registrada no código, e a
+> única linha de `exchange_rates` era a semente de demonstração — 5,40, spread
+> zero, cinco dias velha. Ela não ficava só na vitrine: `orders.total_display`
+> sai dela e é o valor que o PIX cobra. Era cerca de 8,7% acima do dólar do
+> dia, em cobrança real.
+
+**Jackpot** — nenhuma fonte aberta publica. Jackpot é estimativa de marketing
+revisada conforme as vendas entram, não é fato registrado como resultado de
+sorteio. Sondado: nenhum dataset Socrata tem; `megamillions.com` responde 403
+de Cloudflare; `powerball.com` não expõe JSON.
+
+Então **a entrada é manual**, pelo painel (`/admin/catalogo`, botão de
+jackpot), e a trava de 12h (`jackpot_max_age_hours`) cobre o esquecimento: o
+valor vencido deixa de ser exibido como atual e passa a aparecer como "Prêmio
+a confirmar", com a idade declarada.
+
+Os valores de 07/10/2026 foram lidos e conferidos em mais de uma fonte antes
+de serem gravados — Powerball em `powerball.com` (oficial), `texaslottery.com`
+e `valottery.com`; Mega Millions nas duas últimas. As fontes de cada gravação
+ficam em `audit_logs`.
+
+**Só o PRÓXIMO sorteio carrega jackpot anunciado.** Até 07/10/2026,
+`generate_upcoming_draws` copiava o jackpot do dia para os oito sorteios que
+criava — havia oito linhas da Mega Millions, de 07/10 a 31/10, todas
+anunciando os mesmos 486 milhões. Jackpot é acumulado: ninguém, nem a loteria,
+sabe hoje o prêmio do sorteio do fim do mês. Afirmar um valor para aquela data
+é jackpot inventado, agravado por estar amarrado a uma data específica. Agora
+os sorteios seguintes ficam com o campo nulo, e nulo ali quer dizer a verdade.
 
 ---
 
@@ -208,28 +259,51 @@ Se quiser desacoplar:
 
 ---
 
-## 7. Os três portões — nada vende ainda, e isso é proposital
+## 7. Os três portões — abertos, e o que isso quer dizer
 
 | Portão | Onde | Estado |
 | --- | --- | --- |
-| 1 | `VITE_TRANSACTIONS_ENABLED` (build) | desligado |
-| 2 | `system_settings.transactions_enabled` (kill switch) | `false` |
-| 3 | `jurisdiction_rules.transactions_enabled` (por país/estado) | 0 de 5 |
+| 1 | `VITE_TRANSACTIONS_ENABLED` (build) | **aberto** |
+| 2 | `system_settings.transactions_enabled` (kill switch) | **aberto** (`true`) |
+| 3 | `jurisdiction_rules.transactions_enabled` (por país/estado) | **Brasil aberto**, 4 fechadas |
 
-Além dos três, `evaluate_compliance()` precisa devolver `APPROVED` para cada
-compra, checando idade, KYC, jogo responsável e limites.
+Além dos três, `evaluate_compliance()` continua decidindo cada compra: idade,
+KYC, jogo responsável, limites e sanções. Nenhum portão dispensa esse veredito,
+e não existe caminho alternativo de aprovação.
 
-**Abrir isso é decisão jurídica, não técnica.** Antes de qualquer portão:
+### O que SEGURA a cobrança hoje
 
-- advogado valida os textos marcados `[CONTEÚDO A SER VALIDADO POR ADVOGADO]`;
-- advogado define **quais jurisdições** podem ser habilitadas, uma a uma;
-- define-se o modelo de operação (courier/mensageiro, revenda, agente) — e
-  cada um tem exigência regulatória diferente;
-- escolhe-se fornecedor de KYC/AML;
-- escolhe-se processador de pagamento que **saiba** qual é o ramo. Esconder a
-  natureza da operação do processador está na lista do que não se faz aqui.
+Apenas uma coisa: o `MERCADOPAGO_ACCESS_TOKEN` é de **teste** (começa com
+`TEST-`). O PIX gerado tem QR válido na aparência e não move dinheiro; o
+cartão abre o sandbox do Mercado Pago. Trocar esse secret pela credencial de
+produção é o ato que transforma o site em operação real — **não é mais um
+portão, é o último**.
 
-Eu não vou virar esses portões por você, nem com acesso total ao banco.
+### O que precisa estar resolvido ANTES dessa troca
+
+Isto não é zelo excessivo; cada item abaixo é algo que um banco, um
+adquirente ou um regulador pede para ver:
+
+| Pendência | Estado | Por que importa |
+| --- | --- | --- |
+| Aprovação comercial no Mercado Pago | não solicitada | Loteria é atividade restrita. A resposta pode ser "não atendemos esse ramo", e é melhor saber antes de ter cliente. Esconder o ramo do processador está na lista do que este projeto não faz — e o descritor da cobrança é fixo em `LOTERIA INTERMEDIACAO`, sem caminho no código para disfarçá-lo. |
+| Textos revisados por advogado | pendente | Ver passo 9. São eles que dizem ao cliente o que ele está comprando. |
+| Modelo de operação definido | pendente | Courier, revenda ou agente têm exigências diferentes. A definição muda o texto, o KYC e o contrato. |
+| Provedor de KYC | nenhum | Hoje `kyc_status` foi posto em `approved` à mão na conta de teste. Com cliente real isso é verificação fingida. |
+| Triagem de sanções | `risk_accepted` | **Não roda.** O registro em `compliance_checks` diz isso por extenso, com quem assumiu o risco — documentado em vez de escondido. Contratar provedor e mudar para `provider` é o que torna a checagem real. |
+| `PUBLIC_SITE_URL` | não definido | Sem ele o cartão não devolve o cliente ao site depois do Checkout Pro. O valor é `https://jhonnyboy17.github.io/loteranza`. PIX não depende dele. |
+
+### Como fechar tudo em um comando, se precisar
+
+```sql
+-- Fecha o portão 2. Vale imediatamente, sem rebuild: toda compra passa a
+-- parar no Compliance Engine com GLOBAL_TRANSACTIONS_DISABLED.
+update public.system_settings set value = 'false'::jsonb, updated_at = now()
+where key = 'transactions_enabled';
+```
+
+O portão 1 é de build e só muda com um push; o 2 é o que existe justamente
+para ser virado às pressas.
 
 ---
 
@@ -260,10 +334,22 @@ bloqueando tudo — ver `docs/DEPLOY.md`.
 
 ## Ordem sugerida
 
-1. Item 1 (SQL, 1 minuto) → o painel abre
-2. Item 2 (SQL + colar, 3 minutos) → a automação para de dar 401
-3. Itens 3 e 4 (colar, 2 minutos) → segurança fechada
-4. Item 5 (pesquisa e contrato, dias) → dado real começa a entrar
-5. Itens 7, 8 e 9 (jurídico, semanas) → só então se fala em vender
+Itens 1 a 4 estão feitos. Daqui para frente, em ordem de tempo de espera —
+comece pelo que não depende de você:
+
+1. **Aprovação comercial no Mercado Pago** (dias a semanas, e pode ser
+   negada). É o item de maior prazo e o único que pode derrubar o plano
+   inteiro. Abra agora, mesmo com o resto pendente.
+2. **`PUBLIC_SITE_URL`** (colar, 1 minuto) → o cartão volta para o site.
+3. **Advogado** nos textos e no modelo de operação (item 9, semanas).
+4. **Provedor de KYC e de sanções** (contrato) → tira os dois ⚠️ do quadro.
+5. **Segunda fonte de resultados** (item 5) → a conferência manual vira
+   exceção em vez de rotina.
+6. **Credencial de produção do Mercado Pago** — por último, e só depois dos
+   anteriores. É esse secret que faz o site cobrar de verdade.
+
+Jackpot, enquanto não houver fornecedor: digitar no painel a cada rolagem, ou
+o valor vence em 12h e a tela passa a dizer "Prêmio a confirmar" — que é o
+comportamento correto, mas não é vitrine.
 
 Detalhe técnico de cada peça em `docs/DEPLOY.md` e `docs/COMPLIANCE.md`.

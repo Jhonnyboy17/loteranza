@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { Draw, ExchangeRate, LotteryGame } from '@/types/domain';
+import { env } from '@/config/env';
 import { formatBRL, formatDateTime, formatDrawMoment, splitJackpot, timeZoneLabel } from '@/lib/format';
 import { convert, formatRateLabel } from '@/services/exchange/exchangeService';
 import { describeAge, freshness } from '@/lib/freshness';
@@ -69,8 +70,16 @@ export function JackpotHero({
   // entao avisar que ele esta "desatualizado" nao acrescenta verdade nenhuma —
   // so troca um rotulo correto por outro confuso. A trava existe para o caso
   // perigoso, que e o valor REAL congelado parecendo atual.
+  //
+  // Mas a dispensa vale SO enquanto a plataforma inteira estiver em
+  // demonstracao. Essa era a premissa da frase acima, e ela caiu quando a
+  // venda foi aberta: com `demo_mode` desligado nao existe mais aviso nenhum
+  // na tela, e um jogo que continuou marcado `is_demo` no banco passaria pela
+  // trava sem dizer nada a ninguem. A premissa agora e verificada, nao
+  // suposta.
+  const emDemonstracao = settings.demoMode || !env.transactionsEnabled;
   const jackpotAge = freshness(game.jackpotUpdatedAt, settings.jackpotMaxAgeHours);
-  const jackpotStale = !game.isDemo && jackpotAge.state !== 'fresh';
+  const jackpotStale = !(game.isDemo && emDemonstracao) && jackpotAge.state !== 'fresh';
 
   const jackpot = splitJackpot(draw?.advertisedJackpot ?? game.currentJackpot, game.currency);
   // `convert` usa a taxa efetiva (com spread) — a MESMA que o carrinho e o
@@ -80,8 +89,15 @@ export function JackpotHero({
   const amount = draw?.advertisedJackpot ?? game.currentJackpot;
   // Taxa vencida nao gera conversao. O checkout congela a taxa no pedido, entao
   // cotacao velha nao e detalhe cosmetico: e vender com cambio de outro dia.
+  //
+  // Nao ha dispensa para taxa demonstrativa, e isso e deliberado. A versao
+  // anterior tinha `rate.isDemo ||` aqui, e foi assim que a semente de
+  // demonstracao de 5,40 — cinco dias velha, 8% acima do dolar do dia —
+  // continuou alimentando conversao com a venda aberta. A dispensa tambem era
+  // inutil: a taxa do modo offline nasce com capturedAt = agora e passa na
+  // checagem de idade sozinha, sem precisar de excecao.
   const rateAge = freshness(rate?.capturedAt, settings.fxMaxAgeHours);
-  const rateUsable = rate !== null && (rate.isDemo || rateAge.state === 'fresh');
+  const rateUsable = rate !== null && rateAge.state === 'fresh';
   // Nao converte um valor que a propria tela acabou de dizer que nao e atual:
   // "premio a confirmar" com um equivalente em reais logo abaixo se contradiz.
   const brlValue = rateUsable && amount !== null && !jackpotStale ? convert(amount, rate) : null;

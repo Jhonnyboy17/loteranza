@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom';
 import type { Draw, ExchangeRate, LotteryGame } from '@/types/domain';
 import { convert } from '@/services/exchange/exchangeService';
 import { formatBRL, formatDrawMoment, splitJackpot } from '@/lib/format';
+import { freshness } from '@/lib/freshness';
+import { usePlatform } from '@/contexts/PlatformContext';
+import { env } from '@/config/env';
 import { Countdown } from '@/components/lottery/Countdown';
 import { GameWordmark } from '@/components/lottery/GameWordmark';
 import { GameTheme } from '@/components/lottery/GameTheme';
@@ -40,8 +43,24 @@ export function GameRow({
   // Compliance Engine, no checkout.
   const playable = game.status === 'active';
   const amount = draw?.advertisedJackpot ?? game.currentJackpot;
+
+  // As MESMAS travas de validade do <JackpotHero>, e nao por simetria estetica:
+  // este card e o que aparece para todas as outras modalidades na tela inicial.
+  // Enquanto ele nao as tinha, o herói dizia "Prêmio a confirmar" sobre um
+  // valor vencido e a lista logo abaixo mostrava o mesmo valor como se fosse de
+  // agora — a trava existia, e bastava rolar a página para contorná-la.
+  const { settings } = usePlatform();
+  const emDemonstracao = settings.demoMode || !env.transactionsEnabled;
+  const jackpotAge = freshness(game.jackpotUpdatedAt, settings.jackpotMaxAgeHours);
+  const jackpotStale = !(game.isDemo && emDemonstracao) && jackpotAge.state !== 'fresh';
+
+  // Cotação vencida não converte: a taxa que o checkout congela no pedido é
+  // esta mesma, então número desatualizado aqui é promessa de preço errada.
+  const rateAge = freshness(rate?.capturedAt, settings.fxMaxAgeHours);
+  const rateUsable = rate !== null && rateAge.state === 'fresh';
+
   const jackpot = splitJackpot(amount, game.currency);
-  const brl = rate && amount !== null ? convert(amount, rate) : null;
+  const brl = rateUsable && amount !== null && !jackpotStale ? convert(amount, rate) : null;
   const initial = (game.shortName ?? game.name).trim().charAt(0).toUpperCase();
 
   const body = (
@@ -81,7 +100,17 @@ export function GameRow({
             )}
           </div>
 
-          {jackpot ? (
+          {jackpot && jackpotStale ? (
+            // O número não desaparece: sem referência nenhuma o visitante não
+            // entende o que houve. Ele sai do lugar de prêmio atual e passa a
+            // ser citado como última informação, com a idade declarada.
+            <p className="mt-0.5 font-body-sm text-body-sm text-on-surface-variant">
+              <span className="font-bold text-on-surface">Prêmio a confirmar</span>
+              {' · último valor '}
+              {jackpot.symbol} {jackpot.amount}
+              {jackpot.unit ? ` ${jackpot.unit.toLowerCase()}` : ''}
+            </p>
+          ) : jackpot ? (
             <p
               className="mt-0.5 flex items-baseline gap-1 font-display text-xl font-black leading-tight text-secondary"
               title={jackpot.exact}
