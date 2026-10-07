@@ -1,7 +1,7 @@
 import { adminClient, requireUser, userClient } from '../_shared/client.ts';
 import { json, preflight } from '../_shared/cors.ts';
 import {
-  createCardPreference, createPixPayment, isSandbox, MercadoPagoError,
+  contaDoToken, createCardPreference, createPixPayment, MercadoPagoError,
 } from '../_shared/mercadopago.ts';
 
 /**
@@ -77,6 +77,80 @@ Deno.serve(async (req) => {
   const notificationUrl = `${base}/functions/v1/mercadopago-webhook`;
   const siteUrl = (Deno.env.get('PUBLIC_SITE_URL') ?? '').replace(/\/$/, '');
 
+  /**
+   * De quem e o token, e qual e-mail pode ir como pagador.
+   *
+   * O Mercado Pago nao aceita misturar ambientes: com credencial de uma conta
+   * de TESTE (vendedor de teste), o pagador tambem precisa ser um usuario de
+   * teste. Mandar o e-mail real do cliente nessa combinacao devolve
+   * `401 Unauthorized use of live credentials` — foi exatamente o que
+   * aconteceu aqui, e a mensagem do provedor nao diz qual dos dois lados esta
+   * errado.
+   *
+   * Entao a verificacao e feita ANTES de chamar o provedor, e o e-mail de
+   * teste vem de configuracao explicita. Nao e inventado nem derivado: um
+   * e-mail de pagador errado silenciosamente e pior que uma recusa clara.
+   */
+  let conta;
+  try {
+    conta = await contaDoToken();
+  } catch (error) {
+    const mp = error instanceof MercadoPagoError ? error : null;
+    await admin.from('payments').update({
+      status: 'failed',
+      failure_message: (mp?.raw ?? String(error)).slice(0, 1000),
+      updated_at: new Date().toISOString(),
+    }).eq('id', intent.payment_id);
+    return json({
+      error: 'provider_error',
+      reason: mp?.message ?? String(error).slice(0, 500),
+    }, 502, origin);
+  }
+
+  let payerEmail = body.payer?.email ?? user.email;
+
+  if (conta.testUser) {
+    const { data: row } = await admin
+      .from('system_settings').select('value')
+      .eq('key', 'mercadopago_test_payer_email').maybeSingle();
+    const emailDeTeste = typeof row?.value === 'string' ? row.value.trim() : '';
+
+    if (emailDeTeste === '') {
+      const motivo =
+        `O token do Mercado Pago pertence a uma conta de TESTE (${conta.nickname ?? 'sem apelido'}). `
+        + 'Nesse ambiente o pagador tambem precisa ser um usuario de teste; com um '
+        + 'e-mail real o provedor recusa com "Unauthorized use of live credentials". '
+        + 'Crie um usuario de teste COMPRADOR no painel do Mercado Pago e grave o '
+        + 'e-mail dele em system_settings na chave mercadopago_test_payer_email.';
+
+      await admin.from('payments').update({
+        status: 'failed',
+        failure_code: 'test_payer_missing',
+        failure_message: motivo,
+        metadata: { sandbox: true, conta: conta.nickname },
+        updated_at: new Date().toISOString(),
+      }).eq('id', intent.payment_id);
+
+      return json({ error: 'missing_configuration', reason: motivo }, 503, origin);
+    }
+    payerEmail = emailDeTeste;
+  }
+
+  // Cobrar a si mesmo e recusado pelo provedor, e a mensagem dele tambem nao
+  // explica. Conferir aqui custa nada e aponta o campo certo.
+  if (conta.email && payerEmail && conta.email.toLowerCase() === payerEmail.toLowerCase()) {
+    const motivo = 'O e-mail do pagador e o mesmo da conta que recebe. O Mercado Pago '
+      + 'nao permite cobrar a propria conta; use outro e-mail de pagador.';
+    await admin.from('payments').update({
+      status: 'failed',
+      failure_code: 'payer_is_collector',
+      failure_message: motivo,
+      metadata: { sandbox: conta.testUser },
+      updated_at: new Date().toISOString(),
+    }).eq('id', intent.payment_id);
+    return json({ error: 'missing_configuration', reason: motivo }, 503, origin);
+  }
+
   // Descritor com a natureza real da operacao. Nunca generico.
   const descriptor = 'LOTERIA INTERMEDIACAO';
   const description = `Pedido ${intent.order_number} — intermediacao de bilhete de loteria`;
@@ -96,7 +170,7 @@ Deno.serve(async (req) => {
         notificationUrl,
         expiresInMinutes: 30,
         payer: {
-          email: body.payer.email ?? user.email,
+          email: payerEmail,
           firstName: firstName || undefined,
           lastName: rest.join(' ') || undefined,
           cpf: body.payer.cpf.replace(/\D/g, ''),
@@ -113,7 +187,7 @@ Deno.serve(async (req) => {
           ticket_url: charge.ticketUrl,
           expires_at: charge.expiresAt,
           mp_status: charge.status,
-          sandbox: isSandbox(),
+          sandbox: conta.testUser,
         },
         updated_at: new Date().toISOString(),
       }).eq('id', intent.payment_id);
@@ -149,7 +223,7 @@ Deno.serve(async (req) => {
         await admin.from('payments').update({
           status: 'failed',
           failure_message: motivo,
-          metadata: { sandbox: isSandbox() },
+          metadata: { sandbox: conta.testUser },
           updated_at: new Date().toISOString(),
         }).eq('id', intent.payment_id);
 
@@ -162,7 +236,7 @@ Deno.serve(async (req) => {
         descriptor,
         externalReference: intent.payment_id,
         notificationUrl,
-        payerEmail: body.payer?.email ?? user.email,
+        payerEmail,
         backUrls: {
           success: `${siteUrl}/#/meus-jogos`,
           failure: `${siteUrl}/#/checkout`,
@@ -173,7 +247,7 @@ Deno.serve(async (req) => {
       await admin.from('payments').update({
         status: 'pending',
         merchant_descriptor: descriptor,
-        metadata: { preference_id: preference.preferenceId, sandbox: isSandbox() },
+        metadata: { preference_id: preference.preferenceId, sandbox: conta.testUser },
         updated_at: new Date().toISOString(),
       }).eq('id', intent.payment_id);
 
@@ -204,7 +278,7 @@ Deno.serve(async (req) => {
       failure_code: mp?.providerError ?? null,
       failure_message: (mp?.raw ?? String(error)).slice(0, 1000),
       metadata: {
-        sandbox: isSandbox(),
+        sandbox: conta.testUser,
         provider_status: mp?.status ?? null,
         provider_error: mp?.providerError ?? null,
       },

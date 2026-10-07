@@ -49,9 +49,61 @@ function token(): string {
   return value;
 }
 
-/** Credencial de teste comeca com TEST-; serve para o painel dizer o modo. */
-export function isSandbox(): boolean {
-  return token().startsWith('TEST-');
+export interface ContaMp {
+  id: number | null;
+  nickname: string | null;
+  /** E-mail da conta que RECEBE. Pagador igual a ele e autocobranca. */
+  email: string | null;
+  /** true quando o provedor marca a conta com a tag `test_user`. */
+  testUser: boolean;
+}
+
+/**
+ * De quem e o token — perguntado ao provedor, nao adivinhado pelo prefixo.
+ *
+ * A VERSAO ANTERIOR ESTAVA ERRADA
+ *   `isSandbox()` devolvia `token.startsWith('TEST-')`. O Mercado Pago mudou:
+ *   as credenciais de TESTE hoje comecam com `APP_USR-`, iguais as de
+ *   producao. Quem distingue e a conta, que vem marcada com a tag
+ *   `test_user` — e isso so o provedor sabe.
+ *
+ *   O custo do palpite nao foi teorico: a conta deste projeto E de teste, o
+ *   codigo gravou `sandbox: false` e a conversa toda girou em torno de uma
+ *   credencial de producao que nao existia.
+ *
+ * O cache vale enquanto o isolate viver. Trocar o secret reinicia o isolate,
+ * entao nao ha como ficar com resposta velha de um token que mudou.
+ */
+let contaCache: ContaMp | null = null;
+
+export async function contaDoToken(): Promise<ContaMp> {
+  if (contaCache) return contaCache;
+
+  const res = await fetch(`${API}/users/me`, {
+    headers: { Authorization: `Bearer ${token()}` },
+    signal: AbortSignal.timeout(15000),
+  });
+  const texto = await res.text();
+  if (!res.ok) {
+    throw new MercadoPagoError(
+      `Nao foi possivel identificar a conta do Mercado Pago (HTTP ${res.status}). `
+      + 'O MERCADOPAGO_ACCESS_TOKEN pode estar invalido ou revogado.',
+      res.status,
+      null,
+      texto.slice(0, 500),
+    );
+  }
+
+  const dados = JSON.parse(texto) as {
+    id?: number; nickname?: string; email?: string; tags?: string[];
+  };
+  contaCache = {
+    id: dados.id ?? null,
+    nickname: dados.nickname ?? null,
+    email: dados.email ?? null,
+    testUser: (dados.tags ?? []).includes('test_user'),
+  };
+  return contaCache;
 }
 
 /**
@@ -250,9 +302,12 @@ export async function createCardPreference(input: {
     ...(input.payerEmail ? { payer: { email: input.payerEmail } } : {}),
   }, input.externalReference);
 
-  const url = isSandbox()
-    ? (data.sandbox_init_point ?? data.init_point)
-    : data.init_point;
+  // `init_point` primeiro, com `sandbox_init_point` como reserva. Antes a
+  // escolha dependia de isSandbox(), que olhava o prefixo do token e errava:
+  // com credencial de conta de teste (hoje tambem `APP_USR-`), e `init_point`
+  // que funciona. Preferir ele e cair para o outro so na ausencia elimina a
+  // dependencia desse palpite.
+  const url = data.init_point ?? data.sandbox_init_point;
 
   if (!url) {
     throw new Error('Mercado Pago nao devolveu endereco de checkout.');
