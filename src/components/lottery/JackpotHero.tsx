@@ -4,6 +4,7 @@ import { env } from '@/config/env';
 import { formatBRL, formatDateTime, formatDrawMoment, splitJackpot, timeZoneLabel } from '@/lib/format';
 import { convert, formatRateLabel } from '@/services/exchange/exchangeService';
 import { describeAge, freshness } from '@/lib/freshness';
+import { jackpotEmCartaz } from '@/lib/jackpot';
 import { usePlatform } from '@/contexts/PlatformContext';
 import { Countdown } from '@/components/lottery/Countdown';
 import { GameTheme } from '@/components/lottery/GameTheme';
@@ -81,12 +82,12 @@ export function JackpotHero({
   const jackpotAge = freshness(game.jackpotUpdatedAt, settings.jackpotMaxAgeHours);
   const jackpotStale = !(game.isDemo && emDemonstracao) && jackpotAge.state !== 'fresh';
 
-  const jackpot = splitJackpot(draw?.advertisedJackpot ?? game.currentJackpot, game.currency);
+  const jackpot = splitJackpot(jackpotEmCartaz(game, draw), game.currency);
   // `convert` usa a taxa efetiva (com spread) — a MESMA que o carrinho e o
   // checkout aplicam. Mostrar aqui a taxa nominal daria um número diferente do
   // que o usuário vê ao pagar, que é exatamente o tipo de divergência que o
   // briefing proíbe.
-  const amount = draw?.advertisedJackpot ?? game.currentJackpot;
+  const amount = jackpotEmCartaz(game, draw);
   // Taxa vencida nao gera conversao. O checkout congela a taxa no pedido, entao
   // cotacao velha nao e detalhe cosmetico: e vender com cambio de outro dia.
   //

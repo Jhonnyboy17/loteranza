@@ -3,6 +3,7 @@ import type { Draw, ExchangeRate, LotteryGame } from '@/types/domain';
 import { convert } from '@/services/exchange/exchangeService';
 import { formatBRL, formatDrawMoment, splitJackpot } from '@/lib/format';
 import { freshness } from '@/lib/freshness';
+import { jackpotEmCartaz } from '@/lib/jackpot';
 import { usePlatform } from '@/contexts/PlatformContext';
 import { env } from '@/config/env';
 import { Countdown } from '@/components/lottery/Countdown';
@@ -42,7 +43,7 @@ export function GameRow({
   // então marcaria TODA loteria como "Em breve". Quem barra a compra é o
   // Compliance Engine, no checkout.
   const playable = game.status === 'active';
-  const amount = draw?.advertisedJackpot ?? game.currentJackpot;
+  const amount = jackpotEmCartaz(game, draw);
 
   // As MESMAS travas de validade do <JackpotHero>, e nao por simetria estetica:
   // este card e o que aparece para todas as outras modalidades na tela inicial.

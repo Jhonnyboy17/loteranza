@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { brand } from '@/config/brand';
 import { usePlatform } from '@/contexts/PlatformContext';
 import { useGamesWithDraws, useLatestResults } from '@/hooks/useLotteryQueries';
+import { jackpotEmCartaz } from '@/lib/jackpot';
 import { Seo } from '@/components/common/Seo';
 import { Button } from '@/components/ui/button';
 import { Sym } from '@/components/ui/icon';
@@ -69,8 +70,7 @@ export function HomePage() {
   // Stitch escreveu fixo e que ninguém consegue verificar.
   const featured = [...playable].sort(
     (a, b) =>
-      ((b.draw?.advertisedJackpot ?? b.game.currentJackpot) ?? 0) -
-      ((a.draw?.advertisedJackpot ?? a.game.currentJackpot) ?? 0),
+      (jackpotEmCartaz(b.game, b.draw) ?? 0) - (jackpotEmCartaz(a.game, a.draw) ?? 0),
   )[0];
 
   const others = featured ? entries.filter((e) => e.game.id !== featured.game.id) : entries;
