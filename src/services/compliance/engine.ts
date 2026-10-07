@@ -18,7 +18,12 @@ import { env } from '@/config/env';
  * alterar a outra.
  */
 
-export const COMPLIANCE_ENGINE_VERSION = 'compliance-engine/1.0.0';
+/**
+ * Precisa casar com `v_engine` em `evaluate_compliance`. A versao subiu para
+ * 1.1.0 quando a regra de sancoes passou a ter tres modos; o banco ja estava
+ * em 1.1.0 e este espelho tinha ficado em 1.0.0.
+ */
+export const COMPLIANCE_ENGINE_VERSION = 'compliance-engine/1.1.0';
 
 export interface ComplianceInput {
   profile: Profile | null;

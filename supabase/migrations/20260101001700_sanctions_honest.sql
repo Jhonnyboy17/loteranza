@@ -42,7 +42,13 @@ declare
   v_min_age      int := 18;
   v_spent_day    numeric;
   v_limit        numeric;
-  v_engine       text := 'compliance-engine/1.0.0';
+  -- 1.1.0, nao 1.0.0: a regra de sancoes mudou de comportamento nesta
+  -- migration, e `engine_version` e carimbado em cada linha de
+  -- compliance_checks justamente para dizer QUAL conjunto de regras decidiu.
+  -- Manter 1.0.0 faria a trilha de auditoria atribuir vereditos novos ao
+  -- ruleset antigo — e e por essa coluna que se reconstroi, depois, por que
+  -- um pedido foi aprovado.
+  v_engine       text := 'compliance-engine/1.1.0';
   v_excluded     boolean;
   v_sanctions    text;
 begin
