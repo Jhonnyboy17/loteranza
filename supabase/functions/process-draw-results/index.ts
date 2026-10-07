@@ -1,5 +1,5 @@
 import { adminClient } from '../_shared/client.ts';
-import { corsHeaders, json } from '../_shared/cors.ts';
+import { json, preflight } from '../_shared/cors.ts';
 import { requireSyncSecret } from '../_shared/syncAuth.ts';
 
 /**
@@ -18,7 +18,7 @@ import { requireSyncSecret } from '../_shared/syncAuth.ts';
  */
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders(origin) });
+  if (req.method === 'OPTIONS') return preflight(req);
 
   const auth = requireSyncSecret(req, origin);
   if (!auth.ok) return auth.response;

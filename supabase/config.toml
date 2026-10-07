@@ -26,6 +26,25 @@
 # AS QUE FICARAM COM O PADRAO (verify_jwt = true, por omissao)
 #   compliance-check e record-geolocation. Nao sao chamadas pelo navegador
 #   hoje; se um dia passarem a ser, vao precisar do mesmo tratamento.
+#
+# ATENCAO AO CORS, QUE E A SEGUNDA METADE DO MESMO PROBLEMA
+#   `verify_jwt = false` resolve o preflight no GATEWAY. Depois dele ainda ha o
+#   preflight respondido pela PROPRIA funcao, em _shared/cors.ts, e ele falha
+#   de um jeito identico na tela: "Failed to send a request to the Edge
+#   Function", sem nenhum POST nos logs.
+#
+#   Foi o que aconteceu aqui. `src/lib/supabase.ts` manda `x-application-name`
+#   em toda requisicao; a lista fixa de Access-Control-Allow-Headers nao
+#   incluia esse cabecalho; o navegador descartava o preflight 200 e nunca
+#   enviava o POST. Hoje cors.ts reflete Access-Control-Request-Headers, entao
+#   cabecalho novo nao derruba mais o checkout.
+#
+# DIVERGENCIA CONHECIDA ENTRE REPOSITORIO E DEPLOY
+#   Cada function carrega a SUA copia de _shared/. A correcao do CORS foi
+#   publicada em create-order e create-payment, as unicas que o navegador
+#   chama. As outras sete seguem com a copia antiga de cors.ts: inofensivo
+#   enquanto sao server-to-server (pg_cron e webhook do Mercado Pago, que nao
+#   fazem preflight). Um `supabase functions deploy` alinha todas de uma vez.
 
 project_id = "loteranza"
 

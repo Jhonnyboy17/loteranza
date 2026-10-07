@@ -1,5 +1,5 @@
 import { adminClient, requireUser, userClient } from '../_shared/client.ts';
-import { corsHeaders, json } from '../_shared/cors.ts';
+import { json, preflight } from '../_shared/cors.ts';
 
 /**
  * COMPLIANCE ENGINE — avaliacao autoritativa.
@@ -15,7 +15,7 @@ import { corsHeaders, json } from '../_shared/cors.ts';
  */
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders(origin) });
+  if (req.method === 'OPTIONS') return preflight(req);
   if (req.method !== 'POST') return json({ error: 'method_not_allowed' }, 405, origin);
 
   const user = await requireUser(req);

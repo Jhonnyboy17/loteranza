@@ -1,5 +1,5 @@
 import { adminClient } from '../_shared/client.ts';
-import { corsHeaders, json } from '../_shared/cors.ts';
+import { json, preflight } from '../_shared/cors.ts';
 import { mapStatus, readPayment, verifySignature } from '../_shared/mercadopago.ts';
 
 /**
@@ -26,7 +26,7 @@ import { mapStatus, readPayment, verifySignature } from '../_shared/mercadopago.
  */
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders(origin) });
+  if (req.method === 'OPTIONS') return preflight(req);
   if (req.method !== 'POST') return json({ error: 'method_not_allowed' }, 405, origin);
 
   const admin = adminClient();
