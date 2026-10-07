@@ -11,6 +11,18 @@ import { corsHeaders, json } from '../_shared/cors.ts';
  *  - A cotacao usada e capturada e gravada no pedido; nao muda depois.
  *  - Sem APPROVED do Compliance Engine, o pedido nasce como demo e nao segue
  *    para pagamento.
+ *
+ * SOBRE verify_jwt = false (ver supabase/config.toml)
+ *   A verificacao de identidade NAO sumiu: ela acontece logo abaixo, em
+ *   requireUser(), que valida o token no Supabase Auth. O que mudou e que ela
+ *   deixou de ser feita pelo gateway, porque com verify_jwt o gateway responde
+ *   401 ao preflight CORS do navegador — que vai sem Authorization por
+ *   definicao — e o navegador aborta antes de enviar a requisicao real. O
+ *   sintoma era "Failed to send a request to the Edge Function", sem nenhuma
+ *   linha de log desta funcao, porque a requisicao nunca chegou aqui.
+ *
+ *   Trocar isto por true de novo quebra o checkout. Se algum dia for preciso,
+ *   o caminho e responder ao OPTIONS antes do gateway, nao aqui.
  */
 
 interface LineInput {

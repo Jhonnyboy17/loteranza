@@ -1,0 +1,61 @@
+# Configuracao das Edge Functions.
+#
+# POR QUE ESTE ARQUIVO EXISTE
+#   O padrao do Supabase para `verify_jwt` e `true`: o gateway exige um JWT
+#   valido antes de a requisicao chegar na funcao. Parece mais seguro, e para
+#   funcao chamada de servidor para servidor e mesmo. Mas para funcao chamada
+#   do NAVEGADOR o efeito e outro: o preflight CORS (OPTIONS) vai sem header
+#   Authorization por definicao do protocolo, o gateway responde 401, e o
+#   navegador aborta sem nunca enviar a requisicao real. O erro que aparece na
+#   tela e "Failed to send a request to the Edge Function", e nao existe
+#   nenhuma linha de log da funcao, porque a funcao nao rodou.
+#
+#   Sem este arquivo, um `supabase functions deploy` reativaria o padrao
+#   silenciosamente e o checkout voltaria a falhar — com uma mensagem que nao
+#   aponta para a causa. Esta e a razao de o valor estar registrado aqui e nao
+#   so no painel.
+#
+# ONDE FICA A AUTENTICACAO, ENTAO
+#   Dentro de cada funcao, em `requireUser()`, que valida o token no Supabase
+#   Auth e devolve 401 sem ele. A checagem mudou de lugar, nao desapareceu.
+#   Nenhuma funcao com verify_jwt = false aqui opera sem identificar quem
+#   chamou — exceto o webhook, que se autentica pela assinatura HMAC do
+#   Mercado Pago (e nao por JWT, que o provedor nao tem) e cujo corpo nunca
+#   decide estado.
+#
+# AS QUE FICARAM COM O PADRAO (verify_jwt = true, por omissao)
+#   compliance-check e record-geolocation. Nao sao chamadas pelo navegador
+#   hoje; se um dia passarem a ser, vao precisar do mesmo tratamento.
+
+project_id = "loteranza"
+
+# --- Chamadas pelo navegador, autenticadas em requireUser() ----------------
+
+[functions.create-order]
+verify_jwt = false
+
+[functions.create-payment]
+verify_jwt = false
+
+# --- Notificacao do provedor, autenticada por assinatura HMAC -------------
+
+[functions.mercadopago-webhook]
+verify_jwt = false
+
+# --- Rotinas de sync, autenticadas pelo SYNC_SECRET ------------------------
+#
+# Chamadas pelo pg_cron de dentro do banco, que nao carrega JWT de usuario. A
+# identidade vem do header x-sync-secret, conferido em _shared/syncAuth.ts com
+# comparacao de tempo constante.
+
+[functions.ingest-results]
+verify_jwt = false
+
+[functions.process-draw-results]
+verify_jwt = false
+
+[functions.sync-exchange-rate]
+verify_jwt = false
+
+[functions.sync-lottery-data]
+verify_jwt = false

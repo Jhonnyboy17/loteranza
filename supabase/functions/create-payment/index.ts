@@ -20,6 +20,15 @@ import { createCardPreference, createPixPayment, isSandbox } from '../_shared/me
  *   lugar nenhum: nao vai para `payments`, nem para `metadata`, nem para o
  *   log. Foi decisao explicita de nao acumular dado sensivel que a operacao
  *   nao precisa guardar.
+ *
+ * SOBRE verify_jwt = false (ver supabase/config.toml)
+ *   A verificacao de identidade NAO sumiu: ela acontece logo abaixo, em
+ *   requireUser(), que valida o token no Supabase Auth. O que mudou e que ela
+ *   deixou de ser feita pelo gateway, porque com verify_jwt o gateway responde
+ *   401 ao preflight CORS do navegador — que vai sem Authorization por
+ *   definicao — e o navegador aborta antes de enviar a requisicao real.
+ *
+ *   Trocar isto por true de novo quebra o pagamento.
  */
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
