@@ -150,13 +150,23 @@ const POR_ERROR: Record<string, string> = {
 
 const POR_CAUSA: Record<string, string> = {
   // "Unauthorized use of live credentials"
+  //
+  // Apesar do nome, nao fala de ambiente: o token nao tem o escopo `payment`.
+  // Na pratica, nao e credencial de APLICACAO — e o token de um USUARIO DE
+  // TESTE, que simula comprador ou vendedor no Checkout Pro mas nao autoriza
+  // /v1/payments, que e o caminho do PIX.
+  //
+  // Os tres aparecem no painel com nomes parecidos e TODOS comecam com
+  // APP_USR-, entao o prefixo nao distingue nenhum deles:
+  //   Suas integracoes > sua aplicacao > Credenciais de teste    -> serve
+  //   Suas integracoes > sua aplicacao > Credenciais de producao -> serve
+  //   Usuarios de teste > token daquele usuario                  -> NAO serve
   '7':
-    'A chamada foi autenticada com credenciais de PRODUCAO que nao estao '
-    + 'ativadas nesta conta do Mercado Pago. Dois caminhos: trocar o secret '
-    + 'MERCADOPAGO_ACCESS_TOKEN pelo token de TESTE (comeca com TEST-) para '
-    + 'seguir testando, ou concluir a ativacao das credenciais de producao no '
-    + 'painel do Mercado Pago. Veja metadata.sandbox no registro do pagamento '
-    + 'para confirmar qual credencial foi usada.',
+    'O token usado nao autoriza a API de pagamentos (falta o escopo `payment`). '
+    + 'Isso acontece quando se usa o token de um USUARIO DE TESTE no lugar da '
+    + 'credencial da APLICACAO. Pegue o Access Token em Suas integracoes > sua '
+    + 'aplicacao > Credenciais (aba de teste ou de producao), nao na tela de '
+    + 'usuarios de teste.',
 };
 
 async function call<T>(

@@ -108,6 +108,61 @@ Deno.serve(async (req) => {
   }
 
   /**
+   * O token pode COBRAR? E o PIX esta habilitado nesta conta?
+   *
+   * POR QUE ESTA PERGUNTA EXISTE SEPARADA
+   *   /users/me responde com qualquer token valido, inclusive o de um usuario
+   *   de teste — que nao autoriza a API de pagamentos. Foi essa diferenca que
+   *   produziu tres diagnosticos errados seguidos aqui: a conta existia, o
+   *   token era valido, e mesmo assim /v1/payments devolvia 401.
+   *
+   *   /v1/payment_methods exige o escopo `payment`, o mesmo que o PIX usa. E
+   *   leitura pura: nao cria cobranca, nao move dinheiro. Entao responde as
+   *   duas coisas que de fato importam antes de abrir para cliente — o token
+   *   pode cobrar, e `pix` esta entre os meios disponiveis.
+   */
+  let cobranca: Record<string, unknown> | null = null;
+
+  if (token !== '') {
+    try {
+      const res = await fetch(`https://api.mercadopago.com/v1/payment_methods`, {
+        headers: { Authorization: `Bearer ${token}` },
+        signal: AbortSignal.timeout(15000),
+      });
+      const texto = await res.text();
+
+      if (!res.ok) {
+        cobranca = {
+          pode_cobrar: false,
+          http: res.status,
+          corpo: texto.slice(0, 400),
+          diagnostico: res.status === 401
+            ? 'O token nao tem o escopo `payment`. E credencial de usuario de teste, '
+              + 'nao da aplicacao. Pegue em Suas integracoes > sua aplicacao > Credenciais.'
+            : null,
+        };
+      } else {
+        const meios = JSON.parse(texto) as Array<{ id?: string; status?: string }>;
+        const pix = meios.find((m) => m.id === 'pix');
+        cobranca = {
+          pode_cobrar: true,
+          total_de_meios: meios.length,
+          pix_disponivel: Boolean(pix),
+          pix_status: pix?.status ?? null,
+          // Sem PIX na lista, a conta ainda nao tem chave PIX cadastrada no
+          // Mercado Pago. E configuracao da conta, nao do codigo.
+          diagnostico: pix
+            ? null
+            : 'PIX nao aparece entre os meios desta conta. Cadastre uma chave PIX '
+              + 'no Mercado Pago antes de oferecer esse meio.',
+        };
+      }
+    } catch (error) {
+      cobranca = { pode_cobrar: false, erro: String(error).slice(0, 300) };
+    }
+  }
+
+  /**
    * Acao opcional: criar o usuario de teste COMPRADOR.
    *
    * Fica atras de um parametro explicito porque esta funcao e, por desenho,
@@ -167,6 +222,7 @@ Deno.serve(async (req) => {
     secrets,
     public_site_url: publicSiteUrl,
     mercadopago,
+    cobranca,
     comprador_de_teste: comprador,
     observacao:
       'Nenhum valor de secret e devolvido por esta funcao. O rotulo do token e '
